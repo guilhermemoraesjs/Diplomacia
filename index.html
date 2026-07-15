@@ -74,7 +74,6 @@
   button{font-family:inherit; cursor:pointer;}
   :focus-visible{outline:2px solid var(--brass-light); outline-offset:2px;}
 
-  /* ===== Selo de lacre reutilizável ===== */
   .wax{
     position:relative; border-radius:50%;
     background:
@@ -83,12 +82,8 @@
     display:flex; align-items:center; justify-content:center;
     transition: var(--transition);
   }
-  .wax::before{
-    content:''; position:absolute; inset:14%; border-radius:50%;
-    border:1px dashed rgba(0,0,0,.28);
-  }
+  .wax::before{ content:''; position:absolute; inset:14%; border-radius:50%; border:1px dashed rgba(0,0,0,.28); }
 
-  /* ===== Masthead / letterhead ===== */
   .letterhead{
     padding:28px 24px 20px;
     border-bottom:1px solid rgba(180,145,75,.28);
@@ -101,11 +96,7 @@
     background:linear-gradient(90deg, transparent, rgba(180,145,75,.4), transparent);
   }
   .letterhead .brand{display:flex; flex-direction:column; gap:2px;}
-  .letterhead .brand .crest{
-    width:42px; height:42px;
-    font-family:'Fraunces', serif; font-size:16px; font-weight:700; color:var(--ink);
-    margin-bottom:12px;
-  }
+  .letterhead .brand .crest{ width:42px; height:42px; font-family:'Fraunces', serif; font-size:16px; font-weight:700; color:var(--ink); margin-bottom:12px; }
   .letterhead h1{font-size:26px; color:var(--parchment); letter-spacing:.05em; text-transform:uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
   .letterhead .sub{font-size:11.5px; color:var(--text-muted); margin-top:4px; font-style:italic; font-family:'Fraunces', serif; letter-spacing: 0.02em;}
   .letterhead .protocolo{ text-align:right; font-size:11px; color:var(--brass-light); line-height:1.6; }
@@ -128,13 +119,9 @@
 
   .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:15px; margin:4px 0 24px; line-height:1.65;}
 
-  /* ===== Dossiê (cartão-documento) ===== */
   .dossie{
-    position:relative; background:
-      linear-gradient(155deg, rgba(0,0,0,0) 0 92%, rgba(0,0,0,.15) 92% 100%),
-      var(--parchment);
-    color:var(--text-dark);
-    border-radius:var(--radius); padding:24px 22px 22px; margin-bottom:20px;
+    position:relative; background: linear-gradient(155deg, rgba(0,0,0,0) 0 92%, rgba(0,0,0,.15) 92% 100%), var(--parchment);
+    color:var(--text-dark); border-radius:var(--radius); padding:24px 22px 22px; margin-bottom:20px;
     box-shadow:var(--shadow-lg); border-top:4px solid var(--accent, var(--brass));
     cursor:pointer; transform:translateY(0); transition: var(--transition);
     overflow:hidden; clip-path:polygon(0 0,100% 0,100% 100%,14px 100%,0 calc(100% - 14px));
@@ -142,11 +129,8 @@
   .dossie:hover{ transform:translateY(-4px); box-shadow:0 36px 84px -18px rgba(0,0,0,.8); }
   .dossie:active{transform:scale(.985) translateY(-2px);}
   .dossie .stamp{
-    position:absolute; top:16px; right:-28px; width:150px; text-align:center;
-    transform:rotate(20deg); font-family:'IBM Plex Mono'; font-size:9.5px; letter-spacing:.14em;
-    color:var(--accent, var(--brass)); border-top:1.5px solid var(--accent, var(--brass)); border-bottom:1.5px solid var(--accent, var(--brass));
-    padding:3px 0; opacity:.65; text-transform:uppercase; pointer-events:none;
-    font-weight:600;
+    position:absolute; top:16px; right:-28px; width:150px; text-align:center; transform:rotate(20deg); font-family:'IBM Plex Mono'; font-size:9.5px; letter-spacing:.14em;
+    color:var(--accent, var(--brass)); border-top:1.5px solid var(--accent, var(--brass)); border-bottom:1.5px solid var(--accent, var(--brass)); padding:3px 0; opacity:.65; text-transform:uppercase; pointer-events:none; font-weight:600;
   }
   .dossie .tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent, var(--brass)); font-weight:600; }
   .dossie h2{font-size:25px; margin-top:8px; font-weight:700;}
@@ -154,7 +138,6 @@
   .dossie .foot{display:flex; justify-content:space-between; align-items:center; gap:12px;}
   .dossie .progress-label{font-size:11px; color:#5D584B; font-family:'IBM Plex Mono', monospace; font-weight:500;}
 
-  /* anel de progresso (donut via conic-gradient) */
   .ring{
     --pct:0; position:relative; width:54px; height:54px; border-radius:50%; flex-shrink:0;
     background:conic-gradient(var(--accent, var(--brass)) calc(var(--pct)*1%), rgba(0,0,0,.12) 0);
@@ -162,10 +145,8 @@
   }
   .ring .hole{
     position:absolute; inset:5px; border-radius:50%; background:var(--parchment);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'IBM Plex Mono'; font-size:11px; font-weight:600; color:var(--text-dark);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-size:11px; font-weight:600; color:var(--text-dark);
   }
-  .dossie:active .ring{transform:rotate(-8deg) scale(.93);}
 
   .bar{height:6px; background:#d8cfb6; border-radius:3px; overflow:hidden; margin-top:8px;}
   .bar > span{display:block; height:100%; background:var(--accent, var(--brass)); transition:width .8s cubic-bezier(0.16, 1, 0.3, 1);}
@@ -176,76 +157,55 @@
   .stat-card .n{font-family:'Fraunces', serif; font-size:28px; color:var(--brass-light); font-weight:700;}
   .stat-card .l{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin-top:6px; font-weight:500;}
 
-  .subtabs{display:flex; gap:4px; margin-bottom:24px; border-bottom:none; background:rgba(0,0,0,.22); border:1px solid rgba(180,145,75,.14); border-radius:14px; padding:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
+  .subtabs{display:flex; gap:4px; margin-bottom:24px; background:rgba(0,0,0,.22); border:1px solid rgba(180,145,75,.14); border-radius:14px; padding:4px; overflow-x:auto; scrollbar-width:none;}
   .subtabs::-webkit-scrollbar{display:none;}
-  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:13px; padding:9px 15px; font-family:'IBM Plex Sans'; border-radius:10px; margin-right:0; transition: var(--transition); }
+  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:13px; padding:9px 15px; font-family:'IBM Plex Sans'; border-radius:10px; transition: var(--transition); }
   .subtab-btn.active{color:var(--ink); background:var(--brass-light); font-weight:600; box-shadow:0 4px 14px -4px rgba(227,196,129,.55);}
   .subtab-btn:not(.active):hover{color:var(--parchment); background:rgba(180,145,75,.12);}
   .subview{display:none;}
   .subview.active{display:block; animation:fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1);}
 
   h3.section-title{color:var(--parchment); font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.05em;}
-  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius:50%;}
+  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius50%;}
 
   .card{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.16); border-radius:var(--radius-ui); padding:20px 20px; margin-bottom:14px; box-shadow:var(--shadow); transition: var(--transition); }
-  .card:hover{ border-color:rgba(180,145,75,.3); }
   .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
   .materia-card summary::-webkit-details-marker{display:none;}
   .materia-card .m-title{font-family:'Fraunces', serif; font-size:17px; color:var(--parchment); font-weight:600;}
   .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--brass-light); font-weight:500;}
   .materia-card .bar{background:#1B2435; margin-top:10px;}
   
-  /* ===== Árvore de Tópicos e Subtópicos ===== */
+  /* ===== Estrutura Multicamadas de Tópicos (Até 3 Níveis) ===== */
   .topic-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; flex-wrap:wrap;}
-  .topic-row input[type=checkbox]{width:17px; height:17px; accent-color:var(--seal-light);}
+  .topic-row input[type=checkbox]{width:17px; height:17px; accent-color:var(--seal-light); cursor:pointer;}
   .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
   .topic-row button.del-t{background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6; transition: var(--transition); cursor:pointer;}
   .topic-row button.del-t:hover{opacity:1; color:var(--bad);}
   .topic-badge{background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light); font-size:9.5px; padding:2px 7px; border-radius:20px; font-family:'IBM Plex Mono'; transition: var(--transition);}
-  .topic-badge:hover{background:rgba(180,145,75,.15); border-color:var(--brass-light);}
-  .add-topic-row{display:flex; gap:6px; margin-top:12px;}
-  .add-topic-row input{flex:1;}
-
+  
   .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: var(--transition); display:inline-flex; cursor:pointer;}
   .topic-toggle.open{transform:rotate(90deg);}
-  .subtopics-wrap{display:none; margin:2px 0 8px 25px; padding-left:11px; border-left:2px solid rgba(180,145,75,.18);}
+  
+  .subtopics-wrap{display:none; margin:2px 0 8px 25px; padding-left:11px; border-left:2px solid rgba(180,145,75,.18); width:100%;}
   .subtopics-wrap.open{display:block;}
   
-  .subtopic-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; color:var(--text-light); flex-wrap:wrap;}
-  .subtopic-row input[type=checkbox]{width:15px; height:15px; accent-color:var(--azul-light); flex-shrink:0;}
+  .subtopic-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; color:var(--text-light); flex-wrap:wrap; width:100%;}
+  .subtopic-row input[type=checkbox]{width:15px; height:15px; accent-color:var(--azul-light); flex-shrink:0; cursor:pointer;}
   .subtopic-row.done label{color:var(--text-muted); text-decoration:line-through;}
-  .subtopic-row button.del-t{background:none; border:none; color:#6a5350; font-size:13px; margin-left:auto; opacity:.55; transition: var(--transition); cursor:pointer;}
+  .subtopic-row button.del-t{background:none; border:none; color:#6a5350; font-size:13px; margin-left:auto; opacity:.55; cursor:pointer;}
   .subtopic-row button.del-t:hover{opacity:1; color:var(--bad);}
   
   .add-subtopic-row{display:flex; gap:6px; margin:6px 0 8px; width:100%;}
   .add-subtopic-row input{flex:1; padding:7px 10px; font-size:12.5px;}
   
-  /* Sub-subtópicos (2º Nível) */
-  .subsubtopics-wrap {
-    display: none;
-    margin: 2px 0 6px 20px;
-    padding-left: 9px;
-    border-left: 1.5px dashed rgba(180,145,75,.15);
-    width: 100%;
-  }
-  .subsubtopics-wrap.open { display: block; }
-  .subsubtopic-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 0;
-    font-size: 12px;
-    color: rgba(237, 230, 214, 0.85);
-  }
-  .subsubtopic-row input[type=checkbox] { width: 13px; height: 13px; accent-color: var(--brass); }
-  .subsubtopic-row.done label { color: var(--text-muted); text-decoration: line-through; }
-  .add-subsubtopic-row {
-    display: flex;
-    gap: 4px;
-    margin: 4px 0 4px 20px;
-    width: calc(100% - 20px);
-  }
-  .add-subsubtopic-row input { padding: 5px 8px; font-size: 11.5px; }
+  /* Sub-subtópicos (Camada Extra Opcional) */
+  .subsubtopics-wrap { display:none; margin:2px 0 6px 20px; padding-left:9px; border-left:1.5px dashed rgba(180,145,75,.2); width:100%; }
+  .subsubtopics-wrap.open { display:block; }
+  .subsubtopic-row { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:12.5px; color:rgba(237, 230, 214, 0.85); width:100%;}
+  .subsubtopic-row input[type=checkbox] { width:14px; height:14px; accent-color:var(--brass); cursor:pointer; }
+  .subsubtopic-row.done label { color:var(--text-muted); text-decoration:line-through; }
+  .add-subsubtopic-row { display:flex; gap:4px; margin:4px 0 4px 18px; width:calc(100% - 18px); }
+  .add-subsubtopic-row input { padding:5px 8px; font-size:12px; }
 
   .sub-count{font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-left:4px;}
 
@@ -257,6 +217,7 @@
   input:focus, textarea:focus, select:focus{ border-color:var(--brass-light); box-shadow:0 0 0 3px rgba(180,145,75,.16); outline:none; background:rgba(0,0,0,.45); }
   textarea{resize:vertical; min-height:68px;}
   label.field-label{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); display:block; margin:12px 0 6px; font-weight:600;}
+  
   .btn{ background:var(--seal); color:var(--parchment); border:none; padding:11px 20px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:500; letter-spacing:.02em; transition: var(--transition); }
   .btn:hover{ filter:brightness(1.16); box-shadow:0 8px 22px -8px rgba(124,45,45,.7); transform:translateY(-1.5px); }
   .btn:active{ transform:translateY(0); }
@@ -267,11 +228,56 @@
   .btn.small{padding:8px 14px; font-size:12px; border-radius:8px;}
 
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-
   .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
   .chip{ font-size:12px; padding:7px 14px; border-radius:20px; border:1px solid rgba(180,145,75,.3); color:var(--text-muted); background:rgba(180,145,75,.04); transition: var(--transition); cursor:pointer;}
   .chip:hover{ border-color:rgba(180,145,75,.6); color:var(--brass-light); }
   .chip.active{background:var(--azul); color:var(--text-light); border-color:var(--azul); box-shadow:0 4px 14px -6px rgba(62,92,118,.85);}
+
+  /* ===== Estilos Renovados do Cronograma Dinâmico (Estilo Dossiê) ===== */
+  .crono{ border-left:4px solid var(--brass); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition: var(--transition); }
+  .crono:hover{ transform: translateY(-3px); border-color: var(--brass-light); box-shadow: 0 16px 32px -10px rgba(0,0,0,0.65); }
+  .crono.feito{border-left-color:var(--ok); opacity:.68;}
+  .crono.atrasado{border-left-color:var(--bad); border-top: 1px solid rgba(194, 75, 75, 0.25); border-right: 1px solid rgba(194, 75, 75, 0.15);}
+  .crono input[type=checkbox]{width:18px; height:18px; margin-top:3px; accent-color:var(--ok); flex-shrink:0; cursor:pointer; position:relative; z-index:5;}
+  .crono .ch{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px; font-weight:500;}
+  .crono.atrasado .ch{color:#E57373;}
+  .crono .ct{font-family:'Fraunces', serif; font-size:15.5px; color:var(--parchment); margin:4px 0 6px; font-weight:600;}
+  .crono .ce{font-size:13px; color:var(--text-muted); line-height:1.55; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+  .crono .cactions{margin-top:10px; display: flex; gap: 8px;}
+  .crono .cbody{flex:1; min-width:0;}
+  .atraso-tag{color:var(--bad); font-weight:700;}
+
+  /* ===== INTERFACE AMBIENTE / MODAL DE EDIÇÃO E ANOTAÇÃO ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: var(--transition);
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    width: 100%; max-width: 560px; background: var(--parchment); color: var(--text-dark);
+    border-radius: var(--radius); padding: 30px 24px 24px; box-shadow: var(--shadow-lg);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    transform: scale(0.94); transition: var(--transition);
+  }
+  .modal-overlay.show .modal-card { transform: scale(1); }
+  .modal-card h3 { font-size: 22px; margin-bottom: 16px; color: var(--text-dark); border-bottom: 1px solid rgba(180,145,75,0.3); padding-bottom: 8px; }
+  .modal-card label.field-label { color: #5D584B; margin-top: 10px; }
+  .modal-card input, .modal-card textarea, .modal-card select { background: rgba(0,0,0,0.06); border: 1px solid rgba(180,145,75,0.4); color: var(--text-dark); }
+  .modal-card input:focus, .modal-card textarea:focus, .modal-card select:focus { background: rgba(255,255,255,0.95); border-color: var(--brass); box-shadow: 0 0 0 3px rgba(180,145,75,0.2); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid rgba(180,145,75,0.2); padding-top: 14px; }
+
+  /* ===== Estrutura de Grade do Calendário ===== */
+  .crono-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 22px; background: rgba(0,0,0,0.2); border: 1px solid rgba(180,145,75,0.15); border-radius: var(--radius-ui); padding: 14px; }
+  .cal-weekday { text-align: center; font-size: 10px; font-family: 'IBM Plex Mono'; color: var(--text-muted); text-transform: uppercase; font-weight: 600; padding-bottom: 6px; }
+  .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 6px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+  .cal-day:hover { background: rgba(180,145,75,0.1); border-color: rgba(180,145,75,0.25); }
+  .cal-day.empty-cell { background: transparent; cursor: default; pointer-events: none; }
+  .cal-day.today { border-color: var(--brass-light); background: rgba(180,145,75,0.05); }
+  .cal-day.active-filter { background: var(--azul); border-color: var(--azul-light); }
+  .cal-day-num { font-size: 11px; font-family: 'IBM Plex Mono'; font-weight: 500; }
+  .cal-day-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--seal-glow); box-shadow: 0 0 5px var(--seal-glow); }
+  .cal-day.active-filter .cal-day-num { color: #fff; font-weight: 600; }
 
   .questao{border-left:4px solid var(--azul-light);}
   .questao.revisada{border-left-color:var(--ok);}
@@ -286,275 +292,47 @@
   .nota p{font-size:13.5px; color:var(--text-light); white-space:pre-wrap; line-height:1.6; margin:8px 0 10px;}
   .nota .nfoot{display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);}
 
-  .empty{font-size:13px; color:var(--text-muted); text-align:center; padding:24px 10px; font-style:italic;}
-
-  .day-group{margin-bottom:26px;}
-  .day-group-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(180,145,75,.22);}
-  .day-group-head .dgd{font-family:'Fraunces', serif; font-size:17px; color:var(--parchment); text-transform:capitalize; font-weight:600;}
-  .day-group-head .dgw{font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono'; text-transform:uppercase; letter-spacing:.06em;}
-  .day-group-head.hoje .dgd{color:var(--brass-light);}
-  .day-group-head.hoje .dgw{color:var(--brass-light);}
-  .day-group-head.hoje{border-bottom-color:var(--brass-light);}
-  .day-group-head .dgcount{font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono'; background:rgba(180,145,75,.12); padding:3px 10px; border-radius:20px; font-weight:500;}
-
-  /* ===== Estilos Atualizados do Card de Cronograma (Formatado como Dossiê Clicável) ===== */
-  .crono{
-    border-left:4px solid var(--brass); 
-    display:flex; 
-    gap:12px; 
-    align-items:flex-start;
-    cursor:pointer;
-    transition: var(--transition);
-  }
-  .crono:hover {
-    transform: translateY(-2.5px);
-    border-color: var(--brass-light);
-    box-shadow: 0 14px 30px -10px rgba(0,0,0,0.7);
-  }
-  .crono.feito{border-left-color:var(--ok); opacity:.68;}
-  .crono.atrasado{border-left-color:var(--bad); border-top: 1px solid rgba(194, 75, 75, 0.25); border-right: 1px solid rgba(194, 75, 75, 0.15);}
-  .crono input[type=checkbox]{width:18px; height:18px; margin-top:3px; accent-color:var(--ok); flex-shrink:0; cursor:pointer; position:relative; z-index:2;}
-  .crono .ch{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px; font-weight:500;}
-  .crono.atrasado .ch{color:#E57373;}
-  .crono .ct{font-family:'Fraunces', serif; font-size:15.5px; color:var(--parchment); margin:4px 0 6px; font-weight:600;}
-  .crono .ce{font-size:13px; color:var(--text-muted); line-height:1.55; white-space: pre-wrap;}
-  .crono .cactions{margin-top:12px; display: flex; gap: 8px; align-items: center;}
-  .crono .cbody{flex:1; min-width:0;}
-  .atraso-tag{color:var(--bad); font-weight:700; letter-spacing: 0.02em;}
-
   .revisao{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;}
   .revisao .rname{font-family:'Fraunces', serif; font-size:15px; color:var(--parchment); font-weight:600;}
   .revisao .rmeta{font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-top:3px;}
   .revisao .rchecks{display:flex; gap:12px; font-size:10px; color:var(--text-muted); text-align:center;}
   .revisao .rchecks div{display:flex; flex-direction:column; align-items:center; gap:4px; font-weight:500;}
   .revisao .rchecks input{width:16px; height:16px; accent-color:var(--seal-light); cursor:pointer;}
-  .revisao .rdel{background:none; border:none; color:#9E7371; font-size:11.5px; margin-top:10px; text-decoration:underline; grid-column:1/-1; justify-self:start; cursor:pointer; transition: var(--transition);}
-  .revisao .rdel:hover{color:var(--bad);}
+  .revisao .rdel{background:none; border:none; color:#9E7371; font-size:11.5px; margin-top:10px; text-decoration:underline; grid-column:1/-1; justify-self:start; cursor:pointer;}
 
-  /* ===== NOVO GABINETE / MODAL DE EDIÇÃO DO CARD ===== */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: var(--transition);
-  }
-  .modal-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .modal-card {
-    width: 100%;
-    max-width: 520px;
-    background: var(--parchment);
-    color: var(--text-dark);
-    border-radius: var(--radius);
-    padding: 30px 24px 24px;
-    box-shadow: var(--shadow-lg);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-    transform: scale(0.95);
-    transition: var(--transition);
-  }
-  .modal-overlay.show .modal-card {
-    transform: scale(1);
-  }
-  .modal-card h3 {
-    font-size: 22px;
-    margin-bottom: 18px;
-    color: var(--text-dark);
-    border-bottom: 1px solid rgba(180,145,75,0.3);
-    padding-bottom: 10px;
-  }
-  .modal-card label.field-label {
-    color: #5D584B;
-    margin-top: 8px;
-  }
-  .modal-card input, .modal-card textarea, .modal-card select {
-    background: rgba(0,0,0,0.06);
-    border: 1px solid rgba(180,145,75,0.4);
-    color: var(--text-dark);
-  }
-  .modal-card input:focus, .modal-card textarea:focus, .modal-card select:focus {
-    background: rgba(255,255,255,0.9);
-    border-color: var(--brass);
-    box-shadow: 0 0 0 3px rgba(180,145,75,0.2);
-  }
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-    border-top: 1px solid rgba(180,145,75,0.2);
-    padding-top: 14px;
-  }
+  .history-box { margin-top: 10px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(180, 145, 75, 0.1); border-radius: var(--radius-sm); padding: 10px 12px; }
+  .history-box h5 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+  .history-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .history-item { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(180, 145, 75, 0.1); color: var(--brass-light); padding: 3px 8px; border-radius: 12px; border: 1px solid rgba(180, 145, 75, 0.15); }
 
-  /* ===== Calendário do Cronograma ===== */
-  .crono-cal {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 20px;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(180,145,75,0.15);
-    border-radius: var(--radius-ui);
-    padding: 12px;
-  }
-  .cal-weekday {
-    text-align: center;
-    font-size: 10px;
-    font-family: 'IBM Plex Mono';
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-weight: 600;
-    padding-bottom: 6px;
-  }
-  .cal-day {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,0.02);
-    border-radius: 6px;
-    padding: 4px;
-    cursor: pointer;
-    transition: var(--transition);
-    border: 1px solid transparent;
-  }
-  .cal-day:hover {
-    background: rgba(180,145,75,0.08);
-    border-color: rgba(180,145,75,0.2);
-  }
-  .cal-day.empty-cell {
-    background: transparent;
-    cursor: default;
-    pointer-events: none;
-  }
-  .cal-day.today {
-    border-color: var(--brass-light);
-    background: rgba(180,145,75,0.05);
-  }
-  .cal-day.active-filter {
-    background: var(--azul);
-    border-color: var(--azul-light);
-  }
-  .cal-day-num {
-    font-size: 11px;
-    font-family: 'IBM Plex Mono';
-    font-weight: 500;
-  }
-  .cal-day-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--seal-glow);
-    box-shadow: 0 0 5px var(--seal-glow);
-  }
-  .cal-day.active-filter .cal-day-num {
-    color: #fff;
-    font-weight: 600;
-  }
+  .empty{font-family:'Fraunces', serif; font-style:italic; font-size:13.5px; color:var(--text-muted); text-align:center; padding:30px 10px;}
 
-  /* ===== Histórico de Tempos (Discursiva) ===== */
-  .history-box {
-    margin-top: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(180, 145, 75, 0.1);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
-  }
-  .history-box h5 {
-    margin: 0 0 6px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-muted);
-  }
-  .history-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .history-item {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    background: rgba(180, 145, 75, 0.1);
-    color: var(--brass-light);
-    padding: 3px 8px;
-    border-radius: 12px;
-    border: 1px solid rgba(180, 145, 75, 0.15);
-  }
-
-  #view-palavras{
-    margin-top:-18px; margin-bottom:calc(-1 * var(--tabbar-space)); padding:0;
-    width:100vw; max-width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
-  }
-  main{overflow-x:hidden;}
+  #view-palavras{ margin-top:-18px; margin-bottom:calc(-1 * var(--tabbar-space)); padding:0; width:100vw; max-width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
   .dispatch-frame{border:none; overflow:hidden; height:calc(100vh - 92px - 30px - env(safe-area-inset-bottom)); display:none; flex-direction:column;}
   .dispatch-frame.show{display:flex;}
-  .dispatch-bar{
-    display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--ink-2);
-    border-bottom:1px solid rgba(180,145,75,.25); flex-shrink:0;
-  }
+  .dispatch-bar{ display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--ink-2); border-bottom:1px solid rgba(180,145,75,.25); flex-shrink:0; }
   .dispatch-bar .dispatch-dot{width:7px; height:7px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 7px var(--ok-glow); animation:pulseDot 2.4s ease infinite; flex-shrink:0;}
   .dispatch-bar .dispatch-title{font-size:10px; letter-spacing:.08em; color:var(--text-muted); text-transform:uppercase; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .dispatch-bar button{background:none; border:1px solid rgba(180,145,75,.35); color:var(--brass-light); font-size:12px; padding:3px 8px; border-radius:6px; line-height:1; transition: var(--transition);}
-  .dispatch-bar button:hover{background:rgba(180,145,75,.12); border-color:var(--brass-light);}
+  .dispatch-bar button{background:none; border:1px solid rgba(180,145,75,.35); color:var(--brass-light); font-size:12px; padding:3px 8px; border-radius:6px; line-height:1;}
   .dispatch-frame iframe{width:100%; flex:1; border:none; background:var(--parchment);}
-  .frame-fallback{padding:16px; text-align:center;}
-  .frame-fallback p{font-size:12px; color:var(--text-muted); margin-bottom:10px;}
 
-  /* ===== Login gate ===== */
-  #loginGate{
-    position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
-    background:
-      radial-gradient(ellipse 900px 500px at 20% 0%, rgba(180,145,75,.15), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 100% 100%, rgba(62,92,118,.18), transparent 55%),
-      var(--ink);
-    padding:24px;
-  }
+  #loginGate{ position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; background: radial-gradient(ellipse 900px 500px at 20% 0%, rgba(180,145,75,.15), transparent 60%), radial-gradient(ellipse 700px 500px at 100% 100%, rgba(62,92,118,.18), transparent 55%), var(--ink); padding:24px; }
   #loginGate.hidden{display:none;}
-  .gate-card{
-    position:relative; width:100%; max-width:390px; background:var(--parchment); color:var(--text-dark);
-    border-radius:var(--radius); padding:40px 32px 32px; text-align:center; box-shadow:var(--shadow-lg);
-    clip-path:polygon(0 0,100% 0,100% 100%,18px 100%,0 calc(100% - 18px));
-  }
+  .gate-card{ position:relative; width:100%; max-width:390px; background:var(--parchment); color:var(--text-dark); border-radius:var(--radius); padding:40px 32px 32px; text-align:center; box-shadow:var(--shadow-lg); clip-path:polygon(0 0,100% 0,100% 100%,18px 100%,0 calc(100% - 18px)); }
   .gate-card .wax{ width:60px; height:60px; margin:0 auto 20px; font-size:22px; color:var(--ink); }
   .gate-card h1{font-size:28px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dark);}
   .gate-card .sub{font-family:'Fraunces', serif; font-style:italic; color:#5D584B; font-size:14px; margin:8px 0 28px; line-height:1.6;}
-  .gate-btn{
-    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
-    background:var(--ink); color:var(--parchment); border:1px solid var(--brass); padding:13px 18px;
-    border-radius:9px; font-size:14px; font-weight:500; letter-spacing:.02em; transition: var(--transition);
-  }
+  .gate-btn{ width:100%; display:flex; align-items:center; justify-content:center; gap:10px; background:var(--ink); color:var(--parchment); border:1px solid var(--brass); padding:13px 18px; border-radius:9px; font-size:14px; font-weight:500; letter-spacing:.02em; transition: var(--transition); }
   .gate-btn:hover{ transform:translateY(-2px); box-shadow:0 12px 28px -10px rgba(180,145,75,.6); }
   .gate-btn svg{width:18px; height:18px; flex-shrink:0;}
   .gate-foot{margin-top:22px; font-size:9.5px; color:#8a8468; font-family:'IBM Plex Mono'; letter-spacing:.05em; text-transform:uppercase;}
   .gate-error{margin-top:14px; font-size:11.5px; color:var(--seal); display:none;}
   .gate-loading{margin-top:14px; font-size:11.5px; color:#5D584B; display:none;}
 
-  #cronoDisplay{font-size:36px; letter-spacing:0.02em;}
-
-  .tabbar{
-    position:fixed; bottom:0; left:0; right:0; background:var(--ink-2); border-top:1px solid rgba(180,145,75,.25);
-    display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); z-index:20;
-    box-shadow: 0 -8px 24px rgba(0,0,0,0.4);
-  }
+  .tabbar{ position:fixed; bottom:0; left:0; right:0; background:var(--ink-2); border-top:1px solid rgba(180,145,75,.25); display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); z-index:20; box-shadow: 0 -8px 24px rgba(0,0,0,0.4); }
   .tabbar button{ flex:1; background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; padding:6px 2px; transition: var(--transition); cursor:pointer;}
   .tabbar button .ic{font-size:18px;}
   .tabbar button.active{color:var(--brass-light);}
-
-  form{margin:0;}
 
   @media (min-width:860px){
     :root{ --tabbar-space:32px; --sidebar-w:224px; }
@@ -563,18 +341,14 @@
     .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:120px 0 20px; border-top:none; border-right:1px solid rgba(180,145,75,.25); box-shadow: 8px 0 24px rgba(0,0,0,0.3); }
     .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:14px; padding:14px 24px; font-size:13.5px; border-left:3px solid transparent; }
     .tabbar button.active{ border-left-color:var(--brass-light); background:rgba(180,145,75,.07); }
-    .tabbar button .ic{font-size:17px;}
     .dispatch-frame{ height:calc(100vh - 100px); }
-    #view-palavras{
-      width:calc(100vw - var(--sidebar-w)); max-width:calc(100vw - var(--sidebar-w));
-      margin-left:calc(50% - 50vw + var(--sidebar-w)); margin-right:calc(50% - 50vw);
-    }
+    #view-palavras{ width:calc(100vw - var(--sidebar-w)); max-width:calc(100vw - var(--sidebar-w)); margin-left:calc(50% - 50vw + var(--sidebar-w)); margin-right:calc(50% - 50vw); }
   }
 </style>
 </head>
 <body>
 
-<!-- GABINETE / MODAL DE EDIÇÃO DO CRONOGRAMA -->
+<!-- GABINETE EXCLUSIVO DE MODAL DE EDIÇÃO -->
 <div id="editCronoModal" class="modal-overlay" onclick="closeEditModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <h3 id="modalEditTitle">Gabinete de Estudo — Detalhes</h3>
@@ -583,8 +357,8 @@
     <label class="field-label">Tema / Tópico</label>
     <input type="text" id="editCronoTema">
     
-    <label class="field-label">O que estudar / Anotações e Fichamentos</label>
-    <textarea id="editCronoEstudar" placeholder="Suas notas, observações, links e insights do que foi estudado..." style="min-height:140px;"></textarea>
+    <label class="field-label">Conteúdo Programático / Suas Anotações de Estudo</label>
+    <textarea id="editCronoEstudar" placeholder="Escreva aqui seus resumos, anotações de aula, dúvidas ou links importantes sobre este tópico..." style="min-height:150px;"></textarea>
     
     <div class="row2">
       <div>
@@ -599,7 +373,7 @@
     
     <div class="row2">
       <div>
-        <label class="field-label">Data Planejada</label>
+        <label class="field-label">Data de Execução</label>
         <input type="date" id="editCronoData">
       </div>
       <div>
@@ -717,10 +491,8 @@
     </div>
 
     <div class="subview" id="sub-cronograma">
-      <!-- Filtros por Matéria -->
       <div class="filters" id="cronoFiltroMateria"></div>
       
-      <!-- Filtro de Status para o Cronograma -->
       <label class="field-label" style="margin-top:0px; margin-bottom:8px;">Filtrar por Status</label>
       <div class="filters">
         <button class="chip active" id="cronoStatusTodasBtn" onclick="setCronoStatusFiltro('todas')">📋 Todas</button>
@@ -735,7 +507,6 @@
         <button class="chip" id="cronoViewCalBtn" onclick="setCronoView('calendario')">📅 Calendário</button>
       </div>
 
-      <!-- Área de Exibição do Calendário -->
       <div id="calendarioWrap" style="display:none;">
         <div id="calendarView" class="crono-cal"></div>
       </div>
@@ -1013,7 +784,6 @@ function parseBR(d){
   if(!d || d==='—') return null;
   const parts = d.split('/').map(Number);
   if(parts.length!==3) return null;
-  // Tratamento de segurança contra anos inválidos (ex: ano 1 ou 1901 em vez de 2026+)
   let ano = parts[2];
   if(ano < 100) ano += 2000;
   return new Date(ano, parts[1]-1, parts[0]);
@@ -1330,16 +1100,6 @@ function cronogramaDefault(){
     c('Política externa brasileira no século XX','Principais diretrizes e momentos históricos da política externa brasileira.','Semana 2','2h30','06/08/2025','🏳️ Política Internacional'),
     c('Guerra Fria e descolonização','Divisão do mundo bipolar, corrida armamentista e independência das colônias.','Semana 2','2h30','07/08/2025','🌐 História Mundial'),
     c('Revisão 2','Revisar Geografia e Política Internacional da semana; questões objetivas e discursivas.','Semana 2','2h30','08/08/2025','📝 Revisão + Questões'),
-    c('Poderes da Administração Pública','Conceitos básicos, poderes vinculados, discricionários, e limites da administração.','Semana 3','2h30','11/08/2025','⚖️ Direito Brasileiro'),
-    c('Conceitos básicos: escassez, escolha e custo de oportunidade','Fundamentos da microeconomia, decisão racional e trade-offs.','Semana 3','2h30','12/08/2025','📈 Economia'),
-    c('Interpretação de textos dissertativos','Identificação de ideias principais, inferência e argumentação.','Semana 3','2h30','13/08/2025','🇧🇷 Português'),
-    c('Segundo Reinado e Abolição','Contexto político, econômico e social do Segundo Reinado; movimentos abolicionistas.','Semana 3','2h30','14/08/2025','📜 História do Brasil'),
-    c('Revisão 3','Revisar Direito, Economia e História do Brasil; praticar com questões de provas anteriores.','Semana 3','2h30','15/08/2025','📝 Revisão + Questões'),
-    c('Reading + vocabulário (editorial)','Compreensão de textos editoriais, inferência de vocabulário e estrutura textual.','Semana 4','2h30','18/08/2025','🇺🇸 Inglês'),
-    c('Redação em português (tema CACD)','Prática de redação dissertativa, argumentação e coesão textual.','Semana 4','2h30','19/08/2025','🇧🇷 Português'),
-    c('Leitura + resumo de texto curto','Compreensão e produção textual básica na segunda língua.','Semana 4','2h30','20/08/2025','🇫🇷 Francês'),
-    c('Primeira Guerra Mundial','Causas, eventos principais e consequências do conflito.','Semana 4','2h30','21/08/2025','🌐 História Mundial'),
-    c('Revisão 4','Inglês, francês e História Mundial; responder questões e exercícios práticos.','Semana 4','2h30','22/08/2025','📝 Revisão + Questões'),
   ];
 }
 let cronograma = load(CRONOGRAMA_KEY, null) || cronogramaDefault();
@@ -1426,7 +1186,7 @@ function toggleCronoFeito(id){
   if(cronoViewMode === 'calendario') renderCalendarStructure();
 }
 
-/* ===== ABRE MODAL DE EDIÇÃO DO CARD ===== */
+/* ===== FUNÇÕES DO MODAL DE EDIÇÃO DE CONTEÚDO ===== */
 function openCronoEditModal(id) {
   const c = cronograma.find(x=>x.id===id);
   if(!c) return;
@@ -1437,13 +1197,10 @@ function openCronoEditModal(id) {
   document.getElementById('editCronoSemana').value = c.semana || '';
   document.getElementById('editCronoTempo').value = c.tempo || '';
   
-  // Matéria Select
   const selectMat = document.getElementById('editCronoMateria');
-  const opcoesMateria = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('') + '<option value="📝 Revisão + Questões">📝 Revisão + Questões</option>';
-  selectMat.innerHTML = opcoesMateria;
+  selectMat.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('') + '<option value="📝 Revisão + Questões">📝 Revisão + Questões</option>';
   selectMat.value = c.materia;
   
-  // Data ISO para o input do modal
   let isoVal = "";
   const parsed = parseBR(c.data);
   if (parsed) {
@@ -1453,21 +1210,12 @@ function openCronoEditModal(id) {
     isoVal = `${y}-${m}-${d}`;
   }
   document.getElementById('editCronoData').value = isoVal;
-  
-  // Exibir overlay
   document.getElementById('editCronoModal').classList.add('show');
 }
 
-function closeEditModal(event) {
-  if (event.target.id === 'editCronoModal') {
-    closeEditModalDirect();
-  }
-}
-function closeEditModalDirect() {
-  document.getElementById('editCronoModal').classList.remove('show');
-}
+function closeEditModal(event) { if (event.target.id === 'editCronoModal') closeEditModalDirect(); }
+function closeEditModalDirect() { document.getElementById('editCronoModal').classList.remove('show'); }
 
-/* ===== CONFIRMA E SALVA AS ALTERAÇÕES DO MODAL ===== */
 function saveCronoEdition() {
   const id = document.getElementById('editCronoId').value;
   const c = cronograma.find(x=>x.id===id);
@@ -1505,7 +1253,6 @@ function isAtrasado(c){
   return d < today;
 }
 
-/* ===== CARD DE CRONOGRAMA INTEGRADO COM MODAL AO CLICAR ===== */
 function cronoItemCard(c){
   const atrasado = isAtrasado(c);
   return `
@@ -1523,48 +1270,32 @@ function cronoItemCard(c){
   `;
 }
 
-/* ===== GERAÇÃO DO CALENDÁRIO ===== */
 function renderCalendarStructure(){
   const calView = document.getElementById('calendarView');
   if(!calView) return;
   
-  const agora = new Date();
-  const ano = agora.getFullYear();
-  const mes = agora.getMonth();
-  
-  const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
-  const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
-  
+  const agora = new Date(); const ano = agora.getFullYear(); const mes = agora.getMonth();
+  const primeiroDiaSemana = new Date(ano, mes, 1).getDay(); const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
   const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
   
   let html = `<div style="grid-column: 1/-1; text-align: center; font-family:'Fraunces', serif; color:var(--brass-light); font-size:16px; font-weight:600; margin-bottom:10px;">${mesesNomes[mes]} de ${ano}</div>`;
-  
   const diasAbrev = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  diasAbrev.forEach(da => {
-    html += `<div class="cal-weekday">${da}</div>`;
-  });
+  diasAbrev.forEach(da => { html += `<div class="cal-weekday">${da}</div>`; });
   
-  for(let i = 0; i < primeiroDiaSemana; i++){
-    html += `<div class="cal-day empty-cell"></div>`;
-  }
+  for(let i = 0; i < primeiroDiaSemana; i++) html += `<div class="cal-day empty-cell"></div>`;
   
   const eventosPorDia = {};
   cronograma.forEach(c => {
     const d = parseBR(c.data);
     if(d && d.getFullYear() === ano && d.getMonth() === mes){
-      const diaNum = d.getDate();
-      eventosPorDia[diaNum] = (eventosPorDia[diaNum] || 0) + 1;
+      const diaNum = d.getDate(); eventosPorDia[diaNum] = (eventosPorDia[diaNum] || 0) + 1;
     }
   });
   
   for(let dia = 1; dia <= totalDiasMes; dia++){
     const classeHoje = (agora.getDate() === dia) ? 'today' : '';
     const temEvento = eventosPorDia[dia] ? `<div class="cal-day-dot"></div>` : '';
-    
-    let classeFiltroAtivo = '';
-    if(calendarFilterDate && calendarFilterDate.getDate() === dia) {
-      classeFiltroAtivo = 'active-filter';
-    }
+    let classeFiltroAtivo = (calendarFilterDate && calendarFilterDate.getDate() === dia) ? 'active-filter' : '';
     
     html += `
       <div class="cal-day ${classeHoje} ${classeFiltroAtivo}" onclick="selectCalendarDate(${dia})">
@@ -1573,75 +1304,46 @@ function renderCalendarStructure(){
       </div>
     `;
   }
-  
   calView.innerHTML = html;
 }
 
 function selectCalendarDate(dia) {
-  const agora = new Date();
-  const selecionada = new Date(agora.getFullYear(), agora.getMonth(), dia);
-  
-  if (calendarFilterDate && isMesmoDia(calendarFilterDate, selecionada)) {
-    calendarFilterDate = null;
-  } else {
-    calendarFilterDate = selecionada;
-  }
-  
-  renderCalendarStructure();
-  renderCronograma();
+  const agora = new Date(); const selecionada = new Date(agora.getFullYear(), agora.getMonth(), dia);
+  calendarFilterDate = (calendarFilterDate && isMesmoDia(calendarFilterDate, selecionada)) ? null : selecionada;
+  renderCalendarStructure(); renderCronograma();
 }
 
 function renderCronograma(){
   let list = cronograma;
-  
   if(cronoFiltro !== 'todas') list = list.filter(c => c.materia === cronoFiltro);
-  
-  if(cronoStatusFiltro === 'pendentes') {
-    list = list.filter(c => !c.feito);
-  } else if(cronoStatusFiltro === 'atrasados') {
-    list = list.filter(c => isAtrasado(c));
-  } else if(cronoStatusFiltro === 'concluidos') {
-    list = list.filter(c => c.feito);
-  }
+  if(cronoStatusFiltro === 'pendentes') list = list.filter(c => !c.feito);
+  else if(cronoStatusFiltro === 'atrasados') list = list.filter(c => isAtrasado(c));
+  else if(cronoStatusFiltro === 'concluidos') list = list.filter(c => c.feito);
 
   if(cronoViewMode === 'calendario' && calendarFilterDate) {
-    list = list.filter(c => {
-      const d = parseBR(c.data);
-      return d && isMesmoDia(d, calendarFilterDate);
-    });
+    list = list.filter(c => { const d = parseBR(c.data); return d && isMesmoDia(d, calendarFilterDate); });
   }
 
   const el = document.getElementById('cronogramaList');
   if(!list.length){ el.innerHTML = '<div class="empty">Nenhum compromisso correspondente ao filtro.</div>'; return; }
+  if(cronoViewMode === 'materia'){ el.innerHTML = list.map(cronoItemCard).join(''); return; }
 
-  if(cronoViewMode === 'materia'){
-    el.innerHTML = list.map(cronoItemCard).join('');
-    return;
-  }
-
-  const comData = list.filter(c => parseBR(c.data));
-  const semData = list.filter(c => !parseBR(c.data));
-  comData.sort((a,b) => parseBR(a.data) - parseBR(b.data));
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const comData = list.filter(c => parseBR(c.data)); const semData = list.filter(c => !parseBR(c.data));
+  comData.sort((a,b) => parseBR(a.data) - parseBR(b.data)); const hoje = new Date(); hoje.setHours(0,0,0,0);
 
   const grupos = [];
   comData.forEach(c => {
-    const d = parseBR(c.data);
-    let grupo = grupos.find(g => isMesmoDia(g.date, d));
+    const d = parseBR(c.data); let grupo = grupos.find(g => isMesmoDia(g.date, d));
     if(!grupo){ grupo = { date: d, itens: [] }; grupos.push(grupo); }
     grupo.itens.push(c);
   });
 
   let html = grupos.map(g => {
-    const ehHoje = isMesmoDia(g.date, hoje);
-    const nomeDia = DIAS_SEMANA[g.date.getDay()];
+    const ehHoje = isMesmoDia(g.date, hoje); const nomeDia = DIAS_SEMANA[g.date.getDay()];
     return `
       <div class="day-group">
         <div class="day-group-head ${ehHoje?'hoje':''}">
-          <div>
-            <span class="dgd">${ehHoje ? 'Hoje' : nomeDia}</span>
-            <span class="dgw"> · ${fmtDayHeader(g.date)}</span>
-          </div>
+          <div><span class="dgd">${ehHoje ? 'Hoje' : nomeDia}</span><span class="dgw"> · ${fmtDayHeader(g.date)}</span></div>
           <span class="dgcount">${g.itens.filter(i=>i.feito).length}/${g.itens.length}</span>
         </div>
         ${g.itens.map(cronoItemCard).join('')}
@@ -1650,15 +1352,7 @@ function renderCronograma(){
   }).join('');
 
   if(semData.length && cronoViewMode !== 'calendario'){
-    html += `
-      <div class="day-group">
-        <div class="day-group-head">
-          <span class="dgd">Sem data</span>
-          <span class="dgcount">${semData.filter(i=>i.feito).length}/${semData.length}</span>
-        </div>
-        ${semData.map(cronoItemCard).join('')}
-      </div>
-    `;
+    html += `<div class="day-group"><div class="day-group-head"><span class="dgd">Sem data</span><span class="dgcount">${semData.filter(i=>i.feito).length}/${semData.length}</span></div>${semData.map(cronoItemCard).join('')}</div>`;
   }
   el.innerHTML = html;
 }
@@ -1679,9 +1373,7 @@ function ensureRevisaoForTopico(m, t){
   save(REVISAO_KEY, revisao);
 }
 function addRevisao(){
-  const tema = document.getElementById('rTema').value.trim();
-  const materia = document.getElementById('rMateria').value;
-  const dataRaw = document.getElementById('rData').value;
+  const tema = document.getElementById('rTema').value.trim(); const materia = document.getElementById('rMateria').value; const dataRaw = document.getElementById('rData').value;
   if(!tema){ alert('Dê um nome ao tema.'); return; }
   revisao.push({ id: uid(), tema, materia, topicoId:null, dataEstudo: dataRaw || null, r1:false, r2:false, r3:false });
   save(REVISAO_KEY, revisao);
@@ -1689,31 +1381,22 @@ function addRevisao(){
   renderRevisao();
 }
 function toggleRevisaoCheck(id, campo){
-  const r = revisao.find(x=>x.id===id);
-  r[campo] = !r[campo];
-  save(REVISAO_KEY, revisao);
-  if(r[campo]) bumpStreak();
-  renderRevisao();
+  const r = revisao.find(x=>x.id===id); r[campo] = !r[campo]; save(REVISAO_KEY, revisao);
+  if(r[campo]) bumpStreak(); renderRevisao();
 }
 function delRevisao(id){
   if(!confirm('Remover este item de revisão?')) return;
-  revisao = revisao.filter(x=>x.id!==id);
-  save(REVISAO_KEY, revisao);
-  renderRevisao();
+  revisao = revisao.filter(x=>x.id!==id); save(REVISAO_KEY, revisao); renderRevisao();
 }
 function renderRevisao(){
-  const el = document.getElementById('revisaoList');
-  if(!el) return;
+  const el = document.getElementById('revisaoList'); if(!el) return;
   el.innerHTML = revisao.length ? revisao.map(r => {
     const d1 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,1)) : '—';
     const d2 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,7)) : '—';
     const d3 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,30)) : '—';
     return `
     <div class="card revisao">
-      <div>
-        <div class="rname">${r.tema}</div>
-        <div class="rmeta">${r.materia}${r.dataEstudo ? ' · estudado em ' + isoToBR(r.dataEstudo) : ''}</div>
-      </div>
+      <div><div class="rname">${r.tema}</div><div class="rmeta">${r.materia}${r.dataEstudo ? ' · estudado em ' + isoToBR(r.dataEstudo) : ''}</div></div>
       <div class="rchecks">
         <div><input type="checkbox" ${r.r1?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div>
         <div><input type="checkbox" ${r.r2?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div>
@@ -1726,149 +1409,65 @@ function renderRevisao(){
 
 const QUESTOES_KEY = 'diplo_questoes';
 let questoes = load(QUESTOES_KEY, []);
-let filtroMateria = 'todas';
-let filtroTopico = null;
-let filtroRev = 'todas';
-let draftItens = [];
+let filtroMateria = 'todas'; let filtroTopico = null; let filtroRev = 'todas'; let draftItens = [];
 
 function renderMateriaOptions(){
-  const sel = document.getElementById('qMateria');
-  sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  const sel = document.getElementById('qMateria'); sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
   const filtEl = document.getElementById('qFiltroMateria');
-  filtEl.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(nome => `
-    <button class="chip ${filtroMateria===nome?'active':''}" onclick="setFiltroMateria('${nome.replace(/'/g,"\\'")}')">${nome==='todas' ? 'Todas as matérias' : nome}</button>
-  `).join('');
-  renderCMateriaSelect();
-  renderCronoFiltro();
-  renderQTopicoOptions();
+  filtEl.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(nome => `<button class="chip ${filtroMateria===nome?'active':''}" onclick="setFiltroMateria('${nome.replace(/'/g,"\\'")}')">${nome==='todas' ? 'Todas as matérias' : nome}</button>`).join('');
+  renderCMateriaSelect(); renderCronoFiltro(); renderQTopicoOptions();
 }
 function renderQTopicoOptions(){
-  const materiaNome = document.getElementById('qMateria').value;
-  const m = materias.find(x => x.nome === materiaNome);
-  const sel = document.getElementById('qTopico');
+  const materiaNome = document.getElementById('qMateria').value; const m = materias.find(x => x.nome === materiaNome); const sel = document.getElementById('qTopico');
   if(sel) sel.innerHTML = '<option value="">— nenhum —</option>' + (m ? m.topicos.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('') : '');
 }
 function setFiltroMateria(nome){ filtroMateria = nome; filtroTopico = null; renderMateriaOptions(); renderQuestoes(); }
 function setFiltroRev(f){ filtroRev = f; document.querySelectorAll('#sub-questoes .filters:nth-of-type(3) .chip').forEach(c=>c.classList.toggle('active', c.dataset.f===f)); renderQuestoes(); }
-function irParaQuestoesDoTopico(materiaNome, topicoId){
-  goTab('diplomacia'); goSub('questoes');
-  filtroMateria = materiaNome; filtroTopico = topicoId;
-  renderMateriaOptions(); renderQuestoes();
-}
+function irParaQuestoesDoTopico(materiaNome, topicoId){ goTab('diplomacia'); goSub('questoes'); filtroMateria = materiaNome; filtroTopico = topicoId; renderMateriaOptions(); renderQuestoes(); }
 
 function addItemField(){
-  const tipo = document.getElementById('qTipo').value;
-  if(tipo === 'Discursiva' && draftItens.length >= 1){ alert('Questões discursivas têm apenas um item.'); return; }
-  draftItens.push({ id: uid(), texto:'', gabarito:'' });
-  renderDraftItens();
+  const tipo = document.getElementById('qTipo').value; if(tipo === 'Discursiva' && draftItens.length >= 1){ alert('Questões discursivas têm apenas um item.'); return; }
+  draftItens.push({ id: uid(), texto:'', gabarito:'' }); renderDraftItens();
 }
 function removeItemField(id){ draftItens = draftItens.filter(i => i.id !== id); renderDraftItens(); }
 function updateDraftItem(id, field, value){ const it = draftItens.find(i=>i.id===id); if(it) it[field] = value; }
 function renderDraftItens(){
-  const tipo = document.getElementById('qTipo').value;
-  const wrap = document.getElementById('qItensWrap');
+  const tipo = document.getElementById('qTipo').value; const wrap = document.getElementById('qItensWrap');
   wrap.innerHTML = draftItens.map((it, idx) => `
     <div class="card" style="margin-top:8px;">
       <label class="field-label">${tipo==='Discursiva' ? 'Enunciado' : 'Item ' + (idx+1)}</label>
       <textarea oninput="updateDraftItem('${it.id}','texto', this.value)" style="min-height:50px;">${it.texto}</textarea>
-      ${tipo === 'C/E' ? `
-        <label class="field-label">Gabarito</label>
-        <select onchange="updateDraftItem('${it.id}','gabarito', this.value)">
-          <option value="">—</option>
-          <option value="Certo" ${it.gabarito==='Certo'?'selected':''}>Certo</option>
-          <option value="Errado" ${it.gabarito==='Errado'?'selected':''}>Errado</option>
-        </select>
-      ` : `
-        <label class="field-label">Resposta esperada / gabarito</label>
-        <textarea oninput="updateDraftItem('${it.id}','gabarito', this.value)" style="min-height:50px;">${it.gabarito}</textarea>
-      `}
+      ${tipo === 'C/E' ? `<label class="field-label">Gabarito</label><select onchange="updateDraftItem('${it.id}','gabarito', this.value)"><option value="">—</option><option value="Certo" ${it.gabarito==='Certo'?'selected':''}>Certo</option><option value="Errado" ${it.gabarito==='Errado'?'selected':''}>Errado</option></select>` : `<label class="field-label">Resposta esperada / gabarito</label><textarea oninput="updateDraftItem('${it.id}','gabarito', this.value)" style="min-height:50px;">${it.gabarito}</textarea>`}
       <button class="btn small ghost" type="button" style="margin-top:8px;" onclick="removeItemField('${it.id}')">Remover item</button>
     </div>
   `).join('') || '<div class="empty">Nenhum item ainda — clique em "+ item" ou importe em lote.</div>';
 }
-function onQTipoChange(){
-  const tipo = document.getElementById('qTipo').value;
-  if(tipo === 'Discursiva' && draftItens.length > 1){ draftItens = draftItens.slice(0,1); }
-  renderDraftItens();
-}
-function toggleImportBox(){
-  const box = document.getElementById('importBox');
-  box.style.display = box.style.display === 'none' ? 'block' : 'none';
-}
+function onQTipoChange(){ const tipo = document.getElementById('qTipo').value; if(tipo === 'Discursiva' && draftItens.length > 1){ draftItens = draftItens.slice(0,1); } renderDraftItens(); }
+function toggleImportBox(){ const box = document.getElementById('importBox'); box.style.display = box.style.display === 'none' ? 'block' : 'none'; }
 function importarItens(){
-  const raw = document.getElementById('importText').value;
-  const chunks = raw.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
-  if(!chunks.length){ alert('Cole algum texto primeiro.'); return; }
-  const tipo = document.getElementById('qTipo').value;
-  draftItens = (tipo === 'Discursiva') ? [{ id: uid(), texto: chunks[0], gabarito:'' }] : chunks.map(c => ({ id: uid(), texto: c, gabarito:'' }));
-  renderDraftItens();
-  document.getElementById('importText').value = '';
-  document.getElementById('importBox').style.display = 'none';
+  const raw = document.getElementById('importText').value; const chunks = raw.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean); if(!chunks.length){ alert('Cole algum texto primeiro.'); return; }
+  const tipo = document.getElementById('qTipo').value; draftItens = (tipo === 'Discursiva') ? [{ id: uid(), texto: chunks[0], gabarito:'' }] : chunks.map(c => ({ id: uid(), texto: c, gabarito:'' }));
+  renderDraftItens(); document.getElementById('importText').value = ''; document.getElementById('importBox').style.display = 'none';
 }
 function addQuestao(){
-  const materia = document.getElementById('qMateria').value;
-  const topicoId = document.getElementById('qTopico').value || null;
-  const tipo = document.getElementById('qTipo').value;
-  const fonte = document.getElementById('qFonte').value.trim();
-  const contexto = document.getElementById('qContexto').value.trim();
-  if(!draftItens.length || draftItens.some(i=>!i.texto.trim())){ alert('Adicione ao menos um item com texto (use "+ item" ou "Importar em lote").'); return; }
+  const materia = document.getElementById('qMateria').value; const topicoId = document.getElementById('qTopico').value || null; const tipo = document.getElementById('qTipo').value; const fonte = document.getElementById('qFonte').value.trim(); const contexto = document.getElementById('qContexto').value.trim();
+  if(!draftItens.length || draftItens.some(i=>!i.texto.trim())){ alert('Adicione ao menos um item com texto.'); return; }
   questoes.unshift({ id: uid(), materia, topicoId, tipo, fonte, contexto, itens: draftItens.map(i=>({ id:i.id, texto:i.texto, gabarito:i.gabarito, acertou:null })), revisada:false, criadoEm: Date.now() });
-  save(QUESTOES_KEY, questoes);
-  document.getElementById('qFonte').value=''; document.getElementById('qContexto').value='';
-  draftItens = [];
-  renderDraftItens();
-  bumpStreak();
-  renderQuestoes();
-  renderMaterias();
+  save(QUESTOES_KEY, questoes); document.getElementById('qFonte').value=''; document.getElementById('qContexto').value=''; draftItens = []; renderDraftItens(); bumpStreak(); renderQuestoes(); renderMaterias();
 }
-function toggleRevisada(id){
-  const q = questoes.find(x=>x.id===id);
-  q.revisada = !q.revisada;
-  save(QUESTOES_KEY, questoes);
-  renderQuestoes();
-}
-function delQuestao(id){
-  if(!confirm('Remover esta questão?')) return;
-  questoes = questoes.filter(x=>x.id!==id);
-  save(QUESTOES_KEY, questoes);
-  renderQuestoes();
-  renderMaterias();
-}
-function marcarAcerto(qid, iid, val){
-  const q = questoes.find(x=>x.id===qid);
-  const it = q.itens.find(x=>x.id===iid);
-  it.acertou = (it.acertou === val) ? null : val;
-  save(QUESTOES_KEY, questoes);
-  bumpStreak();
-  renderQuestoes();
-}
-function topicoNome(tid){
-  for(const m of materias){ const t = m.topicos.find(x=>x.id===tid); if(t) return t.nome; }
-  return '';
-}
+function toggleRevisada(id){ const q = questoes.find(x=>x.id===id); q.revisada = !q.revisada; save(QUESTOES_KEY, questoes); renderQuestoes(); }
+function delQuestao(id){ if(!confirm('Remover esta questão?')) return; questoes = questoes.filter(x=>x.id!==id); save(QUESTOES_KEY, questoes); renderQuestoes(); renderMaterias(); }
+function marcarAcerto(qid, iid, val){ const q = questoes.find(x=>x.id===qid); const it = q.itens.find(x=>x.id===iid); it.acertou = (it.acertou === val) ? null : val; save(QUESTOES_KEY, questoes); bumpStreak(); renderQuestoes(); }
+function topicoNome(tid){ for(const m of materias){ const t = m.topicos.find(x=>x.id===tid); if(t) return t.nome; } return ''; }
+
 function renderStatsAcerto(){
-  const el = document.getElementById('statsAcerto');
-  if(!el) return;
-  const porMateria = {};
-  questoes.forEach(q => q.itens.forEach(it => {
-    if(it.acertou === null || it.acertou === undefined) return;
-    porMateria[q.materia] = porMateria[q.materia] || {acertos:0, total:0};
-    porMateria[q.materia].total++;
-    if(it.acertou) porMateria[q.materia].acertos++;
-  }));
-  const entries = Object.entries(porMateria);
-  if(!entries.length){ el.innerHTML = '<label class="field-label">Desempenho por matéria</label><div class="empty">Marque "Acertei/Errei" nos itens pra ver seu desempenho aqui.</div>'; return; }
-  el.innerHTML = '<label class="field-label">Desempenho por matéria</label>' + entries.map(([materia, s]) => {
-    const pct = Math.round(100*s.acertos/s.total);
-    return `<div style="margin-bottom:8px;"><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;"><span>${materia}</span><span class="mono">${pct}% (${s.acertos}/${s.total})</span></div><div class="bar" style="background:#1B2435;"><span style="width:${pct}%; background:var(--seal-light);"></span></div></div>`;
-  }).join('');
+  const el = document.getElementById('statsAcerto'); if(!el) return; const porMateria = {};
+  questoes.forEach(q => q.itens.forEach(it => { if(it.acertou === null || it.acertou === undefined) return; porMateria[q.materia] = porMateria[q.materia] || {acertos:0, total:0}; porMateria[q.materia].total++; if(it.acertou) porMateria[q.materia].acertos++; }));
+  const entries = Object.entries(porMateria); if(!entries.length){ el.innerHTML = '<label class="field-label">Desempenho por matéria</label><div class="empty">Marque "Acertei/Errei" nos itens pra ver seu desempenho aqui.</div>'; return; }
+  el.innerHTML = '<label class="field-label">Desempenho por matéria</label>' + entries.map(([materia, s]) => { const pct = Math.round(100*s.acertos/s.total); return `<div style="margin-bottom:8px;"><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;"><span>${materia}</span><span class="mono">${pct}% (${s.acertos}/${s.total})</span></div><div class="bar" style="background:#1B2435;"><span style="width:${pct}%; background:var(--seal-light);"></span></div></div>`; }).join('');
 }
 function renderQuestoes(){
-  let list = questoes;
-  if(filtroMateria !== 'todas') list = list.filter(q => q.materia === filtroMateria);
-  if(filtroTopico) list = list.filter(q => q.topicoId === filtroTopico);
-  if(filtroRev === 'pendentes') list = list.filter(q => !q.revisada);
-  if(filtroRev === 'revisadas') list = list.filter(q => q.revisada);
+  let list = questoes; if(filtroMateria !== 'todas') list = list.filter(q => q.materia === filtroMateria); if(filtroTopico) list = list.filter(q => q.topicoId === filtroTopico); if(filtroRev === 'pendentes') list = list.filter(q => !q.revisada); if(filtroRev === 'revisadas') list = list.filter(q => q.revisada);
   const el = document.getElementById('questoesList');
   el.innerHTML = list.length ? list.map(q => `
     <div class="card questao ${q.revisada?'revisada':''}">
@@ -1877,144 +1476,48 @@ function renderQuestoes(){
       ${q.itens.map((it, idx) => `
         <div style="border-top:1px solid rgba(255,255,255,.06); padding-top:8px; margin-top:8px;">
           <div class="qtxt" style="margin:0 0 6px;">${q.tipo==='C/E' ? (idx+1)+'. ' : ''}${it.texto}</div>
-          ${q.tipo==='C/E' ? `
-            <div class="qgab">Gabarito: ${it.gabarito || '—'}</div>
-            <div class="qactions">
-              <button class="btn small ${it.acertou===true?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',true)">Acertei</button>
-              <button class="btn small ${it.acertou===false?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',false)">Errei</button>
-            </div>
-          ` : `<div class="qgab">Gabarito/resposta esperada: ${it.gabarito || '—'}</div>`}
+          ${q.tipo==='C/E' ? `<div class="qgab">Gabarito: ${it.gabarito || '—'}</div><div class="qactions"><button class="btn small ${it.acertou===true?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',true)">Acertei</button><button class="btn small ${it.acertou===false?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',false)">Errei</button></div>` : `<div class="qgab">Gabarito/resposta esperada: ${it.gabarito || '—'}</div>`}
         </div>
       `).join('')}
-      <div class="qactions" style="margin-top:10px;">
-        <button class="btn small ${q.revisada?'ghost':'secondary'}" onclick="toggleRevisada('${q.id}')">${q.revisada ? 'Marcar pendente' : 'Marcar revisada'}</button>
-        <button class="btn small ghost" onclick="delQuestao('${q.id}')">Remover</button>
-      </div>
+      <div class="qactions" style="margin-top:10px;"><button class="btn small ${q.revisada?'ghost':'secondary'}" onclick="toggleRevisada('${q.id}')">${q.revisada ? 'Marcar pendente' : 'Marcar revisada'}</button><button class="btn small ghost" onclick="delQuestao('${q.id}')">Remover</button></div>
     </div>
   `).join('') : '<div class="empty">Nenhuma questão aqui ainda.</div>';
-  renderStatsAcerto();
-  refreshStats();
+  renderStatsAcerto(); refreshStats();
 }
 
 const DISCURSIVAS_KEY = 'diplo_discursivas';
 let discursivas = load(DISCURSIVAS_KEY, []);
-let cronoState = { running:false, startedAt:0, elapsedMs:0 };
-let cronoInterval = null;
-function cronoStart(){
-  if(cronoState.running) return;
-  cronoState.running = true;
-  cronoState.startedAt = Date.now() - cronoState.elapsedMs;
-  cronoInterval = setInterval(updateCronoDisplay, 500);
-}
-function cronoPause(){
-  if(!cronoState.running) return;
-  cronoState.running = false;
-  cronoState.elapsedMs = Date.now() - cronoState.startedAt;
-  clearInterval(cronoInterval);
-  updateCronoDisplay();
-}
-function cronoReset(){
-  cronoState = { running:false, startedAt:0, elapsedMs:0 };
-  clearInterval(cronoInterval);
-  updateCronoDisplay();
-}
-function updateCronoDisplay(){
-  const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs;
-  const totalSec = Math.floor(ms/1000);
-  const mm = String(Math.floor(totalSec/60)).padStart(2,'0');
-  const ss = String(totalSec%60).padStart(2,'0');
-  const el = document.getElementById('cronoDisplay');
-  if(el) el.textContent = mm + ':' + ss;
-}
-function fmtTempo(seg){
-  seg = seg || 0;
-  const mm = String(Math.floor(seg/60)).padStart(2,'0');
-  const ss = String(seg%60).padStart(2,'0');
-  return mm + ':' + ss;
-}
+let cronoState = { running:false, startedAt:0, elapsedMs:0 }; let cronoInterval = null;
+function cronoStart(){ if(cronoState.running) return; cronoState.running = true; cronoState.startedAt = Date.now() - cronoState.elapsedMs; cronoInterval = setInterval(updateCronoDisplay, 500); }
+function cronoPause(){ if(!cronoState.running) return; cronoState.running = false; cronoState.elapsedMs = Date.now() - cronoState.startedAt; clearInterval(cronoInterval); updateCronoDisplay(); }
+function cronoReset(){ cronoState = { running:false, startedAt:0, elapsedMs:0 }; clearInterval(cronoInterval); updateCronoDisplay(); }
+function updateCronoDisplay(){ const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs; const totalSec = Math.floor(ms/1000); const mm = String(Math.floor(totalSec/60)).padStart(2,'0'); const ss = String(totalSec%60).padStart(2,'0'); const el = document.getElementById('cronoDisplay'); if(el) el.textContent = mm + ':' + ss; }
+
 function addDiscursiva(){
-  const materia = document.getElementById('dMateria').value;
-  const tipo = document.getElementById('dTipo').value;
-  const tema = document.getElementById('dTema').value.trim();
-  const linhas = document.getElementById('dLinhas').value.trim();
-  if(!tema){ alert('Descreva o tema ou instrução.'); return; }
+  const materia = document.getElementById('dMateria').value; const tipo = document.getElementById('dTipo').value; const tema = document.getElementById('dTema').value.trim(); const linhas = document.getElementById('dLinhas').value.trim(); if(!tema){ alert('Descreva o tema.'); return; }
   discursivas.unshift({ id: uid(), materia, tipo, tema, linhas, rascunho:'', padraoResposta:'', tempoSeg:0, historyTempos:[], concluido:false, criadoEm: Date.now(), open:true });
-  save(DISCURSIVAS_KEY, discursivas);
-  document.getElementById('dTema').value=''; document.getElementById('dLinhas').value='';
-  bumpStreak();
-  renderDiscursivas();
+  save(DISCURSIVAS_KEY, discursivas); document.getElementById('dTema').value=''; document.getElementById('dLinhas').value=''; bumpStreak(); renderDiscursivas();
 }
-function updateDiscursivaField(id, field, value){
-  const d = discursivas.find(x=>x.id===id);
-  d[field] = value;
-  save(DISCURSIVAS_KEY, discursivas);
-}
-
+function updateDiscursivaField(id, field, value){ const d = discursivas.find(x=>x.id===id); d[field] = value; save(DISCURSIVAS_KEY, discursivas); }
 function usarTempoCronometro(id){
-  const d = discursivas.find(x=>x.id===id);
-  const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs;
-  const seg = Math.floor(ms/1000);
-  
-  d.tempoSeg = seg;
-  if(!d.historyTempos) d.historyTempos = [];
-  
-  const dataFormatada = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
-  d.historyTempos.unshift({ data: dataFormatada, tempo: seg });
-  
-  if(d.historyTempos.length > 5) d.historyTempos.pop();
-
-  save(DISCURSIVAS_KEY, discursivas);
-  renderDiscursivas();
+  const d = discursivas.find(x=>x.id===id); const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs; const seg = Math.floor(ms/1000); d.tempoSeg = seg;
+  if(!d.historyTempos) d.historyTempos = []; const dataFormatada = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}); d.historyTempos.unshift({ data: dataFormatada, tempo: seg });
+  if(d.historyTempos.length > 5) d.historyTempos.pop(); save(DISCURSIVAS_KEY, discursivas); renderDiscursivas();
 }
-
-function toggleDiscursivaConcluido(id){
-  const d = discursivas.find(x=>x.id===id);
-  d.concluido = !d.concluido;
-  if(d.concluido) bumpStreak();
-  save(DISCURSIVAS_KEY, discursivas);
-  renderDiscursivas();
-}
+function toggleDiscursivaConcluido(id){ const d = discursivas.find(x=>x.id===id); d.concluido = !d.concluido; if(d.concluido) bumpStreak(); save(DISCURSIVAS_KEY, discursivas); renderDiscursivas(); }
 function toggleDiscOpen(id){ const d = discursivas.find(x=>x.id===id); d.open = !d.open; save(DISCURSIVAS_KEY, discursivas); }
-function delDiscursiva(id){
-  if(!confirm('Remover este exercício?')) return;
-  discursivas = discursivas.filter(x=>x.id!==id);
-  save(DISCURSIVAS_KEY, discursivas);
-  renderDiscursivas();
-}
-function renderDiscursivas(){
-  const el = document.getElementById('discursivasList');
-  if(!el) return;
-  el.innerHTML = discursivas.length ? discursivas.map(d => {
-    const hist = d.historyTempos || [];
-    return `
-    <details class="card materia-card" ${d.open?'open':''}>
-      <summary onclick="toggleDiscOpen('${d.id}')">
-        <span class="m-title">${d.tipo} — ${d.materia}${d.concluido ? ' ✓' : ''}</span>
-        <span class="m-pct mono">${fmtTempo(d.tempoSeg)}</span>
-      </summary>
-      <div class="ce" style="margin:8px 0;">${d.tema}${d.linhas ? ' · ' + d.linhas : ''}</div>
-      
-      <label class="field-label">Rascunho</label>
-      <textarea style="min-height:120px;" oninput="updateDiscursivaField('${d.id}','rascunho', this.value)">${d.rascunho||''}</textarea>
-      
-      <label class="field-label">Padrão de resposta (quando divulgado)</label>
-      <textarea oninput="updateDiscursivaField('${d.id}','padraoResposta', this.value)">${d.padraoResposta||''}</textarea>
-      
-      <!-- Histórico de Marcas de Tempo -->
-      ${hist.length ? `
-        <div class="history-box">
-          <h5>Histórico de Treinos</h5>
-          <ul class="history-list">
-            ${hist.map(h => `<li class="history-item">${h.data}: ${fmtTempo(h.tempo)}</li>`).join('')}
-          </ul>
-        </div>
-      ` : ''}
+function delDiscursiva(id){ if(!confirm('Remover este exercício?')) return; discursivas = discursivas.filter(x=>x.id!==id); save(DISCURSIVAS_KEY, discursivas); renderDiscursivas(); }
 
-      <div style="display:flex; gap:8px; align-items:center; margin-top:12px; flex-wrap:wrap;">
-        <button class="btn small ghost" onclick="usarTempoCronometro('${d.id}')">Usar tempo do cronômetro</button>
-        <button class="btn small ${d.concluido?'ghost':'secondary'}" onclick="toggleDiscursivaConcluido('${d.id}')">${d.concluido?'Reabrir':'Marcar concluído'}</button>
-        <button class="btn small ghost" onclick="delDiscursiva('${d.id}')">Remover</button>
-      </div>
+function renderDiscursivas(){
+  const el = document.getElementById('discursivasList'); if(!el) return;
+  el.innerHTML = discursivas.length ? discursivas.map(d => { const hist = d.historyTempos || []; return `
+    <details class="card materia-card" ${d.open?'open':''}>
+      <summary onclick="toggleDiscOpen('${d.id}')"><span class="m-title">${d.tipo} — ${d.materia}${d.concluido ? ' ✓' : ''}</span><span class="m-pct mono">${fmtTempo(d.tempoSeg)}</span></summary>
+      <div class="ce" style="margin:8px 0;">${d.tema}${d.linhas ? ' · ' + d.linhas : ''}</div>
+      <label class="field-label">Rascunho</label><textarea style="min-height:120px;" oninput="updateDiscursivaField('${d.id}','rascunho', this.value)">${d.rascunho||''}</textarea>
+      <label class="field-label">Padrão de resposta</label><textarea oninput="updateDiscursivaField('${d.id}','padraoResposta', this.value)">${d.padraoResposta||''}</textarea>
+      ${hist.length ? `<div class="history-box"><h5>Histórico</h5><ul class="history-list">${hist.map(h => `<li class="history-item">${h.data}: ${fmtTempo(h.tempo)}</li>`).join('')}</ul></div>` : ''}
+      <div style="display:flex; gap:8px; align-items:center; margin-top:12px; flex-wrap:wrap;"><button class="btn small ghost" onclick="usarTempoCronometro('${d.id}')">Usar cronômetro</button><button class="btn small ${d.concluido?'ghost':'secondary'}" onclick="toggleDiscursivaConcluido('${d.id}')">${d.concluido?'Reabrir':'Concluir'}</button><button class="btn small ghost" onclick="delDiscursiva('${d.id}')">Remover</button></div>
     </details>
   `; }).join('') : '<div class="empty">Nenhum exercício ainda.</div>';
 }
@@ -2022,99 +1525,34 @@ function renderDiscursivas(){
 const ATUALIDADES_KEY = 'diplo_atualidades';
 let atualidades = load(ATUALIDADES_KEY, []);
 function addAtualidade(){
-  const tema = document.getElementById('aTema').value.trim();
-  const titulo = document.getElementById('aTitulo').value.trim();
-  const resumo = document.getElementById('aResumo').value.trim();
-  const fonte = document.getElementById('aFonte').value.trim();
-  if(!titulo || !resumo){ alert('Preencha título e resumo.'); return; }
-  atualidades.unshift({ id: uid(), tema, titulo, resumo, fonte, criadoEm: Date.now() });
-  save(ATUALIDADES_KEY, atualidades);
-  ['aTema','aTitulo','aResumo','aFonte'].forEach(id => document.getElementById(id).value = '');
-  bumpStreak();
-  renderAtualidades();
+  const tema = document.getElementById('aTema').value.trim(); const titulo = document.getElementById('aTitulo').value.trim(); const resumo = document.getElementById('aResumo').value.trim(); const fonte = document.getElementById('aFonte').value.trim(); if(!titulo || !resumo){ alert('Preencha título e resumo.'); return; }
+  atualidades.unshift({ id: uid(), tema, titulo, resumo, fonte, criadoEm: Date.now() }); save(ATUALIDADES_KEY, atualidades); ['aTema','aTitulo','aResumo','aFonte'].forEach(id => document.getElementById(id).value = ''); bumpStreak(); renderAtualidades();
 }
-function delAtualidade(id){
-  if(!confirm('Remover esta atualidade?')) return;
-  atualidades = atualidades.filter(x=>x.id!==id);
-  save(ATUALIDADES_KEY, atualidades);
-  renderAtualidades();
-}
+function delAtualidade(id){ if(!confirm('Remover esta atualidade?')) return; atualidades = atualidades.filter(x=>x.id!==id); save(ATUALIDADES_KEY, atualidades); renderAtualidades(); }
 function renderAtualidades(){
-  const el = document.getElementById('atualidadesList');
-  if(!el) return;
+  const el = document.getElementById('atualidadesList'); if(!el) return;
   el.innerHTML = atualidades.length ? atualidades.map(a => `
-    <div class="card nota">
-      ${a.tema ? `<div class="ntag">${a.tema}</div>` : ''}
-      <h4>${a.titulo}</h4>
-      <p>${a.resumo}</p>
-      ${a.fonte ? `<div style="font-size:11px; color:var(--brass-light); margin-bottom:6px;">${a.fonte}</div>` : ''}
-      <div class="nfoot">
-        <span>${new Date(a.criadoEm).toLocaleDateString('pt-BR')}</span>
-        <button class="btn small ghost" onclick="delAtualidade('${a.id}')">Remover</button>
-      </div>
-    </div>
+    <div class="card nota">${a.tema ? `<div class="ntag">${a.tema}</div>` : ''}<h4>${a.titulo}</h4><p>${a.resumo}</p>${a.fonte ? `<div style="font-size:11px; color:var(--brass-light); margin-bottom:6px;">${a.fonte}</div>` : ''}<div class="nfoot"><span>${new Date(a.criadoEm).toLocaleDateString('pt-BR')}</span><button class="btn small ghost" onclick="delAtualidade('${a.id}')">Remover</button></div></div>
   `).join('') : '<div class="empty">Nenhuma atualidade guardada ainda.</div>';
 }
 
 const NOTAS_KEY = 'diplo_notas';
 let notas = load(NOTAS_KEY, []);
 function addNota(){
-  const materia = document.getElementById('nMateria').value.trim();
-  const titulo = document.getElementById('nTitulo').value.trim();
-  const texto = document.getElementById('nTexto').value.trim();
-  if(!titulo || !texto){ alert('Preencha título e texto.'); return; }
-  notas.unshift({ id: uid(), materia, titulo, texto, criadoEm: Date.now() });
-  save(NOTAS_KEY, notas);
-  ['nMateria','nTitulo','nTexto'].forEach(id => document.getElementById(id).value = '');
-  bumpStreak();
-  renderNotas();
+  const materia = document.getElementById('nMateria').value.trim(); const titulo = document.getElementById('nTitulo').value.trim(); const texto = document.getElementById('nTexto').value.trim(); if(!titulo || !texto){ alert('Preencha título e texto.'); return; }
+  notas.unshift({ id: uid(), materia, titulo, texto, criadoEm: Date.now() }); save(NOTAS_KEY, notas); ['nMateria','nTitulo','nTexto'].forEach(id => document.getElementById(id).value = ''); bumpStreak(); renderNotas();
 }
-function delNota(id){
-  if(!confirm('Remover esta anotação?')) return;
-  notas = notas.filter(x=>x.id!==id);
-  save(NOTAS_KEY, notas);
-  renderNotas();
-}
-function renderNotas(){
-  const el = document.getElementById('notasList');
-  el.innerHTML = notas.length ? notas.map(n => `
-    <div class="card nota">
-      ${n.materia ? `<div class="ntag">${n.materia}</div>` : ''}
-      <h4>${n.titulo}</h4>
-      <p>${n.texto}</p>
-      <div class="nfoot">
-        <span>${new Date(n.criadoEm).toLocaleDateString('pt-BR')}</span>
-        <button class="btn small ghost" onclick="delNota('${n.id}')">Remover</button>
-      </div>
-    </div>
-  `).join('') : '<div class="empty">Nenhuma anotação ainda.</div>';
-  refreshStats();
-}
+function delNota(id){ if(!confirm('Remover anotação?')) return; notas = notas.filter(x=>x.id!==id); save(NOTAS_KEY, notas); renderNotas(); }
+function renderNotas(){ const el = document.getElementById('notasList'); el.innerHTML = notas.length ? notas.map(n => `<div class="card nota">${n.materia ? `<div class="ntag">${n.materia}</div>` : ''}<h4>${n.titulo}</h4><p>${n.texto}</p><div class="nfoot"><span>${new Date(n.criadoEm).toLocaleDateString('pt-BR')}</span><button class="btn small ghost" onclick="delNota('${n.id}')">Remover</button></div></div>`).join('') : '<div class="empty">Nenhuma anotação ainda.</div>'; refreshStats(); }
 
 function refreshStats(){
-  document.getElementById('statMaterias').textContent = materias.length;
-  document.getElementById('statQuestoes').textContent = questoes.length;
-  document.getElementById('statNotas').textContent = notas.length;
-  const p = pctGeral();
-  document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
-  const ring = document.getElementById('diploRing');
-  if(ring) ring.style.setProperty('--pct', p);
-  const pctEl = document.getElementById('diploProgressPct');
-  if(pctEl) pctEl.textContent = p + '%';
-  renderStreak();
+  document.getElementById('statMaterias').textContent = materias.length; document.getElementById('statQuestoes').textContent = questoes.length; document.getElementById('statNotas').textContent = notas.length;
+  const p = pctGeral(); document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
+  const ring = document.getElementById('diploRing'); if(ring) ring.style.setProperty('--pct', p);
+  const pctEl = document.getElementById('diploProgressPct'); if(pctEl) pctEl.textContent = p + '%'; renderStreak();
 }
 
-renderMateriaOptions();
-renderMaterias();
-renderCronoFiltro();
-renderCronograma();
-renderRevisao();
-renderQuestoes();
-renderDiscursivas();
-renderAtualidades();
-renderNotas();
-addItemField();
-renderStreak();
+renderMateriaOptions(); renderMaterias(); renderCronoFiltro(); renderCronograma(); renderRevisao(); renderQuestoes(); renderDiscursivas(); renderAtualidades(); renderNotas(); addItemField(); renderStreak();
 </script>
 </body>
 </html>
