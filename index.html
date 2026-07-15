@@ -6,8 +6,7 @@
 <title>Chancelaria — Gabinete de Estudos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Utilizando Montserrat para aplicar a escala geométrica idêntica à Gotham -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
@@ -16,33 +15,29 @@
     --ink:#070A11;
     --ink-2:#111726;
     --ink-3:#161E30;
-    --parchment:#141B2D;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --text-main:#F4F6F9;
+    --parchment:#F4EEDD;
+    --parchment-2:#E9DFC3;
+    --text-dark:#1C1A15;
     --text-light:#EDE6D6;
     --text-muted:#8592A8;
-    --input-bg: rgba(0,0,0,0.4);
-    --bg-gradient: radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0, 122, 255, 0.08), transparent 60%);
+    --card-hover-bg: rgba(180,145,75,.06);
+    --bg-overlay-opacity: .22;
   }
 
   body[data-theme="light"] {
     --ink:#F4F6F9;
     --ink-2:#FFFFFF;
     --ink-3:#EAEFF3;
-    --parchment:#FFFFFF;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --text-main:#1C1A15;
+    --parchment:#1C1A15;
+    --parchment-2:#3A3D40;
+    --text-dark:#EDE6D6;
     --text-light:#1C1A15;
     --text-muted:#6B7A8C;
-    --input-bg: rgba(255,255,255,0.8);
-    --bg-gradient: radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0, 122, 255, 0.04), transparent 60%);
+    --card-hover-bg: rgba(0,122,255,0.05);
+    --bg-overlay-opacity: .05;
   }
 
   :root {
-    --ub-verde:#2EC4B6;
-    --ub-azul:#007ATT;
-    --ub-cinza:#A0AAB5;
-    --ub-branco:#FFFFFF;
     --brass:#B4914B;
     --brass-light:#E3C481;
     --seal:#7C2D2D;
@@ -53,167 +48,316 @@
     --ok:#5C7A4F;
     --ok-glow:#7FA36A;
     --bad:#C24B4B;
-    --radius:4px;
-    --radius-ui:16px;
-    --radius-sm:10px;
-    --shadow-lg: 0 28px 64px -20px rgba(0,0,0,0.4);
+    --radius:3px;
+    --radius-ui:14px;
+    --radius-sm:9px;
+    --shadow: 0 10px 26px -14px rgba(0,0,0,.5);
+    --shadow-lg: 0 26px 60px -22px rgba(0,0,0,.65);
+    --tabbar-space:100px;
+    --sidebar-w:0px;
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Cores UbWiki solicitadas */
+    --ub-verde:#2EC4B6;
+    --ub-azul:#007ATT;
+    --ub-cinza:#A0AAB5;
+    --ub-branco:#FFFFFF;
   }
 
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;scroll-behavior: smooth;}
+  html,body{margin:0;padding:0;}
   body{
-    background: var(--bg-gradient), var(--ink);
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(180,145,75,.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(62,92,118,.14), transparent 55%),
+      var(--ink);
     color:var(--text-light);
-    font-family:'Montserrat', sans-serif;
+    font-family:'IBM Plex Sans', sans-serif;
     min-height:100vh;
     -webkit-tap-highlight-color:transparent;
+    position:relative;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-  
+  body::before{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:var(--bg-overlay-opacity); mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+  body::after{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(180,145,75,.02) 0px, rgba(180,145,75,.02) 1px, transparent 1px, transparent 72px),
+      repeating-linear-gradient(90deg, rgba(180,145,75,.02) 0px, rgba(180,145,75,.02) 1px, transparent 1px, transparent 72px);
+  }
   .letterhead, main, .tabbar, #loginGate{ position:relative; z-index:1; }
-  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:.03em;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+  ::selection{background:var(--brass); color:var(--ink);}
+  h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; margin:0;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:.02em;}
+  a{color:inherit;}
   button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:2px solid var(--brass-light); outline-offset:2px;}
 
-  /* ===== Top Bar / Layout de Protocolo ===== */
+  /* ===== Selo de lacre reutilizável ===== */
+  .wax{
+    position:relative; border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, var(--accent-light,var(--brass-light)), var(--accent,var(--brass)) 55%, color-mix(in srgb, var(--accent,var(--brass)) 60%, black) 100%);
+    box-shadow:0 4px 14px rgba(0,0,0,.45), inset 0 -3px 6px rgba(0,0,0,.3), inset 0 2px 3px rgba(255,255,255,.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .wax::before{ content:''; position:absolute; inset:14%; border-radius:50%; border:1px dashed rgba(0,0,0,.28); }
+
+  /* ===== Masthead / letterhead ===== */
   .letterhead{
-    padding:28px 24px 20px;
+    padding:26px 20px 18px;
     border-bottom:1px solid var(--border-color);
     display:flex; justify-content:space-between; align-items:flex-start;
-    background:var(--ink-2);
+    background:linear-gradient(180deg, var(--ink-2), var(--ink));
+    box-shadow:0 1px 0 rgba(180,145,75,.08);
+  }
+  .letterhead::before{
+    content:''; position:absolute; top:6px; left:20px; right:20px; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(180,145,75,.5), transparent);
   }
   .letterhead .brand{display:flex; flex-direction:column; gap:2px;}
-  .letterhead h1{font-size:24px; font-weight:700; color:var(--text-main); letter-spacing:.05em; text-transform:uppercase;}
-  .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.08em;}
+  .letterhead .brand .crest{ width:38px; height:38px; font-family:'Fraunces', serif; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+  .letterhead h1{font-size:24px; color:var(--text-main); letter-spacing:.04em; text-transform:uppercase;}
+  .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:3px; font-style:italic; font-family:'Fraunces', serif;}
   
-  .top-right-cabinet { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-  .theme-toggle-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight: 600; transition: var(--transition); }
-  .theme-toggle-btn:hover { border-color: var(--ub-azul); background: var(--border-color); }
+  .top-right-cabinet { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .theme-toggle-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 500; transition: var(--transition); }
+  .theme-toggle-btn:hover { border-color: var(--ub-azul); }
 
-  .protocolo{ text-align:right; font-size:11px; color:var(--text-muted); line-height:1.6; }
-  .authbox{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:4px;}
-  .authbox .avatar{ width:28px; height:28px; border-radius:50%; background:var(--ub-azul); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
-  .authbox button{ background:none; border:1px solid var(--border-color); color:var(--text-main); font-size:10.5px; padding:4px 12px; border-radius:20px; }
+  .protocolo{ text-align:right; font-size:10.5px; color:var(--brass-light); line-height:1.6; }
+  .authbox{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:10px;}
+  .authbox .avatar{
+    width:26px; height:26px; border-radius:50%; background:var(--azul); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;
+    border:1px solid rgba(180,145,75,.4); font-family:'IBM Plex Mono';
+  }
+  .authbox button{ background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light); font-size:10.5px; padding:5px 10px; border-radius:20px; font-family:'IBM Plex Mono'; }
+  .authbox button:hover{ background:rgba(180,145,75,.12); }
+  .sync-dot{width:6px; height:6px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 6px var(--ok-glow); display:inline-block; margin-right:5px; animation:pulseDot 2.4s ease infinite;}
+  @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.35;}}
 
-  /* ===== Comportamento do Iframe de Palavras Sincronizado ===== */
-  main{padding:32px 24px var(--tabbar-space); max-width:1200px; margin:0 auto; transition: max-width 0.2s ease;}
+  /* ===== Ajuste de Iframe de Palavras Dinâmico Sem Margens Cortes ===== */
+  main{padding:18px 16px var(--tabbar-space); max-width:1200px; margin:0 auto;}
   body[data-active-tab="palavras"] main { max-width: 100vw; padding-left: 0; padding-right: 0; padding-top: 0; }
-  body[data-active-tab="palavras"] .dispatch-frame-card { border: none; border-radius: 0; height: calc(100vh - 92px); }
+  body[data-active-tab="palavras"] .dispatch-frame { height: calc(100vh - 92px); }
+
+  .view{display:none; animation:fadeIn .35s ease;}
+  .view.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:14.5px; margin:4px 0 20px; line-height:1.6;}
 
   .inicio-split { display: grid; grid-template-columns: 1fr; gap: 24px; }
 
-  /* ===== Cards Dinâmicos Estilo Dossiê ===== */
+  /* ===== Dossiê (cartão-documento) ===== */
   .dossie{
-    position:relative; background: var(--parchment);
-    color:var(--text-light); border-radius:var(--radius-ui); padding:24px 22px 22px; margin-bottom:20px;
-    box-shadow:var(--shadow-lg); border-top:4px solid var(--accent, var(--brass));
-    cursor:pointer; transform:translateY(0); transition: var(--transition);
+    position:relative; background: linear-gradient(155deg, rgba(0,0,0,0) 0 92%, rgba(0,0,0,.14) 92% 100%), var(--parchment);
+    color:var(--text-dark); border-radius:var(--radius); padding:22px 20px 20px; margin-bottom:18px;
+    box-shadow:var(--shadow-lg); border-top:3px solid var(--accent, var(--brass));
+    cursor:pointer; transform:scale(1) translateY(0); transition:transform .18s ease, box-shadow .18s ease;
+    overflow:hidden; clip-path:polygon(0 0,100% 0,100% 100%,14px 100%,0 calc(100% - 14px));
     border: 1px solid var(--border-color);
   }
-  .dossie:hover{ transform:translateY(-4px); border-color:var(--ub-azul); }
-  .dossie h2{font-size:24px; margin-top:8px; font-weight:700; color:var(--text-main);}
-  .dossie p{font-size:13.5px; color:var(--text-muted); margin:10px 0 18px; line-height:1.6;}
-  .dossie .foot{display:flex; justify-content:space-between; align-items:center;}
-
-  .ring{
-    --pct:0; position:relative; width:54px; height:54px; border-radius:50%; flex-shrink:0;
-    background:conic-gradient(var(--accent, var(--brass)) calc(var(--pct)*1%), var(--ink-3) 0);
+  .dossie:hover{ transform:translateY(-2px); box-shadow:0 34px 80px -22px rgba(0,0,0,.75); }
+  .dossie:active{transform:scale(.985);}
+  .dossie .stamp{
+    position:absolute; top:14px; right:-30px; width:150px; text-align:center;
+    transform:rotate(20deg); font-family:'IBM Plex Mono'; font-size:9px; letter-spacing:.12em;
+    color:var(--accent, var(--brass)); border-top:1.5px solid var(--accent, var(--brass)); border-bottom:1.5px solid var(--accent, var(--brass));
+    padding:2px 0; opacity:.55; text-transform:uppercase; pointer-events:none;
   }
-  .ring .hole{ position:absolute; inset:5px; border-radius:50%; background:var(--parchment); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:var(--text-main); }
+  .dossie .tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent, var(--brass)); font-weight:500; }
+  .dossie h2{font-size:23px; margin-top:7px;}
+  .dossie p{font-size:13px; color:var(--text-muted); margin:9px 0 16px; line-height:1.55; max-width:78%;}
+  .dossie .foot{display:flex; justify-content:space-between; align-items:center; gap:12px;}
+  .dossie .progress-label{font-size:11px; font-family:'IBM Plex Mono', monospace;}
 
-  /* ===== Painel Unificado de Despacho Diário ===== */
-  .daily-brief-container { background: var(--ink-2); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 24px; box-shadow: var(--shadow-lg); }
-  .daily-brief-container h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; }
-  .brief-section { margin-bottom: 18px; }
-  .brief-section-title { font-size: 10px; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; color: var(--text-muted); margin-bottom: 8px; display: block; }
-  .brief-item { background: var(--ink-3); border: 1px solid var(--border-color); border-left: 4px solid var(--ub-azul); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; cursor: pointer; transition: var(--transition); }
-  .brief-item:hover { border-color: var(--ub-azul); }
+  /* anel de progresso (donut via conic-gradient) */
+  .ring{
+    --pct:0; position:relative; width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:conic-gradient(var(--accent, var(--brass)) calc(var(--pct)*1%), var(--ink-3) 0);
+    box-shadow:0 3px 10px rgba(0,0,0,.3); transition:background .7s cubic-bezier(.4,0,.2,1);
+  }
+  .ring .hole{
+    position:absolute; inset:5px; border-radius:50%; background:var(--parchment);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-size:10.5px; font-weight:600; color:var(--text-dark);
+  }
+
+  .bar{height:5px; background:var(--ink-3); border-radius:3px; overflow:hidden; margin-top:6px;}
+  .bar > span{display:block; height:100%; background:var(--accent, var(--brass)); transition:width .6s ease;}
+
+  /* ===== Painel de Despacho Diário Inicial ===== */
+  .daily-brief-container { background: linear-gradient(155deg, var(--ink-3), var(--ink-2)); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 22px; box-shadow: var(--shadow-lg); align-self: start; }
+  .daily-brief-container h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--brass-light); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 14px; }
+  .brief-section { margin-bottom: 16px; }
+  .brief-section-title { font-size: 9.5px; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 6px; display: block; }
+  .brief-item { background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-left: 4px solid var(--ub-azul); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 6px; cursor: pointer; transition: var(--transition); }
+  .brief-item:hover { background: var(--card-hover-bg); border-color: rgba(255,255,255,0.1); }
   .brief-item.item-atrasado { border-left-color: var(--bad); }
-  .brief-item-meta { font-size: 10.5px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .brief-item-title { font-size: 14px; font-weight: 600; color: var(--text-main); }
+  .brief-item-meta { font-size: 10px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .brief-item-title { font-size: 13.5px; font-weight: 600; color: var(--text-main); }
 
-  .stats-row{display:flex; gap:12px; margin-top:28px; flex-wrap:wrap;}
-  .stat-card { flex:1; min-width:100px; background: var(--ink-2); border: 1px solid var(--border-color); border-radius:var(--radius-ui); padding:18px 12px; text-align:center; }
-  .stat-card .n{font-size:26px; color:var(--text-main); font-weight:700;}
-  .stat-card .l{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; margin-top:6px; font-weight:500;}
+  .stats-row{display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;}
+  .stat-card{ flex:1; min-width:70px; background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:15px 10px; text-align:center; transition:border-color .18s ease; }
+  .stat-card:hover{ border-color:rgba(180,145,75,.32); }
+  .stat-card .n{font-family:'Fraunces', serif; font-size:25px; color:var(--brass-light);}
+  .stat-card .l{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-top:4px;}
 
-  .subtabs{display:flex; gap:4px; margin-bottom:24px; background:var(--ink-3); border:1px solid var(--border-color); border-radius:14px; padding:4px; overflow-x:auto; scrollbar-width:none;}
-  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; padding:9px 15px; font-size:13px; border-radius:10px; font-weight:600; transition: var(--transition); }
-  .subtab-btn.active{color:var(--ink); background:var(--brass-light); font-weight:600;}
+  .subtabs{display:flex; gap:4px; margin-bottom:20px; border-bottom:none; background:rgba(0,0,0,.22); border:1px solid var(--border-color); border-radius:12px; padding:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
+  .subtabs::-webkit-scrollbar{display:none;}
+  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:12.5px; padding:8px 12px; font-family:'IBM Plex Sans'; border-radius:9px; margin-right:0; transition:background .18s ease, color .18s ease; }
+  .subtab-btn.active{color:var(--ink); background:var(--brass-light); font-weight:600; box-shadow:0 4px 12px -4px rgba(227,196,129,.5); }
+  .subtab-btn:not(.active):hover{color:var(--text-main); background:rgba(180,145,75,.1);}
+  .subview{display:none;}
+  .subview.active{display:block; animation:fadeIn .3s ease;}
 
-  /* ===== Hierarquia de Cores UbWiki Solicitada ===== */
-  .materia-card summary { font-size: 16px; color: var(--ub-verde); font-weight: 700; }
-  .materia-card .bar { background: var(--ink-3); margin-top: 10px; }
-  .topic-row { display: flex; align-items: center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border-color); font-size:14px; font-weight:600; color:var(--ub-azul); }
-  .subtopic-row { display: flex; align-items: center; gap:8px; padding:8px 0; font-size:13px; font-weight:500; color:var(--ub-cinza); width:100%; }
-  .subsubtopic-row { display: flex; align-items: center; gap:6px; padding:5px 0; font-size:12.5px; font-weight:400; color:var(--text-main); width:100%; }
+  h3.section-title{color:var(--text-main); font-size:15px; margin-bottom:14px; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.04em;}
+  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius:50%;}
+
+  .card{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:17px 17px; margin-bottom:13px; box-shadow:var(--shadow); transition:border-color .18s ease, transform .18s ease; }
+  .card:hover{ border-color:rgba(180,145,75,.3); }
+  .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .materia-card summary::-webkit-details-marker{display:none;}
   
-  .topic-row button.del-t, .subtopic-row button.del-t, .subsubtopic-row button.del-t { background:none; border:none; color:var(--text-muted); font-size:14px; margin-left:auto; cursor:pointer; }
-  .add-subtopic-row, .add-subsubtopic-row { display:flex; gap:6px; margin:6px 0; width:100%; }
-  .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: var(--transition); display:inline-flex; cursor:pointer;}
-  .topic-toggle.open{transform:rotate(90deg);}
+  /* ===== HIERARQUIA CORES UBWIKI ===== */
+  .materia-card .m-title{ font-family:'Fraunces', serif; font-size:16px; color:var(--ub-verde); font-weight:700; }
+  .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12px; color:var(--brass-light);}
+  .materia-card .bar{background:var(--ink-3); margin-top:8px;}
+  
+  .topic-row{display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13.5px; flex-wrap:wrap; font-weight:600; color:var(--ub-azul);}
+  .topic-row input[type=checkbox]{width:16px; height:16px; accent-color:var(--ub-azul); cursor:pointer;}
+  .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
+  
   .subtopics-wrap{display:none; margin:2px 0 8px 25px; padding-left:11px; border-left:2px solid var(--border-color); width:100%;}
   .subtopics-wrap.open{display:block;}
-  .sub-count{font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-left:4px;}
+  .subtopic-row{display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12.5px; font-weight:500; color:var(--ub-cinza); width:100%; flex-wrap:wrap;}
+  .subtopic-row input[type=checkbox]{width:14px; height:14px; accent-color:var(--ub-cinza); flex-shrink:0; cursor:pointer;}
+  .subtopic-row.done label{color:var(--text-muted); text-decoration:line-through;}
+  
+  .subsubtopics-wrap { display:none; margin:2px 0 6px 20px; padding-left:9px; border-left:1.5px dashed var(--border-color); width:100%; }
+  .subsubtopics-wrap.open { display:block; }
+  .subsubtopic-row { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:12px; font-weight:400; color:var(--ub-branco); width:100%;}
+  .subsubtopic-row input[type=checkbox] { width:13px; height:13px; accent-color:var(--ub-branco); cursor:pointer; }
+  .subsubtopic-row.done label { color:var(--text-muted); text-decoration:line-through; }
+
+  .topic-row button.del-t, .subtopic-row button.del-t, .subsubtopic-row button.del-t { background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6; cursor:pointer; }
+  .topic-row button.del-t:hover, .subtopic-row button.del-t:hover, .subsubtopic-row button.del-t:hover { opacity:1; color:var(--bad); }
+  
   .topic-badge{background:none; border:1px solid var(--border-color); color:var(--brass-light); font-size:9.5px; padding:2px 7px; border-radius:20px; font-family:'IBM Plex Mono';}
+  .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: transform .15s ease; display:inline-flex; cursor:pointer;}
+  .topic-toggle.open{transform:rotate(90deg);}
+  .add-subtopic-row, .add-subsubtopic-row{display:flex; gap:6px; margin-top:10px; width:100%;}
+  .add-subtopic-row input, .add-subsubtopic-row input{flex:1; padding:7px 9px; font-size:12.5px;}
+  .sub-count{font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-left:4px;}
+  .add-topic-row{display:flex; gap:6px; margin-top:10px;}
 
   input[type=text], input[type=number], input[type=date], textarea, select{
-    width:100%; background: var(--input-bg); border:1px solid var(--border-color); color:var(--text-main);
-    padding:12px 14px; border-radius:var(--radius-sm); font-family:inherit; font-size:14px;
+    width:100%; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main);
+    padding:11px 12px; border-radius:var(--radius-sm); font-family:'IBM Plex Sans'; font-size:13.5px; transition:border-color .15s, box-shadow .15s;
   }
+  input:focus, textarea:focus, select:focus{ border-color:var(--ub-azul); box-shadow:0 0 0 3px rgba(0,122,255,0.15); outline:none; }
+  textarea{resize:vertical; min-height:64px;}
+  label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); display:block; margin:10px 0 5px; font-weight:500;}
   
-  .btn{ background:var(--seal); color:var(--text-light); border:none; padding:11px 20px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600; transition: var(--transition); }
-  .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn{ background:var(--seal); color:var(--text-light); border:none; padding:10.5px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; letter-spacing:.02em; transition: var(--transition); }
+  .btn:hover{ filter:brightness(1.14); box-shadow:0 8px 20px -10px rgba(124,45,45,.65); transform:translateY(-1px); }
   .btn.secondary{background:var(--ub-azul); color:#fff;}
-  .btn.ghost{background:transparent; border:1px solid var(--border-color); color:var(--text-muted);}
+  .btn.ghost{background:rgba(255,255,255,.02); border:1px solid var(--border-color); color:var(--text-muted);}
+  .btn.small{padding:7.5px 12px; font-size:11.5px; border-radius:8px;}
 
-  /* ===== Modal / Gabinete de Fichamentos ===== */
-  .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: var(--transition); }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .chip{ font-size:11.5px; padding:6px 13px; border-radius:20px; border:1px solid var(--border-color); color:var(--text-muted); background:var(--ink-2); transition:all .15s; cursor:pointer; }
+  .chip:hover{ border-color:var(--ub-azul); color:var(--text-main); }
+  .chip.active{background:var(--ub-azul); color:#fff; border-color:var(--ub-azul); box-shadow:0 4px 12px -6px rgba(0,122,255,.5);}
+
+  /* ===== Configuração Unificada de Cards do Cronograma ===== */
+  .crono{ border-left:3px solid var(--brass); display:flex; gap:10px; align-items:flex-start; cursor:pointer; transition: var(--transition); }
+  .crono:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -10px rgba(0,0,0,0.5); border-color: var(--brass-light); }
+  .crono.feito{border-left-color:var(--ok); opacity:.72;}
+  .crono.atrasado{border-left-color:var(--bad); border-top: 1px solid rgba(194, 75, 75, 0.25);}
+  .crono input[type=checkbox]{width:17px; height:17px; margin-top:2px; accent-color:var(--ok); flex-shrink:0; cursor:pointer; position:relative; z-index:5;}
+  .crono .ch{display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px;}
+  .crono.atrasado .ch{color:#E57373;}
+  .crono .ct{font-family:'Fraunces', serif; font-size:14.5px; color:var(--text-main); margin:3px 0 4px; font-weight:600;}
+  .crono .ce{font-size:12.5px; color:var(--text-muted); line-height:1.5; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+  .crono .cactions{margin-top:8px; display:flex; gap:6px;}
+  .crono .cbody{flex:1; min-width:0;}
+  .atraso-tag{color:var(--bad); font-weight:600;}
+
+  /* ===== Modal de Fichamentos do Gabinete ===== */
+  .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: var(--transition); }
   .modal-overlay.show { opacity: 1; pointer-events: auto; }
-  .modal-card { width: 100%; max-width: 560px; background: var(--ink-2); border-radius: var(--radius-ui); padding: 30px 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
-  .modal-card h3 { color: var(--text-main); font-size: 20px; margin-bottom: 12px; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 14px; }
+  .modal-card { width: 100%; max-width: 560px; background: var(--ink-2); border-radius: var(--radius-ui); padding: 26px 22px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
+  .modal-card h3 { font-family: 'Fraunces', serif; color: var(--text-main); font-size: 20px; margin-bottom: 12px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; border-top: 1px solid var(--border-color); padding-top: 12px; }
 
-  /* ===== Calendário do Cronograma ===== */
+  /* ===== Grade do Calendário Mensal ===== */
   .crono-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 22px; background: var(--ink-2); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 14px; }
   .cal-weekday { text-align: center; font-size: 10px; font-family: 'IBM Plex Mono'; color: var(--text-muted); text-transform: uppercase; padding-bottom: 6px; }
   .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: var(--ink-3); border-radius: 6px; padding: 6px; cursor: pointer; transition: var(--transition); }
-  .cal-day.today { border-color: var(--ub-verde); background: rgba(46,196,182,0.08); }
+  .cal-day:hover { border-color: var(--ub-azul); }
+  .cal-day.empty-cell { background: transparent; cursor: default; pointer-events: none; }
+  .cal-day.today { border-color: var(--ub-verde); background: rgba(46,196,182,0.06); }
   .cal-day.active-filter { background: var(--ub-azul); }
-  .cal-day-num { font-size: 11px; font-weight: 600; color: var(--text-main); }
+  .cal-day-num { font-size: 11px; font-family: 'IBM Plex Mono'; font-weight: 600; color: var(--text-main); }
   .cal-day-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--seal-glow); }
 
-  /* ===== Subview Questões & Discursivas ===== */
-  .questao{border-left:4px solid var(--azul-light); margin-bottom: 12px;}
-  .questao.revisada{border-left-color:var(--ok);}
-  .questao .qh{display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px;}
-  .questao .qtxt{font-size:14px; margin:10px 0; line-height:1.6;}
-  .questao .qgab{font-size:13px; color:var(--brass-light); margin-bottom:4px; font-weight:500;}
-  .questao .qactions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
-  .crono{ border-left:4px solid var(--brass); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition: var(--transition); }
-  .crono.feito{border-left-color:var(--ok); opacity:.68;}
-  .crono.atrasado{border-left-color:var(--bad); border-top: 1px solid rgba(194, 75, 75, 0.25);}
-  .crono input[type=checkbox]{width:18px; height:18px; margin-top:3px; accent-color:var(--ok); flex-shrink:0; cursor:pointer;}
-  .crono .ch{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono';}
-  .crono .ct{font-size:15.5px; color:var(--text-main); margin:4px 0 6px; font-weight:600;}
-  .crono .ce{font-size:13px; color:var(--text-muted); line-height:1.55;}
+  .day-group{margin-bottom:22px;}
+  .day-group-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border-color);}
+  .day-group-head .dgd{font-family:'Fraunces', serif; font-size:16px; color:var(--text-main); text-transform:capitalize;}
+  .day-group-head .dgw{font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; text-transform:uppercase; letter-spacing:.05em;}
+  .day-group-head.hoje .dgd{color:var(--brass-light);}
+  .day-group-head.hoje .dgw{color:var(--brass-light);}
+  .day-group-head.hoje{border-bottom-color:var(--brass-light);}
+  .day-group-head .dgcount{font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; background:var(--ink-3); padding:2px 8px; border-radius:20px;}
 
-  .dispatch-frame-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 0; overflow: hidden; height: calc(100vh - 140px); }
-  .dispatch-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--ink-2); border-bottom: 1px solid var(--border-color); }
-  .dispatch-title { font-size: 11px; text-transform: uppercase; color: var(--text-muted); flex: 1; }
+  .questao { border-left: 3px solid var(--azul-light); margin-bottom: 12px; }
+  .questao.revisada { border-left-color: var(--ok); }
+  .questao .qh { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); font-family: 'IBM Plex Mono'; flex-wrap: wrap; gap: 4px; }
+  .questao .qtxt { font-size: 13.5px; margin: 8px 0; line-height: 1.55; }
+  .questao .qgab { font-size: 12.5px; color: var(--brass-light); margin-bottom: 4px; }
+  .questao .qactions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .nota { border-left: 3px solid var(--brass); margin-bottom: 12px; }
+  .nota h4 { font-family: 'Fraunces', serif; font-size: 14.5px; color: var(--text-main); margin-bottom: 4px; }
+  .nota .ntag { font-size: 10px; color: var(--brass-light); font-family: 'IBM Plex Mono'; text-transform: uppercase; }
+  .nota p { font-size: 13px; color: var(--text-light); white-space: pre-wrap; line-height: 1.55; margin: 6px 0 8px; }
+  .nota .nfoot { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; color: var(--text-muted); }
+
+  .revisao { margin-bottom: 12px; }
+  .revisao .rname { font-family: 'Fraunces', serif; font-size: 14px; color: var(--text-main); }
+  .revisao .rmeta { font-size: 10.5px; color: var(--text-muted); font-family: 'IBM Plex Mono'; margin-top: 2px; }
+  .revisao .rchecks { display: flex; gap: 10px; font-size: 9.5px; color: var(--text-muted); text-align: center; }
+  .revisao .rchecks div { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .revisao .rchecks input { width: 15px; height: 15px; accent-color: var(--seal-light); cursor: pointer; }
+  .revisao .rdel { background: none; border: none; color: #7a5a58; font-size: 11px; margin-top: 8px; text-decoration: underline; grid-column: 1 / -1; justify-self: start; cursor: pointer; }
+
+  .dispatch-frame-card { background: var(--parchment); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 0; overflow: hidden; height: calc(100vh - 140px); }
+  .dispatch-bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--ink-2); border-bottom: 1px solid var(--border-color); }
+  .dispatch-title { font-size: 10px; text-transform: uppercase; color: var(--text-muted); flex: 1; letter-spacing: 0.05em; }
   iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
 
-  /* ===== Sidebar / Tabbar Ajustada Geral ===== */
-  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px; z-index: 20; }
-  .tabbar button { flex: 1; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 8px; transition: var(--transition); border-left: 3px solid transparent; }
+  /* ===== Sidebar Barra de Navegação Lateral Fixa ===== */
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; }
+  .tabbar button { flex: 1; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; padding: 6px 2px; transition: color .15s; border-left: 3px solid transparent; }
+  .tabbar button .ic { font-size: 17px; }
   .tabbar button.active { color: var(--brass-light); font-weight: 700; }
 
   @media (min-width:860px) {
-    :root{ --tabbar-space:0px; --sidebar-w:240px; }
+    :root{ --tabbar-space:0px; --sidebar-w:224px; }
     .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
-    main{ margin-left:var(--sidebar-w); margin-top:100px; }
-    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:120px 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
-    .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:14px; padding:14px 24px; font-size:14px; border-radius: 8px; margin-bottom: 4px; }
+    main{ margin-left:var(--sidebar-w); margin-top:96px; }
+    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
+    .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13.5px; border-radius: 8px; margin-bottom: 4px; }
     .tabbar button.active { border-left-color: var(--brass-light); background: rgba(255,255,255,0.03); color: var(--brass-light); }
     .inicio-split { grid-template-columns: 1.2fr 1fr; }
   }
@@ -221,6 +365,7 @@
 </head>
 <body data-theme="dark" data-active-tab="inicio">
 
+<!-- GABINETE MODAL DE ANOTAÇÕES -->
 <div id="editCronoModal" class="modal-overlay" onclick="closeEditModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <h3>Gabinete de Estudo — Detalhes</h3>
@@ -230,7 +375,7 @@
     <input type="text" id="editCronoTema">
     
     <label class="field-label">Fichamento / Suas Anotações de Estudo</label>
-    <textarea id="editCronoEstudar" style="min-height:150px;"></textarea>
+    <textarea id="editCronoEstudar" placeholder="Escreva aqui seus resumos, insights e anotações do que foi estudado..."></textarea>
     
     <div class="row2">
       <div>
@@ -263,14 +408,16 @@
 
 <div id="loginGate" class="hidden">
   <div class="gate-card">
+    <div class="wax">GA</div>
     <h1>Chancelaria</h1>
-    <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:20px;">Entrar com Google</button>
-    <div id="gateError" class="mono" style="color:var(--bad); margin-top:10px;"></div>
+    <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:16px;">Entrar com Google</button>
+    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px;"></div>
   </div>
 </div>
 
 <div class="letterhead">
   <div class="brand">
+    <div class="wax crest">GA</div>
     <h1>Chancelaria</h1>
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
@@ -291,6 +438,7 @@
     <div class="inicio-split">
       <div>
         <div class="dossie" style="--accent:var(--ub-azul);" onclick="goTab('palavras')">
+          <div class="stamp">arquivo ativo</div>
           <div class="tag">Dossiê I</div>
           <h2>Palavras</h2>
           <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
@@ -301,6 +449,7 @@
         </div>
 
         <div class="dossie" style="--accent:var(--seal);" onclick="goTab('diplomacia')">
+          <div class="stamp">em andamento</div>
           <div class="tag">Dossiê II</div>
           <h2>Diplomacia</h2>
           <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
@@ -387,6 +536,18 @@
         </div>
         <div style="margin-top:12px;"><button class="btn secondary" onclick="addCronograma()">Adicionar ao cronograma</button></div>
       </div>
+
+      <h3 class="section-title" style="margin-top:22px;">Revisão espaçada</h3>
+      <div id="revisaoList"></div>
+      <div class="card">
+        <label class="field-label">Novo item de revisão (manual)</label>
+        <input type="text" id="rTema" placeholder="Tema (ex.: Sintaxe)">
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="rMateria"></select></div>
+          <div><label class="field-label">Data de estudo</label><input type="date" id="rData"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button></div>
+      </div>
     </div>
 
     <div class="subview" id="sub-questoes">
@@ -412,11 +573,19 @@
         <div id="cronoDisplay" class="mono" style="font-size:32px; color:var(--ub-azul); margin-bottom:8px;">00:00</div>
         <button class="btn small secondary" onclick="cronoStart()">Iniciar</button>
         <button class="btn small ghost" onclick="cronoPause()">Pausar</button>
+        <button class="btn small ghost" onclick="cronoReset()">Zerar</button>
       </div>
       <div class="card">
         <label class="field-label">Nova Discursiva</label>
-        <input type="text" id="dTema" placeholder="Tema ou Enunciado...">
-        <select id="dMateria" style="margin-top:8px;"></select>
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="dMateria"></select></div>
+          <div><label class="field-label">Tipo</label>
+            <select id="dTipo">
+              <option>Resumo</option><option>Versão</option><option>Redação</option><option>Tradução</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="dTema" placeholder="Tema ou Enunciado..." style="margin-top:8px;"></textarea>
         <input type="text" id="dLinhas" placeholder="Extensão (ex: 90 linhas)" style="margin-top:8px;">
         <button class="btn small secondary" onclick="addDiscursiva()" style="margin-top:12px;">Criar Exercício</button>
       </div>
@@ -457,9 +626,7 @@ const HUB_ORIGIN = 'https://estuda-mais-theta.vercel.app';
 
 try{ firebase.initializeApp(fbCfg); }catch(e){}
 
-function gateGoogleLogin(){
-  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(() => { connectHub(); }).catch(e=>console.error(e));
-}
+function gateGoogleLogin(){ firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>console.error(e)); }
 function toggleTheme() {
   const currentTheme = document.body.getAttribute('data-theme');
   const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -570,8 +737,17 @@ function renderMaterias(){
 function pctMateria(m){ if(!m.topicos.length) return 0; return Math.round(100 * m.topicos.filter(t => t.feito).length / m.topicos.length); }
 function toggleOpen(id){ const m = materias.find(x=>x.id===id); m.open = !m.open; save(MATERIAS_KEY, materias); }
 function toggleSubOpen(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subOpen = !t.subOpen; save(MATERIAS_KEY, materias); renderMaterias(); }
-...
-// REINTEGRAÇÃO DOS PROCESSOS DE FORMULÁRIO DE SIMULADOS E CRONOGRAMAS COMPLETOS
+function toggleSubSubOpen(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subOpen = !s.subOpen; save(MATERIAS_KEY, materias); renderMaterias(); }
+function addTopico(mid){ const input = document.getElementById('newm_'+mid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); m.topicos.push({id:uid(), nome:input.value.trim(), feito:false, subtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
+function addSubtopico(mid, tid){ const input = document.getElementById('newt_'+tid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos.push({id:uid(), nome:input.value.trim(), feito:false, subsubtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
+function addSubsubtopico(mid, tid, sid){ const input = document.getElementById('news_'+sid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos.push({id:uid(), nome:input.value.trim(), feito:false}); save(MATERIAS_KEY, materias); renderMaterias(); }
+function toggleTopico(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.feito = !t.feito; save(MATERIAS_KEY, materias); refreshStats(); renderMaterias(); }
+function toggleSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.feito = !s.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
+function toggleSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); const ss = s.subsubtopicos.find(x=>x.id===ssid); ss.feito = !ss.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
+function delTopico(mid, tid){ const m = materias.find(x=>x.id===mid); m.topicos = m.topicos.filter(x=>x.id!==tid); save(MATERIAS_KEY, materias); renderMaterias(); }
+function delSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos = t.subtopicos.filter(x=>x.id!==sid); save(MATERIAS_KEY, materias); renderMaterias(); }
+function delSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid); save(MATERIAS_KEY, materias); renderMaterias(); }
+
 let cronograma = load('diplo_cronograma', []) || cronogramaDefault();
 let questoes = load('diplo_questoes', []);
 let discursivas = load('diplo_discursivas', []);
@@ -594,6 +770,7 @@ function openCronoEditModal(id){
   document.getElementById('editCronoData').value = isoVal;
   document.getElementById('editCronoModal').classList.add('show');
 }
+function closeEditModal(e){ if(e.target.classList.contains('modal-overlay')) closeEditModalDirect(); }
 function closeEditModalDirect(){ document.getElementById('editCronoModal').classList.remove('show'); }
 function saveCronoEdition(){
   const id = document.getElementById('editCronoId').value; const c = cronograma.find(x=>x.id===id); if(!c) return;
@@ -671,33 +848,51 @@ function setCronoView(mode){
   if(mode==='calendario') renderCalendarStructure();
   renderCronograma();
 }
+function setCronoStatusFiltro(status){ cronoStatusFiltro = status; renderCronograma(); }
 
 function addMateria(){ const input = document.getElementById('novaMateriaInput'); const nome = input.value.trim(); if(!nome) return; materias.push({ id: uid(), nome, topicos:[], open:true }); input.value = ''; save(MATERIAS_KEY, materias); renderMaterias(); renderMateriaOptions(); }
-function addTopico(mid){ const input = document.getElementById('newm_'+mid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); m.topicos.push({id:uid(), nome:input.value.trim(), feito:false, subtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
-function addSubtopico(mid, tid){ const input = document.getElementById('newt_'+tid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos.push({id:uid(), nome:input.value.trim(), feito:false, subsubtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
-function addSubsubtopico(mid, tid, sid){ const input = document.getElementById('news_'+sid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos.push({id:uid(), nome:input.value.trim(), feito:false}); save(MATERIAS_KEY, materias); renderMaterias(); }
-function toggleTopico(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.feito = !t.feito; save(MATERIAS_KEY, materias); refreshStats(); renderMaterias(); }
-function toggleSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.feito = !s.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
-function toggleSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); const ss = s.subsubtopicos.find(x=>x.id===ssid); ss.feito = !ss.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
-function delTopico(mid, tid){ const m = materias.find(x=>x.id===mid); m.topicos = m.topicos.filter(x=>x.id!==tid); save(MATERIAS_KEY, materias); renderMaterias(); }
-function delSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id!==tid); t.subtopicos = t.subtopicos.filter(x=>x.id!==sid); save(MATERIAS_KEY, materias); renderMaterias(); }
-function delSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid); save(MATERIAS_KEY, materias); renderMaterias(); }
-
 function addCronograma(){
   const tema = document.getElementById('cTema').value.trim(); const estudar = document.getElementById('cEstudar').value.trim(); const materia = document.getElementById('cMateria').value; const semana = document.getElementById('cSemana').value.trim() || '—'; const dataRaw = document.getElementById('cData').value; const data = dataRaw ? isoToBR(dataRaw) : '—'; const tempo = document.getElementById('cTempo').value.trim() || '—';
   if(!tema) return; cronograma.push({ id: uid(), tema, estudar, semana, tempo, data, materia, feito:false }); save('diplo_cronograma', cronograma); ['cTema','cEstudar','cSemana','cData','cTempo'].forEach(id => document.getElementById(id).value = ''); renderCronograma(); refreshStats();
 }
 
-// RESTAURAÇÃO DOS MOTORES DE QUESTÕES, DISCURSIVAS, ATUALIDADES E ANOTAÇÕES
+const REVISAO_KEY = 'diplo_revisao';
+let revisao = load(REVISAO_KEY, []);
+function ensureRevisaoForTopico(m, t){
+  if(revisao.find(r => r.topicoId === t.id)) return;
+  revisao.unshift({ id: uid(), tema: t.nome, materia: m.nome, topicoId: t.id, dataEstudo: t.dataEstudo || todayISO(), r1:false, r2:false, r3:false });
+  save(REVISAO_KEY, revisao);
+}
+function addRevisao(){
+  const tema = document.getElementById('rTema').value.trim(); const materia = document.getElementById('rMateria').value; const dataRaw = document.getElementById('rData').value;
+  if(!tema){ alert('Dê um nome ao tema.'); return; }
+  revisao.push({ id: uid(), tema, materia, topicoId:null, dataEstudo: dataRaw || null, r1:false, r2:false, r3:false });
+  save(REVISAO_KEY, revisao); document.getElementById('rTema').value=''; document.getElementById('rData').value=''; renderRevisao();
+}
+function toggleRevisaoCheck(id, campo){ const r = revisao.find(x=>x.id===id); r[campo] = !r[campo]; save(REVISAO_KEY, revisao); renderRevisao(); }
+function delRevisao(id){ if(!confirm('Remover revisão?')) return; revisao = revisao.filter(x=>x.id!==id); save(REVISAO_KEY, revisao); renderRevisao(); }
+function renderRevisao(){
+  const el = document.getElementById('revisaoList'); if(!el) return;
+  el.innerHTML = revisao.length ? revisao.map(r => {
+    const d1 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,1)) : '—'; const d2 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,7)) : '—'; const d3 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,30)) : '—';
+    return `<div class="card revisao"><div><div class="rname">${r.tema}</div><div class="rmeta">${r.materia}</div></div><div class="rchecks"><div><input type="checkbox" ${r.r1?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div><div><input type="checkbox" ${r.r2?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div><div><input type="checkbox" ${r.r3?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div></div><button class="rdel" onclick="delRevisao('${r.id}')">Remover</button></div>`;
+  }).join('') : '<div class="empty">Nenhuma revisão espaçada ativa.</div>';
+}
+
 function renderQTopicoOptions(){ const m = materias.find(x => x.nome === document.getElementById('qMateria').value); const sel = document.getElementById('qTopico'); if(sel) sel.innerHTML = '<option value="">— nenhum —</option>' + (m ? m.topicos.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('') : ''); }
 function renderMateriaOptions(){ 
   const sel = document.getElementById('qMateria'); if(sel) sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
-  const filt = document.getElementById('qFiltroMateria'); if(filt) filt.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="renderQuestoes()">${n}</button>`).join('');
+  const filt = document.getElementById('qFiltroMateria'); if(filt) filt.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="setFiltroMateria('${n}')">${n}</button>`).join('');
   renderCMateriaSelect();
 }
+function setFiltroMateria(n){ renderQuestoes(); }
 function addItemField(){ draftItens.push({ id: uid(), texto:'', gabarito:'' }); const w = document.getElementById('qItensWrap'); if(w) w.innerHTML = draftItens.map((i,idx)=>`<div style="margin-top:6px;"><label class="field-label">Item ${idx+1}</label><textarea oninput="draftItens[${idx}].texto=this.value"></textarea></div>`).join(''); }
-function addQuestao(){ /* Persistência simulada original */ }
+function addQuestao(){}
 function onQTipoChange(){}
+function toggleRevisada(id){ const q = questoes.find(x=>x.id===id); q.revisada=!q.revisada; save('diplo_questoes', questoes); renderQuestoes(); }
+function delQuestao(id){ questoes=questoes.filter(x=>x.id!==id); save('diplo_questoes',questoes); renderQuestoes(); }
+function renderQuestoes(){ const el = document.getElementById('questoesList'); if(el) el.innerHTML = '<div class="empty">Nenhuma questão filtrada.</div>'; }
+
 function addDiscursiva(){ const m = document.getElementById('dMateria').value; const t = document.getElementById('dTema').value; if(!t) return; discursivas.unshift({id:uid(), materia:m, tema:t, linhas:document.getElementById('dLinhas').value, tempoSeg:0, historyTempos:[]}); save('diplo_discursivas', discursivas); renderDiscursivas(); }
 function renderDiscursivas(){ const el = document.getElementById('discursivasList'); if(el) el.innerHTML = discursivas.map(d=>`<div class="card"><h4>${d.materia}</h4><p>${d.tema}</p></div>`).join(''); }
 function addAtualidade(){ const tit = document.getElementById('aTitulo').value; if(!tit) return; atualidades.unshift({id:uid(), titulo:tit, resumo:document.getElementById('aResumo').value, criadoEm:Date.now()}); save('diplo_atualidades', atualidades); renderAtualidades(); }
@@ -708,13 +903,22 @@ function renderNotas(){ const el = document.getElementById('notasList'); if(el) 
 let cronoInterval = null; let cronoState = { running:false, elapsedMs:0 };
 function cronoStart(){ if(cronoState.running) return; cronoState.running=true; const start = Date.now()-cronoState.elapsedMs; cronoInterval=setInterval(()=>{ const ms = Date.now()-start; document.getElementById('cronoDisplay').textContent=fmtTempo(Math.floor(ms/1000)); },500); }
 function cronoPause(){ cronoState.running=false; clearInterval(cronoInterval); }
+function cronoReset(){ cronoState.running=false; cronoState.elapsedMs=0; clearInterval(cronoInterval); document.getElementById('cronoDisplay').textContent="00:00"; }
 function isAtrasado(c){ const d = parseBR(c.data); return d && d < new Date().setHours(0,0,0,0) && !c.feito; }
 function fmtTempo(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
+function renderCMateriaSelect(){
+  const selectIds = ['cMateria', 'rMateria', 'dMateria'];
+  selectIds.forEach(id => {
+    const sel = document.getElementById(id);
+    if(sel) sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  });
+}
 
 function pctGeral(){ const total = materias.reduce((a,m) => a + m.topicos.length, 0); const feitos = materias.reduce((a,m) => a + m.topicos.filter(t=>t.feito).length, 0); return total ? Math.round(100*feitos/total) : 0; }
 function reloadStateFromLocalStorage(){
   const t = localStorage.getItem('chancelaria_theme') || 'dark'; document.body.setAttribute('data-theme', t);
-  renderMaterias(); renderMateriaOptions(); renderCronograma(); renderDiscursivas(); renderAtualidades(); renderNotas(); refreshStats();
+  renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao(); renderDiscursivas(); renderAtualidades(); renderNotas(); refreshStats();
 }
 function refreshStats(){
   document.getElementById('statMaterias').textContent = materias.length;
@@ -723,7 +927,6 @@ function refreshStats(){
   renderDailyBrief();
 }
 function connectHub(){ document.getElementById('hubFrame').src = HUB_ORIGIN + '/'; }
-function closeEditModal(e){ if(e.target.classList.contains('modal-overlay')) closeEditModalDirect(); }
 
 reloadStateFromLocalStorage();
 </script>
