@@ -7,37 +7,61 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
 <style>
   :root{
-    --ink:#0F1826;
-    --ink-2:#182338;
-    --parchment:#F1EAD9;
-    --parchment-2:#E7DEC7;
+    --ink:#070A11;
+    --ink-2:#111726;
+    --ink-3:#161E30;
+    --parchment:#F4EEDD;
+    --parchment-2:#E9DFC3;
     --brass:#B4914B;
-    --brass-light:#D9BC7C;
+    --brass-light:#E3C481;
     --seal:#7C2D2D;
+    --seal-glow:#C24B4B;
     --seal-light:#9A4141;
     --azul:#3E5C76;
-    --azul-light:#5A7B98;
+    --azul-light:#7FA8D6;
     --text-dark:#1C1A15;
     --text-light:#EDE6D6;
-    --text-muted:#9CA9BD;
+    --text-muted:#8592A8;
     --ok:#5C7A4F;
-    --bad:#9A4141;
-    --radius:2px;
-    --shadow: 0 12px 30px -12px rgba(0,0,0,.5);
+    --ok-glow:#7FA36A;
+    --bad:#C24B4B;
+    --radius:3px;
+    --radius-ui:11px;
+    --shadow: 0 12px 30px -12px rgba(0,0,0,.55);
+    --shadow-lg: 0 30px 70px -24px rgba(0,0,0,.7);
     --tabbar-space:100px;
     --sidebar-w:0px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--ink);
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(180,145,75,.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(62,92,118,.14), transparent 55%),
+      var(--ink);
     color:var(--text-light);
     font-family:'IBM Plex Sans', sans-serif;
     min-height:100vh;
     -webkit-tap-highlight-color:transparent;
+    position:relative;
   }
+  body::before{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:.5; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+  body::after{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(180,145,75,.035) 0px, rgba(180,145,75,.035) 1px, transparent 1px, transparent 64px),
+      repeating-linear-gradient(90deg, rgba(180,145,75,.035) 0px, rgba(180,145,75,.035) 1px, transparent 1px, transparent 64px);
+  }
+  .letterhead, main, .tabbar, #loginGate{ position:relative; z-index:1; }
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
   }
@@ -48,23 +72,50 @@
   button{font-family:inherit; cursor:pointer;}
   :focus-visible{outline:2px solid var(--brass-light); outline-offset:2px;}
 
+  /* ===== Selo de lacre reutilizável ===== */
+  .wax{
+    position:relative; border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, var(--accent-light,var(--brass-light)), var(--accent,var(--brass)) 55%, color-mix(in srgb, var(--accent,var(--brass)) 60%, black) 100%);
+    box-shadow:0 4px 14px rgba(0,0,0,.45), inset 0 -3px 6px rgba(0,0,0,.3), inset 0 2px 3px rgba(255,255,255,.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .wax::before{
+    content:''; position:absolute; inset:14%; border-radius:50%;
+    border:1px dashed rgba(0,0,0,.28);
+  }
+
+  /* ===== Masthead / letterhead ===== */
   .letterhead{
-    padding:22px 20px 16px;
-    border-bottom:1px solid rgba(180,145,75,.25);
+    padding:26px 20px 18px;
+    border-bottom:1px solid rgba(180,145,75,.28);
     display:flex; justify-content:space-between; align-items:flex-start;
     background:linear-gradient(180deg, var(--ink-2), var(--ink));
+    box-shadow:0 1px 0 rgba(180,145,75,.08);
+  }
+  .letterhead::before{
+    content:''; position:absolute; top:6px; left:20px; right:20px; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(180,145,75,.5), transparent);
   }
   .letterhead .brand{display:flex; flex-direction:column; gap:2px;}
   .letterhead .brand .crest{
-    width:34px; height:34px; border-radius:50%;
-    border:1.5px solid var(--brass);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces', serif; font-size:15px; color:var(--brass-light);
-    margin-bottom:8px;
+    width:38px; height:38px;
+    font-family:'Fraunces', serif; font-size:15px; font-weight:700; color:var(--ink);
+    margin-bottom:10px;
   }
-  .letterhead h1{font-size:22px; color:var(--parchment); letter-spacing:.01em;}
-  .letterhead .sub{font-size:11.5px; color:var(--text-muted); margin-top:2px;}
-  .letterhead .protocolo{ text-align:right; font-size:10.5px; color:var(--brass-light); line-height:1.5; }
+  .letterhead h1{font-size:24px; color:var(--parchment); letter-spacing:.04em; text-transform:uppercase;}
+  .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:3px; font-style:italic; font-family:'Fraunces', serif;}
+  .letterhead .protocolo{ text-align:right; font-size:10.5px; color:var(--brass-light); line-height:1.6; }
+  .authbox{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:10px;}
+  .authbox .avatar{
+    width:26px; height:26px; border-radius:50%; background:var(--azul); color:var(--text-light);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;
+    border:1px solid rgba(180,145,75,.4); font-family:'IBM Plex Mono';
+  }
+  .authbox button{ background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light); font-size:10.5px; padding:5px 10px; border-radius:20px; font-family:'IBM Plex Mono'; }
+  .authbox button:hover{ background:rgba(180,145,75,.12); }
+  .sync-dot{width:6px; height:6px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 6px var(--ok-glow); display:inline-block; margin-right:5px; animation:pulseDot 2.4s ease infinite;}
+  @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.35;}}
 
   main{padding:18px 16px var(--tabbar-space); max-width:640px; margin:0 auto;}
 
@@ -74,33 +125,51 @@
 
   .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:14.5px; margin:4px 0 20px; line-height:1.6;}
 
+  /* ===== Dossiê (cartão-documento) ===== */
   .dossie{
-    position:relative; background:var(--parchment); color:var(--text-dark);
-    border-radius:var(--radius); padding:20px 18px 18px; margin-bottom:16px;
-    box-shadow:var(--shadow); border-left:5px solid var(--accent, var(--brass));
-    cursor:pointer; transform:scale(1); transition:transform .18s ease;
+    position:relative; background:
+      linear-gradient(155deg, rgba(0,0,0,0) 0 92%, rgba(0,0,0,.14) 92% 100%),
+      var(--parchment);
+    color:var(--text-dark);
+    border-radius:var(--radius); padding:22px 20px 20px; margin-bottom:18px;
+    box-shadow:var(--shadow-lg); border-top:3px solid var(--accent, var(--brass));
+    cursor:pointer; transform:scale(1) translateY(0); transition:transform .18s ease, box-shadow .18s ease;
+    overflow:hidden; clip-path:polygon(0 0,100% 0,100% 100%,14px 100%,0 calc(100% - 14px));
   }
+  .dossie:hover{ transform:translateY(-2px); box-shadow:0 34px 80px -22px rgba(0,0,0,.75); }
   .dossie:active{transform:scale(.985);}
-  .dossie .tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--accent, var(--brass)); font-weight:500; }
-  .dossie h2{font-size:21px; margin-top:6px;}
-  .dossie p{font-size:13px; color:#5a5648; margin:8px 0 14px; line-height:1.55;}
-  .dossie .foot{display:flex; justify-content:space-between; align-items:center;}
-  .dossie .progress-label{font-size:11px; color:#6b6656; font-family:'IBM Plex Mono', monospace;}
-  .seal{
-    width:30px; height:30px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, var(--accent-light, var(--brass-light)), var(--accent, var(--brass)) 70%);
-    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--parchment);
-    box-shadow:0 3px 8px rgba(0,0,0,.35); transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  .dossie .stamp{
+    position:absolute; top:14px; right:-30px; width:150px; text-align:center;
+    transform:rotate(20deg); font-family:'IBM Plex Mono'; font-size:9px; letter-spacing:.12em;
+    color:var(--accent, var(--brass)); border-top:1.5px solid var(--accent, var(--brass)); border-bottom:1.5px solid var(--accent, var(--brass));
+    padding:2px 0; opacity:.55; text-transform:uppercase; pointer-events:none;
   }
-  .dossie:active .seal{transform:rotate(-18deg) scale(.92);}
+  .dossie .tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent, var(--brass)); font-weight:500; }
+  .dossie h2{font-size:23px; margin-top:7px;}
+  .dossie p{font-size:13px; color:#5a5648; margin:9px 0 16px; line-height:1.55; max-width:78%;}
+  .dossie .foot{display:flex; justify-content:space-between; align-items:center; gap:12px;}
+  .dossie .progress-label{font-size:11px; color:#6b6656; font-family:'IBM Plex Mono', monospace;}
+
+  /* anel de progresso (donut via conic-gradient) */
+  .ring{
+    --pct:0; position:relative; width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:conic-gradient(var(--accent, var(--brass)) calc(var(--pct)*1%), rgba(0,0,0,.14) 0);
+    box-shadow:0 3px 10px rgba(0,0,0,.3); transition:background .7s cubic-bezier(.4,0,.2,1);
+  }
+  .ring .hole{
+    position:absolute; inset:5px; border-radius:50%; background:var(--parchment);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono'; font-size:10.5px; font-weight:600; color:var(--text-dark);
+  }
+  .dossie:active .ring{transform:rotate(-6deg) scale(.94);}
 
   .bar{height:5px; background:#d8cfb6; border-radius:3px; overflow:hidden; margin-top:6px;}
-  .bar > span{display:block; height:100%; background:var(--accent, var(--brass));}
+  .bar > span{display:block; height:100%; background:var(--accent, var(--brass)); transition:width .6s ease;}
 
-  .stats-row{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
-  .stat-card{ flex:1; min-width:70px; background:var(--ink-2); border:1px solid rgba(180,145,75,.2); border-radius:var(--radius); padding:12px; text-align:center; }
-  .stat-card .n{font-family:'Fraunces', serif; font-size:24px; color:var(--brass-light);}
-  .stat-card .l{font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+  .stats-row{display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;}
+  .stat-card{ flex:1; min-width:70px; background:linear-gradient(180deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.2); border-radius:var(--radius-ui); padding:14px 10px; text-align:center; }
+  .stat-card .n{font-family:'Fraunces', serif; font-size:25px; color:var(--brass-light);}
+  .stat-card .l{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-top:3px;}
 
   .subtabs{display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid rgba(180,145,75,.2); padding-bottom:0; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
   .subtabs::-webkit-scrollbar{display:none;}
@@ -109,10 +178,10 @@
   .subview{display:none;}
   .subview.active{display:block;}
 
-  h3.section-title{color:var(--parchment); font-size:15px; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
-  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-light); display:inline-block; border-radius:50%;}
+  h3.section-title{color:var(--parchment); font-size:15px; margin-bottom:10px; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.04em;}
+  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius:50%;}
 
-  .card{ background:var(--ink-2); border:1px solid rgba(180,145,75,.18); border-radius:var(--radius); padding:14px 14px; margin-bottom:10px; }
+  .card{ background:linear-gradient(180deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.18); border-radius:var(--radius-ui); padding:16px 16px; margin-bottom:12px; box-shadow:0 10px 24px -16px rgba(0,0,0,.6); }
   .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
   .materia-card summary::-webkit-details-marker{display:none;}
   .materia-card .m-title{font-family:'Fraunces', serif; font-size:16px; color:var(--parchment);}
@@ -128,20 +197,24 @@
   .del-materia{background:none; border:none; color:#7a5a58; font-size:11px; margin-top:10px; text-decoration:underline;}
 
   input[type=text], input[type=number], input[type=date], textarea, select{
-    width:100%; background:var(--ink); border:1px solid rgba(180,145,75,.3); color:var(--text-light);
-    padding:9px 10px; border-radius:var(--radius); font-family:'IBM Plex Sans'; font-size:13.5px;
+    width:100%; background:rgba(0,0,0,.35); border:1px solid rgba(180,145,75,.28); color:var(--text-light);
+    padding:10px 11px; border-radius:8px; font-family:'IBM Plex Sans'; font-size:13.5px; transition:border-color .15s, box-shadow .15s;
   }
+  input:focus, textarea:focus, select:focus{ border-color:var(--brass-light); box-shadow:0 0 0 3px rgba(180,145,75,.14); outline:none; }
   textarea{resize:vertical; min-height:64px;}
-  label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); display:block; margin:10px 0 4px;}
-  .btn{ background:var(--seal); color:var(--parchment); border:none; padding:9px 16px; border-radius:var(--radius); font-size:13px; font-weight:500; letter-spacing:.02em; }
+  label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); display:block; margin:10px 0 4px;}
+  .btn{ background:var(--seal); color:var(--parchment); border:none; padding:10px 17px; border-radius:9px; font-size:13px; font-weight:500; letter-spacing:.02em; transition:transform .15s, box-shadow .15s, filter .15s; }
+  .btn:hover{ filter:brightness(1.12); box-shadow:0 6px 18px -8px rgba(124,45,45,.6); transform:translateY(-1px); }
   .btn.secondary{background:var(--azul);}
+  .btn.secondary:hover{ box-shadow:0 6px 18px -8px rgba(62,92,118,.6); }
   .btn.ghost{background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light);}
-  .btn.small{padding:6px 10px; font-size:11.5px;}
+  .btn.ghost:hover{ background:rgba(180,145,75,.1); box-shadow:none; }
+  .btn.small{padding:7px 11px; font-size:11.5px;}
 
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
 
   .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
-  .chip{ font-size:11.5px; padding:5px 10px; border-radius:20px; border:1px solid rgba(180,145,75,.35); color:var(--text-muted); background:none; }
+  .chip{ font-size:11.5px; padding:5px 11px; border-radius:20px; border:1px solid rgba(180,145,75,.35); color:var(--text-muted); background:none; transition:all .15s; }
   .chip.active{background:var(--azul); color:var(--text-light); border-color:var(--azul);}
 
   .questao{border-left:3px solid var(--azul-light);}
@@ -180,11 +253,47 @@
   .revisao .rdel{background:none; border:none; color:#7a5a58; font-size:11px; margin-top:8px; text-decoration:underline; grid-column:1/-1; justify-self:start;}
 
   #view-palavras{margin:-18px -16px calc(-1 * var(--tabbar-space)); padding:0;}
-  .frame-wrap{border:none; overflow:hidden; height:calc(100vh - 92px - 66px - env(safe-area-inset-bottom)); display:none;}
-  .frame-wrap.show{display:block;}
-  .frame-wrap iframe{width:100%; height:100%; border:none; background:var(--parchment);}
+  .dispatch-frame{border:none; overflow:hidden; height:calc(100vh - 92px - 66px - env(safe-area-inset-bottom)); display:none; flex-direction:column;}
+  .dispatch-frame.show{display:flex;}
+  .dispatch-bar{
+    display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--ink-2);
+    border-bottom:1px solid rgba(180,145,75,.25); flex-shrink:0;
+  }
+  .dispatch-bar .dispatch-dot{width:7px; height:7px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 7px var(--ok-glow); animation:pulseDot 2.4s ease infinite; flex-shrink:0;}
+  .dispatch-bar .dispatch-title{font-size:10px; letter-spacing:.08em; color:var(--text-muted); text-transform:uppercase; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .dispatch-bar button{background:none; border:1px solid rgba(180,145,75,.35); color:var(--brass-light); font-size:12px; padding:3px 8px; border-radius:6px; line-height:1;}
+  .dispatch-frame iframe{width:100%; flex:1; border:none; background:var(--parchment);}
   .frame-fallback{padding:16px; text-align:center;}
   .frame-fallback p{font-size:12px; color:var(--text-muted); margin-bottom:10px;}
+
+  /* ===== Login gate ===== */
+  #loginGate{
+    position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(ellipse 900px 500px at 20% 0%, rgba(180,145,75,.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 100%, rgba(62,92,118,.16), transparent 55%),
+      var(--ink);
+    padding:24px;
+  }
+  #loginGate.hidden{display:none;}
+  .gate-card{
+    position:relative; width:100%; max-width:380px; background:var(--parchment); color:var(--text-dark);
+    border-radius:var(--radius); padding:38px 30px 30px; text-align:center; box-shadow:var(--shadow-lg);
+    clip-path:polygon(0 0,100% 0,100% 100%,18px 100%,0 calc(100% - 18px));
+  }
+  .gate-card .wax{ width:56px; height:56px; margin:0 auto 18px; font-size:20px; color:var(--ink); }
+  .gate-card h1{font-size:26px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-dark);}
+  .gate-card .sub{font-family:'Fraunces', serif; font-style:italic; color:#6b6656; font-size:13.5px; margin:8px 0 26px; line-height:1.6;}
+  .gate-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    background:var(--ink); color:var(--parchment); border:1px solid var(--brass); padding:13px 16px;
+    border-radius:9px; font-size:14px; font-weight:500; letter-spacing:.02em; transition:transform .15s, box-shadow .15s;
+  }
+  .gate-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 26px -10px rgba(180,145,75,.5); }
+  .gate-btn svg{width:18px; height:18px; flex-shrink:0;}
+  .gate-foot{margin-top:20px; font-size:9.5px; color:#8a8468; font-family:'IBM Plex Mono'; letter-spacing:.04em; text-transform:uppercase;}
+  .gate-error{margin-top:14px; font-size:11.5px; color:var(--seal); display:none;}
+  .gate-loading{margin-top:14px; font-size:11.5px; color:#6b6656; display:none;}
 
   #cronoDisplay{font-size:34px;}
 
@@ -192,34 +301,51 @@
     position:fixed; bottom:0; left:0; right:0; background:var(--ink-2); border-top:1px solid rgba(180,145,75,.25);
     display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); z-index:20;
   }
-  .tabbar button{ flex:1; background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; padding:6px 2px; }
+  .tabbar button{ flex:1; background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; padding:6px 2px; transition:color .15s; }
   .tabbar button .ic{font-size:17px;}
   .tabbar button.active{color:var(--brass-light);}
 
   form{margin:0;}
 
   @media (min-width:860px){
-    :root{ --tabbar-space:32px; --sidebar-w:210px; }
+    :root{ --tabbar-space:32px; --sidebar-w:216px; }
     .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
-    main{ margin-left:var(--sidebar-w); margin-top:90px; max-width:760px; }
-    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:110px 0 20px; border-top:none; border-right:1px solid rgba(180,145,75,.25); }
-    .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13px; }
+    main{ margin-left:var(--sidebar-w); margin-top:96px; max-width:760px; }
+    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 0 20px; border-top:none; border-right:1px solid rgba(180,145,75,.25); }
+    .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13px; border-left:2px solid transparent; }
+    .tabbar button.active{ border-left-color:var(--brass-light); background:rgba(180,145,75,.06); }
     .tabbar button .ic{font-size:16px;}
-    .frame-wrap{ height:calc(100vh - 90px); }
+    .dispatch-frame{ height:calc(100vh - 96px); }
   }
 </style>
 </head>
 <body>
 
+<div id="loginGate">
+  <div class="gate-card">
+    <div class="wax">GA</div>
+    <h1>Chancelaria</h1>
+    <p class="sub">"Duas frentes, um só processo: a palavra e a mesa de negociação."<br>Acesso restrito ao titular do processo.</p>
+    <button class="gate-btn" id="btnGoogleLogin" onclick="gateGoogleLogin()">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 16 3 9 7.6 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.3 0 10.1-2 13.7-5.4l-6.3-5.3C29.4 35.9 26.8 37 24 37c-5.2 0-9.6-3.1-11.3-7.6l-6.5 5C9 40.4 16 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.3 5.3C41.5 35.6 45 30.3 45 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
+      Entrar com Google
+    </button>
+    <div class="gate-loading mono" id="gateLoading">verificando credenciais…</div>
+    <div class="gate-error mono" id="gateError"></div>
+    <div class="gate-foot">Protocolo seguro · sincronizado com o Hub Linguístico</div>
+  </div>
+</div>
+
 <div class="letterhead">
   <div class="brand">
-    <div class="crest">GA</div>
+    <div class="wax crest">GA</div>
     <h1>Chancelaria</h1>
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
   <div class="protocolo mono">
     <div id="protocoloData">—</div>
     <div>Processo nº 001/2026</div>
+    <div class="authbox" id="authBox"></div>
   </div>
 </div>
 
@@ -229,24 +355,25 @@
     <p class="intro-line">"Duas frentes, um só processo: a palavra e a mesa de negociação."</p>
 
     <div class="dossie" style="--accent:var(--azul); --accent-light:var(--azul-light);" onclick="goTab('palavras')">
+      <div class="stamp">arquivo ativo</div>
       <div class="tag">Dossiê I</div>
       <h2>Palavras</h2>
       <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
       <div class="foot">
-        <span class="progress-label">conectado ✓</span>
-        <div class="seal">✒</div>
+        <span class="progress-label" id="palavrasStatusLabel">conectado ✓</span>
+        <div class="ring" id="palavrasRing" style="--pct:100;"><div class="hole">✒</div></div>
       </div>
     </div>
 
-    <div class="dossie" style="--accent:var(--seal); --accent-light:var(--seal-light);" onclick="goTab('diplomacia')">
+    <div class="dossie" style="--accent:var(--seal); --accent-light:var(--seal-glow);" onclick="goTab('diplomacia')">
+      <div class="stamp">em andamento</div>
       <div class="tag">Dossiê II</div>
       <h2>Diplomacia</h2>
       <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
       <div class="foot">
         <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
-        <div class="seal">❖</div>
+        <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
       </div>
-      <div class="bar"><span id="diploProgressBar" style="width:0%"></span></div>
     </div>
 
     <div class="stats-row">
@@ -258,8 +385,13 @@
   </section>
 
   <section class="view" id="view-palavras">
-    <div class="frame-wrap show" id="hubFrameWrap">
-      <iframe id="hubFrame" title="Hub Linguístico" src="https://estuda-mais-theta.vercel.app/"></iframe>
+    <div class="dispatch-frame show" id="hubFrameWrap">
+      <div class="dispatch-bar">
+        <span class="dispatch-dot"></span>
+        <span class="mono dispatch-title">transmissão segura — hub linguístico</span>
+        <button onclick="window.open('https://estuda-mais-theta.vercel.app/','_blank')" title="Abrir em nova aba">⤢</button>
+      </div>
+      <iframe id="hubFrame" title="Hub Linguístico"></iframe>
     </div>
     <div class="frame-fallback" id="hubFallback">
       <p>Se o Hub não aparecer acima, o site dele está bloqueando a exibição incorporada.</p>
@@ -434,9 +566,113 @@
 </div>
 
 <script>
+/* ══════════ AUTENTICAÇÃO GERAL DO SITE (Firebase — mesmo projeto do Hub Linguístico) ══════════ */
+const fbCfg = {apiKey:"AIzaSyA-LdSk34sspNiABm7wUn0_Jry-Qe2dqok",authDomain:"estudamais-e8a60.firebaseapp.com",projectId:"estudamais-e8a60",storageBucket:"estudamais-e8a60.firebasestorage.app",messagingSenderId:"1030390489355",appId:"1:1030390489355:web:4f09a3c04b6cd61ebe020e",measurementId:"G-HTRQ6RGF38"};
+const HUB_ORIGIN = 'https://estuda-mais-theta.vercel.app';
+const DIPLO_KEYS = ['diplo_materias','diplo_cronograma','diplo_revisao','diplo_questoes','diplo_discursivas','diplo_atualidades','diplo_notas','diplo_streak'];
+let currentUser = null;
+let suppressCloudSync = false;
+let cloudSyncTimer = null;
+let googleCred = null;
+
+try{ firebase.initializeApp(fbCfg); }catch(e){ console.error('Firebase init:', e); }
+
+function showGate(show){ document.getElementById('loginGate').classList.toggle('hidden', !show); }
+
+function gateGoogleLogin(){
+  const btn = document.getElementById('btnGoogleLogin'), err = document.getElementById('gateError'), loading = document.getElementById('gateLoading');
+  err.style.display = 'none'; loading.style.display = 'block'; btn.style.opacity = '.55'; btn.style.pointerEvents = 'none';
+  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .then(result => {
+      const cred = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+      if(cred) googleCred = { idToken: cred.idToken, accessToken: cred.accessToken };
+      connectHub();
+    })
+    .catch(e => {
+      loading.style.display = 'none'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+      err.textContent = 'Não foi possível entrar: ' + (e.message || e.code || 'erro desconhecido');
+      err.style.display = 'block';
+    });
+}
+
+function gateLogout(){ firebase.auth().signOut(); }
+
+function renderAuthBox(user){
+  const box = document.getElementById('authBox');
+  if(!box) return;
+  if(!user){ box.innerHTML = ''; return; }
+  const letra = (user.displayName || user.email || '?').trim().charAt(0).toUpperCase();
+  box.innerHTML = `<span class="sync-dot" title="sincronizado"></span><div class="avatar">${letra}</div><button onclick="gateLogout()">Sair</button>`;
+}
+
+function connectHub(){
+  const frame = document.getElementById('hubFrame');
+  if(!frame) return;
+  const send = () => { if(googleCred && frame.contentWindow) frame.contentWindow.postMessage({type:'CHANCELARIA_AUTH', idToken: googleCred.idToken, accessToken: googleCred.accessToken}, HUB_ORIGIN); };
+  if(!frame.getAttribute('src')){
+    frame.addEventListener('load', send, { once:true });
+    frame.src = HUB_ORIGIN + '/';
+  } else {
+    send();
+  }
+}
+
+function reloadStateFromLocalStorage(){
+  materias = load(MATERIAS_KEY, null) || materiasDefault();
+  cronograma = load(CRONOGRAMA_KEY, null) || cronogramaDefault();
+  revisao = load(REVISAO_KEY, null) || revisaoDefault();
+  questoes = load(QUESTOES_KEY, []);
+  discursivas = load(DISCURSIVAS_KEY, []);
+  atualidades = load(ATUALIDADES_KEY, []);
+  notas = load(NOTAS_KEY, []);
+  renderMateriaOptions(); renderMaterias(); renderCronoFiltro(); renderCronograma();
+  renderRevisao(); renderQuestoes(); renderDiscursivas(); renderAtualidades(); renderNotas(); renderStreak();
+}
+
+async function hydrateThenConnectHub(user){
+  try{
+    const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+    const cloud = doc.exists ? doc.data().diplomacia : null;
+    if(cloud){
+      suppressCloudSync = true;
+      DIPLO_KEYS.forEach(k => { if(cloud[k] !== undefined) localStorage.setItem(k, JSON.stringify(cloud[k])); });
+      reloadStateFromLocalStorage();
+      suppressCloudSync = false;
+    }
+  }catch(e){ console.error('Erro ao ler dados da nuvem:', e); }
+  connectHub();
+}
+
+function queueCloudSync(){
+  if(suppressCloudSync || !currentUser) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(pushCloudSync, 800);
+}
+function pushCloudSync(){
+  if(!currentUser) return;
+  const payload = {};
+  DIPLO_KEYS.forEach(k => { try{ payload[k] = JSON.parse(localStorage.getItem(k)); }catch(e){} });
+  firebase.firestore().collection('users').doc(currentUser.uid).set({ diplomacia: payload, diplomaciaUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+    .catch(e => console.error('Erro ao sincronizar com a nuvem:', e));
+}
+
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+  renderAuthBox(user);
+  if(user){
+    showGate(false);
+    hydrateThenConnectHub(user);
+  } else {
+    showGate(true);
+    const frame = document.getElementById('hubFrame');
+    if(frame) frame.removeAttribute('src');
+    googleCred = null;
+  }
+});
+
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const load = (k, fallback) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? fallback; }catch(e){ return fallback; } };
-const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const save = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); queueCloudSync(); };
 
 document.getElementById('protocoloData').textContent = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
 
@@ -1155,7 +1391,10 @@ function refreshStats(){
   document.getElementById('statNotas').textContent = notas.length;
   const p = pctGeral();
   document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
-  document.getElementById('diploProgressBar').style.width = p + '%';
+  const ring = document.getElementById('diploRing');
+  if(ring) ring.style.setProperty('--pct', p);
+  const pctEl = document.getElementById('diploProgressPct');
+  if(pctEl) pctEl.textContent = p + '%';
   renderStreak();
 }
 
