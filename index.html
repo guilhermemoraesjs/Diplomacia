@@ -360,7 +360,54 @@
     .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13.5px; border-radius: 8px; margin-bottom: 4px; }
     .tabbar button.active { border-left-color: var(--brass-light); background: rgba(255,255,255,0.03); color: var(--brass-light); }
     .inicio-split { grid-template-columns: 1.2fr 1fr; }
+    .biblio-layout{ grid-template-columns:270px 1fr; }
+    .biblio-editor-wrap{ grid-template-columns:1fr 240px; }
   }
+
+  /* ===== Biblioteca ===== */
+  .biblio-search{ margin-bottom:14px; }
+  .biblio-layout{ display:grid; grid-template-columns:1fr; gap:16px; margin-top:14px; }
+  .biblio-sidebar{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:14px; align-self:start; }
+  .biblio-sidebar h4{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:10px; }
+  .biblio-tree{ list-style:none; margin:0; padding:0; }
+  .biblio-tree ul{ list-style:none; margin:2px 0 4px 14px; padding-left:10px; border-left:1.5px dashed var(--border-color); }
+  .biblio-node{ display:flex; align-items:center; gap:6px; padding:7px 7px; border-radius:8px; cursor:pointer; font-size:13px; color:var(--text-main); }
+  .biblio-node:hover{ background:var(--card-hover-bg); }
+  .biblio-node.active{ background:var(--ub-azul); color:#fff; }
+  .biblio-node .bn-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .biblio-node .bn-count{ font-size:9.5px; font-family:'IBM Plex Mono'; color:var(--text-muted); opacity:.85; }
+  .biblio-node.active .bn-count{ color:rgba(255,255,255,.85); }
+  .biblio-node .bn-del{ opacity:0; background:none; border:none; color:var(--bad); font-size:12px; padding:0 3px; flex-shrink:0; }
+  .biblio-node:hover .bn-del{ opacity:.75; }
+  .biblio-add-row{ display:flex; gap:5px; margin-top:10px; }
+  .biblio-add-row input{ padding:7px 8px; font-size:12px; }
+  .biblio-main{ min-width:0; }
+  .biblio-doc-list{ display:grid; gap:10px; }
+  .biblio-doc-card{ display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .biblio-doc-card .bd-icon{ font-size:20px; flex-shrink:0; }
+  .biblio-doc-card .bd-body{ flex:1; min-width:0; }
+  .biblio-doc-card .bd-title{ font-family:'Fraunces', serif; font-size:15px; color:var(--text-main); }
+  .biblio-doc-card .bd-meta{ font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-top:2px; }
+  .biblio-doc-card .bd-tags{ display:flex; gap:5px; flex-wrap:wrap; margin-top:7px; }
+  .tag-chip{ font-size:10px; padding:2px 9px; border-radius:20px; background:rgba(180,145,75,.14); color:var(--brass-light); font-family:'IBM Plex Mono'; display:inline-flex; align-items:center; }
+  .tag-chip button{ background:none; border:none; color:inherit; margin-left:5px; font-size:9.5px; cursor:pointer; padding:0; opacity:.75; }
+  .tag-chip button:hover{ opacity:1; }
+  .biblio-editor-wrap{ display:grid; grid-template-columns:1fr; gap:16px; }
+  .biblio-editor-toolbar{ display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; background:var(--ink-3); border:1px solid var(--border-color); border-radius:9px; padding:5px; }
+  .biblio-editor-toolbar button{ background:none; border:none; color:var(--text-main); font-size:12.5px; padding:6px 10px; border-radius:6px; }
+  .biblio-editor-toolbar button:hover{ background:rgba(255,255,255,.06); }
+  .biblio-body-editable{ min-height:260px; background:var(--input-bg); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; font-size:13.5px; line-height:1.7; color:var(--text-main); }
+  .biblio-body-editable:focus{ outline:none; border-color:var(--ub-azul); }
+  .biblio-body-editable blockquote{ border-left:3px solid var(--brass); margin:8px 0; padding:4px 12px; color:var(--text-muted); font-style:italic; }
+  .biblio-body-editable pre{ background:var(--ink); padding:10px; border-radius:6px; overflow:auto; font-family:'IBM Plex Mono'; font-size:12px; }
+  .biblio-related{ margin-top:6px; }
+  .biblio-related h4{ font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; letter-spacing:.06em; }
+  .biblio-related-list{ display:flex; flex-direction:column; gap:6px; }
+  .biblio-related-item{ background:var(--ink-3); border:1px solid var(--border-color); border-radius:8px; padding:9px 10px; font-size:12.5px; cursor:pointer; }
+  .biblio-related-item:hover{ border-color:var(--ub-azul); }
+  .biblio-tags-input{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:var(--input-bg); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:8px; margin-top:4px; cursor:text; }
+  .biblio-tags-input input{ border:none; background:none; flex:1; min-width:100px; padding:2px; font-size:12.5px; }
+  .biblio-empty{ padding:30px 10px; text-align:center; color:var(--text-muted); font-size:13px; }
 </style>
 </head>
 <body data-theme="dark" data-active-tab="inicio">
@@ -458,6 +505,17 @@
             <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
           </div>
         </div>
+
+        <div class="dossie" style="--accent:var(--ok);" onclick="goTab('biblioteca')">
+          <div class="stamp">acervo pessoal</div>
+          <div class="tag">Dossiê III</div>
+          <h2>Biblioteca</h2>
+          <p>Seu acervo de documentos, fichamentos e leituras — organizado por estantes, buscável e conectado por tema.</p>
+          <div class="foot">
+            <span class="progress-label" id="biblioCountLabel">0 documentos arquivados</span>
+            <div class="ring" style="--pct:100;"><div class="hole">📚</div></div>
+          </div>
+        </div>
       </div>
 
       <div class="daily-brief-container">
@@ -470,6 +528,7 @@
       <div class="card stat-card"><div class="n" id="statMaterias">0</div><div class="l">matérias</div></div>
       <div class="card stat-card"><div class="n" id="statQuestoes">0</div><div class="l">questões</div></div>
       <div class="card stat-card"><div class="n" id="statNotas">0</div><div class="l">anotações</div></div>
+      <div class="card stat-card"><div class="n" id="statDocs">0</div><div class="l">documentos</div></div>
       <div class="card stat-card"><div class="n" id="streakCount">0</div><div class="l">dias seguidos</div></div>
     </div>
   </section>
@@ -612,12 +671,106 @@
       <div id="notasList"></div>
     </div>
   </section>
+
+  <section class="view" id="view-biblioteca">
+    <h3 class="section-title">Biblioteca</h3>
+    <p class="intro-line">Seu acervo pessoal: documentos, fichamentos e leituras — organizados e conectados por tema.</p>
+
+    <input type="text" id="biblioSearch" class="biblio-search" placeholder="Buscar por título, autor, tag ou conteúdo..." oninput="renderBiblioSearch()">
+    <div id="biblioSearchResults"></div>
+
+    <div class="biblio-layout" id="biblioMainLayout">
+      <aside class="biblio-sidebar">
+        <h4>Estantes</h4>
+        <ul class="biblio-tree" id="biblioTree"></ul>
+        <div class="biblio-add-row">
+          <input type="text" id="novaAreaInput" placeholder="Nova estante (ex.: Direito)">
+          <button class="btn ghost small" onclick="addPastaBiblio(null)">+</button>
+        </div>
+      </aside>
+
+      <div class="biblio-main">
+        <div id="biblioListView">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <h4 id="biblioCurrentPastaLabel" style="font-family:'Fraunces',serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
+            <div style="display:flex; gap:6px;">
+              <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
+              <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
+            </div>
+          </div>
+          <div class="biblio-doc-list" id="biblioDocList"></div>
+        </div>
+
+        <div id="biblioEditorView" style="display:none;">
+          <button class="btn ghost small" onclick="fecharDocumento()" style="margin-bottom:12px;">← Voltar</button>
+          <div class="biblio-editor-wrap">
+            <div>
+              <input type="text" id="docTitulo" placeholder="Título do documento" style="font-family:'Fraunces',serif; font-size:19px; padding:10px 4px; background:none; border:none; border-bottom:1px solid var(--border-color); border-radius:0; margin-bottom:10px;">
+              <div class="row2">
+                <div><label class="field-label">Tipo</label>
+                  <select id="docTipo">
+                    <option value="📄">📄 Documento</option>
+                    <option value="📝">📝 Texto longo</option>
+                    <option value="📚">📚 Resumo</option>
+                    <option value="🗂️">🗂️ Fichamento</option>
+                    <option value="🧠">🧠 Mapa mental</option>
+                    <option value="📜">📜 Legislação</option>
+                    <option value="📰">📰 Atualidade</option>
+                    <option value="🌐">🌐 Link</option>
+                  </select>
+                </div>
+                <div><label class="field-label">Pasta / Estante</label><select id="docPasta"></select></div>
+              </div>
+              <div class="row2">
+                <div><label class="field-label">Autor</label><input type="text" id="docAutor"></div>
+                <div><label class="field-label">Fonte</label><input type="text" id="docFonte"></div>
+              </div>
+              <div class="row2">
+                <div><label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select></div>
+                <div><label class="field-label">Data</label><input type="date" id="docData"></div>
+              </div>
+              <label class="field-label">Tags</label>
+              <div class="biblio-tags-input" id="docTagsInput" onclick="document.getElementById('docTagNovo').focus()">
+                <input type="text" id="docTagNovo" placeholder="Adicionar tag e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
+              </div>
+
+              <label class="field-label" style="margin-top:16px;">Conteúdo</label>
+              <div class="biblio-editor-toolbar">
+                <button type="button" onclick="fmt('bold')"><b>B</b></button>
+                <button type="button" onclick="fmt('italic')"><i>I</i></button>
+                <button type="button" onclick="fmt('formatBlock','H3')">H</button>
+                <button type="button" onclick="fmt('insertUnorderedList')">• lista</button>
+                <button type="button" onclick="fmt('formatBlock','BLOCKQUOTE')">" citação</button>
+                <button type="button" onclick="fmt('formatBlock','PRE')">{ } código</button>
+                <button type="button" onclick="fmtLink()">🔗 link</button>
+              </div>
+              <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
+
+              <label class="field-label" style="margin-top:14px;">Observações</label>
+              <textarea id="docObservacoes" style="min-height:60px;"></textarea>
+
+              <div style="display:flex; gap:8px; margin-top:16px;">
+                <button class="btn secondary" onclick="saveDocumento()">Salvar documento</button>
+                <button class="btn ghost" onclick="deleteDocumentoAtual()">Excluir</button>
+              </div>
+            </div>
+
+            <div class="biblio-related">
+              <h4>Relacionados por tag</h4>
+              <div class="biblio-related-list" id="biblioRelatedList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div class="tabbar">
   <button class="active" data-tab="inicio" onclick="goTab('inicio')">Início</button>
   <button data-tab="palavras" onclick="goTab('palavras')">Palavras</button>
   <button data-tab="diplomacia" onclick="goTab('diplomacia')">Diplomacia</button>
+  <button data-tab="biblioteca" onclick="goTab('biblioteca')">Biblioteca</button>
 </div>
 
 <script>
@@ -923,6 +1076,7 @@ function renderMateriaOptions(){
   const filt = document.getElementById('qFiltroMateria'); if(filt) filt.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="setFiltroMateria('${n}')">${n}</button>`).join('');
   const filtC = document.getElementById('cronoFiltroMateria'); if(filtC) filtC.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="setCronoFiltroMateria('${n}')">${n}</button>`).join('');
   renderCMateriaSelect();
+  renderDocMateriaOptions();
 }
 function setFiltroMateria(n){ renderQuestoes(); }
 function setCronoFiltroMateria(n){ renderCronograma(); }
@@ -955,18 +1109,242 @@ function renderCMateriaSelect(){
   });
 }
 
+/* ======================= BIBLIOTECA ======================= */
+
+function biblioPastasDefault(){
+  const p = (nome, parentId) => ({ id: uid(), nome, parentId: parentId || null });
+  const hist = p('📂 História'); const dir = p('📂 Direito');
+  return [
+    hist, p('📁 Brasil Colonial', hist.id), p('📁 Império', hist.id), p('📁 República', hist.id),
+    dir, p('📁 Constitucional', dir.id), p('📁 Internacional', dir.id),
+    p('📂 Economia'), p('📂 Inglês'), p('📂 Francês'), p('📂 Espanhol'), p('📂 Atualidades')
+  ];
+}
+let biblioPastas = load('biblio_pastas', null) || biblioPastasDefault();
+let biblioDocs = load('biblio_docs', []);
+let biblioCurrentPasta = null;
+let biblioCurrentDocId = null;
+let docTagsAtual = [];
+
+function pastaNome(id){ const p = biblioPastas.find(x=>x.id===id); return p ? p.nome.replace(/^\S+\s/, '') : '— sem pasta —'; }
+
+function renderBiblioTree(){
+  const el = document.getElementById('biblioTree'); if(!el) return;
+  const roots = biblioPastas.filter(p => !p.parentId);
+  function nodeHtml(p){
+    const children = biblioPastas.filter(c => c.parentId === p.id);
+    const count = biblioDocs.filter(d => d.pastaId === p.id).length;
+    return `<li>
+      <div class="biblio-node ${biblioCurrentPasta===p.id?'active':''}" onclick="selecionarPasta('${p.id}')">
+        <span class="bn-name">${p.nome}</span>
+        <span class="bn-count">${count}</span>
+        <button class="bn-del" onclick="event.stopPropagation(); delPastaBiblio('${p.id}')">✕</button>
+      </div>
+      ${children.length ? `<ul>${children.map(nodeHtml).join('')}</ul>` : ''}
+    </li>`;
+  }
+  el.innerHTML = `<li><div class="biblio-node ${biblioCurrentPasta===null?'active':''}" onclick="selecionarPasta(null)"><span class="bn-name">📚 Todas as estantes</span><span class="bn-count">${biblioDocs.length}</span></div></li>` + roots.map(nodeHtml).join('');
+}
+
+function selecionarPasta(id){
+  biblioCurrentPasta = id;
+  const btn = document.getElementById('biblioAddSubpastaBtn'); if(btn) btn.style.display = id ? 'inline-block' : 'none';
+  const p = biblioPastas.find(x=>x.id===id);
+  const label = document.getElementById('biblioCurrentPastaLabel'); if(label) label.textContent = p ? p.nome : 'Todas as estantes';
+  renderBiblioTree(); renderBiblioDocList();
+}
+
+function renderBiblioDocList(){
+  const el = document.getElementById('biblioDocList'); if(!el) return;
+  const list = biblioCurrentPasta ? biblioDocs.filter(d => d.pastaId === biblioCurrentPasta) : biblioDocs;
+  if(!list.length){ el.innerHTML = '<div class="biblio-empty">Nenhum documento aqui ainda. Clique em "+ Novo documento" para começar.</div>'; return; }
+  el.innerHTML = list.map(d => `
+    <div class="card biblio-doc-card" onclick="abrirDocumento('${d.id}')">
+      <div class="bd-icon">${d.tipo||'📄'}</div>
+      <div class="bd-body">
+        <div class="bd-title">${d.titulo||'(sem título)'}</div>
+        <div class="bd-meta">${d.autor?d.autor+' · ':''}${pastaNome(d.pastaId)}${d.data?' · '+isoToBR(d.data):''}</div>
+        ${d.tags && d.tags.length ? `<div class="bd-tags">${d.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function addPastaBiblio(parentId){
+  const input = document.getElementById('novaAreaInput');
+  const nome = input.value.trim(); if(!nome) return;
+  biblioPastas.push({ id: uid(), nome: (parentId ? '📁 ' : '📂 ') + nome, parentId: parentId || null });
+  input.value = ''; save('biblio_pastas', biblioPastas); renderBiblioTree();
+}
+function promptSubpasta(){
+  if(!biblioCurrentPasta) return;
+  const nome = prompt('Nome da subpasta:'); if(!nome || !nome.trim()) return;
+  biblioPastas.push({ id: uid(), nome: '📁 ' + nome.trim(), parentId: biblioCurrentPasta });
+  save('biblio_pastas', biblioPastas); renderBiblioTree();
+}
+function delPastaBiblio(id){
+  const temFilhos = biblioPastas.some(p => p.parentId === id);
+  const temDocs = biblioDocs.some(d => d.pastaId === id);
+  if(temFilhos || temDocs){ if(!confirm('Esta pasta tem subpastas ou documentos dentro. Excluir mesmo assim? Os documentos ficarão sem pasta.')) return; }
+  biblioPastas = biblioPastas.filter(p => p.id !== id);
+  biblioDocs.forEach(d => { if(d.pastaId === id) d.pastaId = null; });
+  save('biblio_pastas', biblioPastas); save('biblio_docs', biblioDocs);
+  if(biblioCurrentPasta === id) selecionarPasta(null); else renderBiblioTree();
+}
+
+function renderDocPastaOptions(){
+  const sel = document.getElementById('docPasta'); if(!sel) return;
+  sel.innerHTML = '<option value="">— sem pasta —</option>' + biblioPastas.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+}
+function renderDocMateriaOptions(){
+  const sel = document.getElementById('docMateria'); if(!sel) return;
+  sel.innerHTML = '<option value="">— nenhuma —</option>' + materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+}
+
+function novoDocumento(){
+  biblioCurrentDocId = null; docTagsAtual = [];
+  renderDocPastaOptions(); renderDocMateriaOptions();
+  document.getElementById('docTitulo').value = '';
+  document.getElementById('docTipo').value = '📄';
+  document.getElementById('docPasta').value = biblioCurrentPasta || '';
+  document.getElementById('docAutor').value = '';
+  document.getElementById('docFonte').value = '';
+  document.getElementById('docMateria').value = '';
+  document.getElementById('docData').value = '';
+  document.getElementById('docConteudo').innerHTML = '';
+  document.getElementById('docObservacoes').value = '';
+  renderTagsInput();
+  document.getElementById('biblioRelatedList').innerHTML = '<div class="biblio-empty" style="padding:14px;">Adicione tags para ver documentos relacionados.</div>';
+  document.getElementById('biblioListView').style.display = 'none';
+  document.getElementById('biblioEditorView').style.display = 'block';
+}
+function abrirDocumento(id){
+  const d = biblioDocs.find(x=>x.id===id); if(!d) return;
+  biblioCurrentDocId = id; docTagsAtual = [...(d.tags||[])];
+  renderDocPastaOptions(); renderDocMateriaOptions();
+  document.getElementById('docTitulo').value = d.titulo || '';
+  document.getElementById('docTipo').value = d.tipo || '📄';
+  document.getElementById('docPasta').value = d.pastaId || '';
+  document.getElementById('docAutor').value = d.autor || '';
+  document.getElementById('docFonte').value = d.fonte || '';
+  document.getElementById('docMateria').value = d.materia || '';
+  document.getElementById('docData').value = d.data || '';
+  document.getElementById('docConteudo').innerHTML = d.conteudo || '';
+  document.getElementById('docObservacoes').value = d.observacoes || '';
+  renderTagsInput();
+  renderRelacionados(d);
+  document.getElementById('biblioListView').style.display = 'none';
+  document.getElementById('biblioEditorView').style.display = 'block';
+}
+function fecharDocumento(){
+  document.getElementById('biblioEditorView').style.display = 'none';
+  document.getElementById('biblioListView').style.display = 'block';
+  renderBiblioDocList(); renderBiblioTree();
+}
+function saveDocumento(){
+  const titulo = document.getElementById('docTitulo').value.trim();
+  if(!titulo){ alert('Dê um título ao documento.'); return; }
+  const dados = {
+    titulo,
+    tipo: document.getElementById('docTipo').value,
+    pastaId: document.getElementById('docPasta').value || null,
+    autor: document.getElementById('docAutor').value.trim(),
+    fonte: document.getElementById('docFonte').value.trim(),
+    materia: document.getElementById('docMateria').value,
+    data: document.getElementById('docData').value,
+    conteudo: document.getElementById('docConteudo').innerHTML,
+    observacoes: document.getElementById('docObservacoes').value,
+    tags: [...docTagsAtual]
+  };
+  if(biblioCurrentDocId){
+    const d = biblioDocs.find(x=>x.id===biblioCurrentDocId); Object.assign(d, dados);
+  } else {
+    const d = { id: uid(), criadoEm: Date.now(), ...dados }; biblioDocs.unshift(d); biblioCurrentDocId = d.id;
+  }
+  save('biblio_docs', biblioDocs);
+  refreshStats();
+  fecharDocumento();
+}
+function deleteDocumentoAtual(){
+  if(!biblioCurrentDocId){ fecharDocumento(); return; }
+  if(!confirm('Excluir este documento definitivamente?')) return;
+  biblioDocs = biblioDocs.filter(x=>x.id!==biblioCurrentDocId);
+  save('biblio_docs', biblioDocs); refreshStats(); fecharDocumento();
+}
+
+function renderTagsInput(){
+  const wrap = document.getElementById('docTagsInput'); if(!wrap) return;
+  const input = document.getElementById('docTagNovo');
+  wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
+  docTagsAtual.forEach(tag => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${tag}<button type="button" onclick="removeTagDoc('${tag.replace(/'/g,"\\'")}')">✕</button>`;
+    wrap.insertBefore(chip, input);
+  });
+}
+function addTagDoc(){
+  const input = document.getElementById('docTagNovo');
+  const val = input.value.trim().replace(/^#/, '');
+  if(!val) return;
+  if(!docTagsAtual.includes(val)) docTagsAtual.push(val);
+  input.value = ''; renderTagsInput();
+}
+function removeTagDoc(tag){ docTagsAtual = docTagsAtual.filter(t => t !== tag); renderTagsInput(); }
+
+function renderRelacionados(doc){
+  const el = document.getElementById('biblioRelatedList'); if(!el) return;
+  if(!doc || !doc.tags || !doc.tags.length){ el.innerHTML = '<div class="biblio-empty" style="padding:14px;">Adicione tags para ver documentos relacionados.</div>'; return; }
+  const related = biblioDocs.filter(d => d.id !== doc.id && d.tags && d.tags.some(t => doc.tags.includes(t)));
+  el.innerHTML = related.length
+    ? related.map(d => `<div class="biblio-related-item" onclick="abrirDocumento('${d.id}')">${d.tipo||'📄'} ${d.titulo}</div>`).join('')
+    : '<div class="biblio-empty" style="padding:14px;">Nenhum documento relacionado ainda.</div>';
+}
+
+function fmt(cmd, val){ document.getElementById('docConteudo').focus(); document.execCommand(cmd, false, val || null); }
+function fmtLink(){ const url = prompt('URL do link:'); if(!url) return; fmt('createLink', url); }
+
+function stripHtml(html){ const d = document.createElement('div'); d.innerHTML = html || ''; return d.textContent || ''; }
+function renderBiblioSearch(){
+  const qEl = document.getElementById('biblioSearch'); if(!qEl) return;
+  const q = qEl.value.trim().toLowerCase();
+  const el = document.getElementById('biblioSearchResults');
+  const layout = document.getElementById('biblioMainLayout');
+  if(!q){ el.innerHTML = ''; layout.style.display = 'grid'; return; }
+  layout.style.display = 'none';
+  const results = biblioDocs.filter(d => {
+    return (d.titulo||'').toLowerCase().includes(q) ||
+      (d.autor||'').toLowerCase().includes(q) ||
+      (d.tags||[]).some(t => t.toLowerCase().includes(q)) ||
+      stripHtml(d.conteudo).toLowerCase().includes(q) ||
+      (d.observacoes||'').toLowerCase().includes(q);
+  });
+  el.innerHTML = `<h3 class="section-title" style="margin-top:6px;">${results.length} resultado(s) para "${qEl.value.trim()}"</h3>` +
+    (results.length ? `<div class="biblio-doc-list">${results.map(d => `
+      <div class="card biblio-doc-card" onclick="document.getElementById('biblioSearch').value=''; renderBiblioSearch(); abrirDocumento('${d.id}');">
+        <div class="bd-icon">${d.tipo||'📄'}</div>
+        <div class="bd-body"><div class="bd-title">${d.titulo}</div><div class="bd-meta">${pastaNome(d.pastaId)}</div></div>
+      </div>`).join('')}</div>` : '<div class="biblio-empty">Nada encontrado.</div>');
+}
+
+/* ==================== FIM BIBLIOTECA ==================== */
+
 function pctGeral(){ const total = materias.reduce((a,m) => a + m.topicos.length, 0); const feitos = materias.reduce((a,m) => a + m.topicos.filter(t=>t.feito).length, 0); return total ? Math.round(100*feitos/total) : 0; }
 function reloadStateFromLocalStorage(){
   const t = localStorage.getItem('chancelaria_theme') || 'dark'; document.body.setAttribute('data-theme', t);
-  renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao(); renderDiscursivas(); renderAtualidades(); renderNotas(); refreshStats();
+  renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao(); renderDiscursivas(); renderAtualidades(); renderNotas();
+  renderBiblioTree(); renderBiblioDocList();
+  refreshStats();
 }
 function refreshStats(){
   document.getElementById('statMaterias').textContent = materias.length;
   document.getElementById('statQuestoes').textContent = questoes.length;
   document.getElementById('statNotas').textContent = notas.length;
+  document.getElementById('statDocs').textContent = biblioDocs.length;
   document.getElementById('diploProgressLabel').textContent = pctGeral() + '% do edital coberto';
   const r = document.getElementById('diploRing'); if(r) r.style.setProperty('--pct', pctGeral());
   const pct = document.getElementById('diploProgressPct'); if(pct) pct.textContent = pctGeral() + '%';
+  const bc = document.getElementById('biblioCountLabel'); if(bc) bc.textContent = biblioDocs.length + ' documento' + (biblioDocs.length===1?'':'s') + ' arquivado' + (biblioDocs.length===1?'':'s');
   renderDailyBrief();
 }
 function connectHub(){ document.getElementById('hubFrame').src = HUB_ORIGIN + '/'; }
