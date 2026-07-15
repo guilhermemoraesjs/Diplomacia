@@ -166,7 +166,7 @@
   .subview.active{display:block; animation:fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1);}
 
   h3.section-title{color:var(--parchment); font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.05em;}
-  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius50%;}
+  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius:50%;}
 
   .card{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.16); border-radius:var(--radius-ui); padding:20px 20px; margin-bottom:14px; box-shadow:var(--shadow); transition: var(--transition); }
   .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
@@ -175,7 +175,7 @@
   .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--brass-light); font-weight:500;}
   .materia-card .bar{background:#1B2435; margin-top:10px;}
   
-  /* ===== Estrutura Multicamadas de Tópicos (Até 3 Níveis) ===== */
+  /* ===== Árvore Hierárquica do Edital (3 Níveis de caixas de seleção) ===== */
   .topic-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; flex-wrap:wrap;}
   .topic-row input[type=checkbox]{width:17px; height:17px; accent-color:var(--seal-light); cursor:pointer;}
   .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
@@ -198,7 +198,6 @@
   .add-subtopic-row{display:flex; gap:6px; margin:6px 0 8px; width:100%;}
   .add-subtopic-row input{flex:1; padding:7px 10px; font-size:12.5px;}
   
-  /* Sub-subtópicos (Camada Extra Opcional) */
   .subsubtopics-wrap { display:none; margin:2px 0 6px 20px; padding-left:9px; border-left:1.5px dashed rgba(180,145,75,.2); width:100%; }
   .subsubtopics-wrap.open { display:block; }
   .subsubtopic-row { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:12.5px; color:rgba(237, 230, 214, 0.85); width:100%;}
@@ -233,7 +232,7 @@
   .chip:hover{ border-color:rgba(180,145,75,.6); color:var(--brass-light); }
   .chip.active{background:var(--azul); color:var(--text-light); border-color:var(--azul); box-shadow:0 4px 14px -6px rgba(62,92,118,.85);}
 
-  /* ===== Estilos Renovados do Cronograma Dinâmico (Estilo Dossiê) ===== */
+  /* ===== Interface do Cronograma Modificado ===== */
   .crono{ border-left:4px solid var(--brass); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition: var(--transition); }
   .crono:hover{ transform: translateY(-3px); border-color: var(--brass-light); box-shadow: 0 16px 32px -10px rgba(0,0,0,0.65); }
   .crono.feito{border-left-color:var(--ok); opacity:.68;}
@@ -247,7 +246,7 @@
   .crono .cbody{flex:1; min-width:0;}
   .atraso-tag{color:var(--bad); font-weight:700;}
 
-  /* ===== INTERFACE AMBIENTE / MODAL DE EDIÇÃO E ANOTAÇÃO ===== */
+  /* ===== Modal de Edição de Anotações do Cronograma ===== */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.8);
     backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
@@ -267,7 +266,7 @@
   .modal-card input:focus, .modal-card textarea:focus, .modal-card select:focus { background: rgba(255,255,255,0.95); border-color: var(--brass); box-shadow: 0 0 0 3px rgba(180,145,75,0.2); }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid rgba(180,145,75,0.2); padding-top: 14px; }
 
-  /* ===== Estrutura de Grade do Calendário ===== */
+  /* ===== Calendário do Cronograma ===== */
   .crono-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 22px; background: rgba(0,0,0,0.2); border: 1px solid rgba(180,145,75,0.15); border-radius: var(--radius-ui); padding: 14px; }
   .cal-weekday { text-align: center; font-size: 10px; font-family: 'IBM Plex Mono'; color: var(--text-muted); text-transform: uppercase; font-weight: 600; padding-bottom: 6px; }
   .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 6px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
@@ -479,7 +478,7 @@
     </div>
 
     <div class="subview active" id="sub-materias">
-      <p class="intro-line" style="margin-bottom:14px;">Tópicos baseados na estrutura tradicional do edital do CACD (Anexo III). Vale conferir contra o edital oficial do seu ano, especialmente Língua Inglesa.</p>
+      <p class="intro-line" style="margin-bottom:14px;">Tópicos baseados na estrutura tradicional do edital do CACD (Anexo III). Vale adicionar e detalhar os eixos temáticos conforme os links de referência da UbWiki.</p>
       <div id="materiasList"></div>
       <div class="card">
         <label class="field-label">Nova matéria</label>
@@ -850,7 +849,7 @@ function materiasDefault(){
     ] },
     { id: uid(), nome:'🇧🇷 Português', topicos:[
       t('Leitura e interpretação de textos'), t('Ortografia, acentuação e pontuação'), t('Concordância verbal e nominal, crase'),
-      t('Sintaxe do período simples e composto'), t('Interpretação de textos dissertativos'), t('Coesão e coerência textual'),
+      t('Sintaxe do período simples e composto'), t('Interpretação de textos dissertativos'), t('Coesão e coherence textual'),
       t('Redação em português (tema CACD)'), t('Técnica de resumo')
     ] },
     { id: uid(), nome:'🇺🇸 Inglês', topicos:[
@@ -870,7 +869,7 @@ function materiasDefault(){
       t('Leitura + resumo de texto curto'), t('Gramática (verbos, tempos, concordância)'),
       t('Versão português → espanhol'), t('Vocabulário temático (política, economia, atualidades)')
     ] },
-    { id: uid(), nome:'⚖️ Direito Brasileiro', topicos:[
+    { id: uid(), nome:'⚖️ Direito Interno', topicos:[
       t('Estrutura da Constituição (Artigos 1–5)', true), t('Organização do Estado e dos Poderes'),
       t('Poderes da Administração Pública'), t('Atos e contratos administrativos'),
       t('Controle de constitucionalidade'), t('Direitos e garantias fundamentais')
@@ -914,7 +913,7 @@ function renderMaterias(){
             <input type="checkbox" ${t.feito?'checked':''} onchange="toggleTopico('${m.id}','${t.id}')" id="t_${t.id}">
             <label for="t_${t.id}">${t.nome}</label>
             ${subs.length ? `<span class="sub-count">${subFeitos}/${subs.length}</span>` : ''}
-            ${countQuestoesTopico(t.id) > 0 ? `<button type="button" class="topic-badge" onclick="irParaQuestoesDoTopico('${m.nome.replace(/'/g,"\\'")}','${t.id}')">${countQuestoesTopico(t.id)}q</button>` : ''}
+            ${countQuestoesTopico(t.id) > 0 ? `<button type="button" class="topic-badge" onclick="irParaQuestoesDoTopico('${m.nome.replace(/'/g,"\\'")}', '${t.id}')">${countQuestoesTopico(t.id)}q</button>` : ''}
             <button type="button" class="del-t" onclick="delTopico('${m.id}','${t.id}')" aria-label="Remover tópico">✕</button>
           </div>
           <div class="subtopics-wrap ${t.subOpen?'open':''}">
@@ -935,20 +934,20 @@ function renderMaterias(){
                   </div>
                 `).join('')}
                 <div class="add-subsubtopic-row">
-                  <input type="text" placeholder="Novo item..." id="newsubsubtopic_${s.id}" onkeydown="if(event.key==='Enter'){addSubsubtopico('${m.id}','${t.id}','${s.id}')}">
+                  <input type="text" placeholder="Novo subtópico (branco)..." id="newsubsubtopic_${s.id}" onkeydown="if(event.key==='Enter'){addSubsubtopico('${m.id}','${t.id}','${s.id}')}">
                   <button class="btn small ghost" style="padding: 4px 8px;" onclick="addSubsubtopico('${m.id}','${t.id}','${s.id}')">+</button>
                 </div>
               </div>
             `; }).join('')}
             <div class="add-subtopic-row">
-              <input type="text" placeholder="Novo subtópico..." id="newsubtopic_${t.id}" onkeydown="if(event.key==='Enter'){addSubtopico('${m.id}','${t.id}')}">
+              <input type="text" placeholder="Novo tópico (cinza)..." id="newsubtopic_${t.id}" onkeydown="if(event.key==='Enter'){addSubtopico('${m.id}','${t.id}')}">
               <button class="btn small ghost" onclick="addSubtopico('${m.id}','${t.id}')">+</button>
             </div>
           </div>
-        `; }).join('') || '<div class="empty">Nenhum tópico ainda.</div>'}
+        `; }).join('') || '<div class="empty">Nenhum tema adicionado ainda.</div>'}
       </div>
       <div class="add-topic-row">
-        <input type="text" placeholder="Novo tópico..." id="newtopic_${m.id}" onkeydown="if(event.key==='Enter'){addTopico('${m.id}')}">
+        <input type="text" placeholder="Novo tema (azul)..." id="newtopic_${m.id}" onkeydown="if(event.key==='Enter'){addTopico('${m.id}')}">
         <button class="btn small" onclick="addTopico('${m.id}')">+</button>
       </div>
     </details>
@@ -1093,13 +1092,12 @@ function cronogramaDefault(){
     c('Período colonial (1500–1822)','A ocupação do território: Capitanias hereditárias e Governo-Geral, economia açucareira, estrutura social e administração.','Semana 1','2h30','28/07/2025','📜 História do Brasil'),
     c('Leitura e interpretação de textos','Estratégias de leitura, tipos de texto, coesão, coerência e estrutura textual.','Semana 1','2h30','29/07/2025','🇧🇷 Português'),
     c('Revolução Francesa e Napoleônica','Causas, principais eventos e consequências da Revolução Francesa; impacto do governo Napoleônico.','Semana 1','2h00','30/07/2025','🌐 História Mundial'),
-    c('Estrutura da Constituição (Artigos 1–5)','Princípios fundamentais da Constituição Federal de 1988.','Semana 1','2h00','31/07/2025','⚖️ Direito Brasileiro', true),
+    c('Estrutura da Constituição (Artigos 1–5)','Princípios fundamentais da Constituição Federal de 1988.','Semana 1','2h00','31/07/2025','⚖️ Direito Interno', true),
     c('Revisão 1','História do Brasil e Português da semana; resolver 5 a 10 questões de cada.','Semana 1','2h30','01/08/2025','📝 Revisão + Questões'),
     c('Geopolítica, conceito de Estado, territory e fronteira','Definição de Estado, território, soberania, tipos de fronteira e conflitos geopolíticos.','Semana 2','2h30','04/08/2025','🗺️ Geografia'),
     c('Concordância verbal e nominal, crase','Regras básicas e exercícios práticos.','Semana 2','2h30','05/08/2025','🇧🇷 Português'),
     c('Política externa brasileira no século XX','Principais diretrizes e momentos históricos da política externa brasileira.','Semana 2','2h30','06/08/2025','🏳️ Política Internacional'),
     c('Guerra Fria e descolonização','Divisão do mundo bipolar, corrida armamentista e independência das colônias.','Semana 2','2h30','07/08/2025','🌐 História Mundial'),
-    c('Revisão 2','Revisar Geografia e Política Internacional da semana; questões objetivas e discursivas.','Semana 2','2h30','08/08/2025','📝 Revisão + Questões'),
   ];
 }
 let cronograma = load(CRONOGRAMA_KEY, null) || cronogramaDefault();
@@ -1186,7 +1184,6 @@ function toggleCronoFeito(id){
   if(cronoViewMode === 'calendario') renderCalendarStructure();
 }
 
-/* ===== FUNÇÕES DO MODAL DE EDIÇÃO DE CONTEÚDO ===== */
 function openCronoEditModal(id) {
   const c = cronograma.find(x=>x.id===id);
   if(!c) return;
@@ -1333,9 +1330,9 @@ function renderCronograma(){
 
   const grupos = [];
   comData.forEach(c => {
-    const d = parseBR(c.data); let grupo = grupos.find(g => isMesmoDia(g.date, d));
-    if(!grupo){ grupo = { date: d, itens: [] }; grupos.push(grupo); }
-    grupo.itens.push(c);
+    const d = parseBR(c.data); let group = grupos.find(g => isMesmoDia(g.date, d));
+    if(!group){ group = { date: d, itens: [] }; grupos.push(group); }
+    group.itens.push(c);
   });
 
   let html = grupos.map(g => {
@@ -1531,7 +1528,7 @@ function addAtualidade(){
 function delAtualidade(id){ if(!confirm('Remover esta atualidade?')) return; atualidades = atualidades.filter(x=>x.id!==id); save(ATUALIDADES_KEY, atualidades); renderAtualidades(); }
 function renderAtualidades(){
   const el = document.getElementById('atualidadesList'); if(!el) return;
-  el.innerHTML = atualidades.length ? atualidades.map(a => `
+  el.innerHTML = atualidades.length ? Empty = atualidades.map(a => `
     <div class="card nota">${a.tema ? `<div class="ntag">${a.tema}</div>` : ''}<h4>${a.titulo}</h4><p>${a.resumo}</p>${a.fonte ? `<div style="font-size:11px; color:var(--brass-light); margin-bottom:6px;">${a.fonte}</div>` : ''}<div class="nfoot"><span>${new Date(a.criadoEm).toLocaleDateString('pt-BR')}</span><button class="btn small ghost" onclick="delAtualidade('${a.id}')">Remover</button></div></div>
   `).join('') : '<div class="empty">Nenhuma atualidade guardada ainda.</div>';
 }
