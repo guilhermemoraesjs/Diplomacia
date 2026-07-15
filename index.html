@@ -111,13 +111,20 @@
   .sync-dot{width:6px; height:6px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 6px var(--ok-glow); display:inline-block; margin-right:5px; animation:pulseDot 2.4s ease infinite;}
   @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.35;}}
 
-  main{padding:24px 18px var(--tabbar-space); max-width:680px; margin:0 auto;}
+  main{padding:24px 18px var(--tabbar-space); max-width:1120px; margin:0 auto;}
 
   .view{display:none; animation:fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1);}
   .view.active{display:block;}
   @keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
 
   .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:15px; margin:4px 0 24px; line-height:1.65;}
+
+  /* Layout Base do Início Split (Dossiês à esquerda, Brief à direita) */
+  .inicio-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 
   .dossie{
     position:relative; background: linear-gradient(155deg, rgba(0,0,0,0) 0 92%, rgba(0,0,0,.15) 92% 100%), var(--parchment);
@@ -151,6 +158,71 @@
   .bar{height:6px; background:#d8cfb6; border-radius:3px; overflow:hidden; margin-top:8px;}
   .bar > span{display:block; height:100%; background:var(--accent, var(--brass)); transition:width .8s cubic-bezier(0.16, 1, 0.3, 1);}
 
+  /* ===== NOVO AMBIENTE: DESPACHO DIÁRIO (DAILY BRIEF) ===== */
+  .daily-brief-container {
+    background: linear-gradient(155deg, var(--ink-3), var(--ink-2));
+    border: 1px solid rgba(180,145,75,.22);
+    border-radius: var(--radius-ui);
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    align-self: start;
+  }
+  .daily-brief-container h3 {
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--brass-light);
+    border-bottom: 1px solid rgba(180,145,75,0.15);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brief-section {
+    margin-bottom: 18px;
+  }
+  .brief-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .brief-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-left: 3px solid var(--brass);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .brief-item:hover {
+    background: rgba(180,145,75,0.06);
+    border-color: rgba(180,145,75,0.2);
+  }
+  .brief-item.item-atrasado { border-left-color: var(--bad); }
+  .brief-item.item-urgente { border-left-color: var(--azul-light); }
+  .brief-item-meta {
+    font-size: 10.5px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .brief-item-title {
+    font-family: 'Fraunces', serif;
+    font-size: 14.5px;
+    color: var(--parchment);
+    font-weight: 500;
+  }
+
   .stats-row{display:flex; gap:12px; margin-top:28px; flex-wrap:wrap;}
   .stat-card{ flex:1; min-width:80px; background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.16); border-radius:var(--radius-ui); padding:18px 12px; text-align:center; transition: var(--transition); box-shadow: var(--shadow); }
   .stat-card:hover{ border-color:rgba(180,145,75,.35); transform: translateY(-2px); }
@@ -165,9 +237,6 @@
   .subview{display:none;}
   .subview.active{display:block; animation:fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1);}
 
-  h3.section-title{color:var(--parchment); font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:.05em;}
-  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-glow); box-shadow:0 0 6px var(--seal-glow); display:inline-block; border-radius:50%;}
-
   .card{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid rgba(180,145,75,.16); border-radius:var(--radius-ui); padding:20px 20px; margin-bottom:14px; box-shadow:var(--shadow); transition: var(--transition); }
   .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
   .materia-card summary::-webkit-details-marker{display:none;}
@@ -175,7 +244,7 @@
   .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--brass-light); font-weight:500;}
   .materia-card .bar{background:#1B2435; margin-top:10px;}
   
-  /* ===== Árvore Hierárquica do Edital (3 Níveis de caixas de seleção) ===== */
+  /* ===== Estrutura Multicamadas de Tópicos ===== */
   .topic-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; flex-wrap:wrap;}
   .topic-row input[type=checkbox]{width:17px; height:17px; accent-color:var(--seal-light); cursor:pointer;}
   .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
@@ -294,8 +363,7 @@
   .revisao{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;}
   .revisao .rname{font-family:'Fraunces', serif; font-size:15px; color:var(--parchment); font-weight:600;}
   .revisao .rmeta{font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-top:3px;}
-  .revisao .rchecks{display:flex; gap:12px; font-size:10px; color:var(--text-muted); text-align:center;}
-  .revisao .rchecks div{display:flex; flex-direction:column; align-items:center; gap:4px; font-weight:500;}
+  .revisao .rchecks"> div{display:flex; flex-direction:column; align-items:center; gap:4px; font-weight:500;}
   .revisao .rchecks input{width:16px; height:16px; accent-color:var(--seal-light); cursor:pointer;}
   .revisao .rdel{background:none; border:none; color:#9E7371; font-size:11.5px; margin-top:10px; text-decoration:underline; grid-column:1/-1; justify-self:start; cursor:pointer;}
 
@@ -333,15 +401,16 @@
   .tabbar button .ic{font-size:18px;}
   .tabbar button.active{color:var(--brass-light);}
 
-  @media (min-width:860px){
+  @media (min-width:860px) {
     :root{ --tabbar-space:32px; --sidebar-w:224px; }
     .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
-    main{ margin-left:var(--sidebar-w); margin-top:100px; max-width:780px; }
+    main{ margin-left:var(--sidebar-w); margin-top:100px; max-width:1120px; }
     .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:120px 0 20px; border-top:none; border-right:1px solid rgba(180,145,75,.25); box-shadow: 8px 0 24px rgba(0,0,0,0.3); }
     .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:14px; padding:14px 24px; font-size:13.5px; border-left:3px solid transparent; }
     .tabbar button.active{ border-left-color:var(--brass-light); background:rgba(180,145,75,.07); }
     .dispatch-frame{ height:calc(100vh - 100px); }
     #view-palavras{ width:calc(100vw - var(--sidebar-w)); max-width:calc(100vw - var(--sidebar-w)); margin-left:calc(50% - 50vw + var(--sidebar-w)); margin-right:calc(50% - 50vw); }
+    .inicio-split { grid-template-columns: 1.2fr 1fr; }
   }
 </style>
 </head>
@@ -421,25 +490,36 @@
   <section class="view active" id="view-inicio">
     <p class="intro-line">"Duas frentes, um só processo: a palavra e a mesa de negociação."</p>
 
-    <div class="dossie" style="--accent:var(--azul); --accent-light:var(--azul-light);" onclick="goTab('palavras')">
-      <div class="stamp">arquivo ativo</div>
-      <div class="tag">Dossiê I</div>
-      <h2>Palavras</h2>
-      <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
-      <div class="foot">
-        <span class="progress-label" id="palavrasStatusLabel">conectado ✓</span>
-        <div class="ring" id="palavrasRing" style="--pct:100;"><div class="hole">✒</div></div>
-      </div>
-    </div>
+    <div class="inicio-split">
+      <!-- Coluna da Esquerda: Dossies Tradicionais -->
+      <div>
+        <div class="dossie" style="--accent:var(--azul); --accent-light:var(--azul-light);" onclick="goTab('palavras')">
+          <div class="stamp">arquivo ativo</div>
+          <div class="tag">Dossiê I</div>
+          <h2>Palavras</h2>
+          <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
+          <div class="foot">
+            <span class="progress-label" id="palavrasStatusLabel">conectado ✓</span>
+            <div class="ring" id="palavrasRing" style="--pct:100;"><div class="hole">✒</div></div>
+          </div>
+        </div>
 
-    <div class="dossie" style="--accent:var(--seal); --accent-light:var(--seal-glow);" onclick="goTab('diplomacia')">
-      <div class="stamp">em andamento</div>
-      <div class="tag">Dossiê II</div>
-      <h2>Diplomacia</h2>
-      <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
-      <div class="foot">
-        <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
-        <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
+        <div class="dossie" style="--accent:var(--seal); --accent-light:var(--seal-glow);" onclick="goTab('diplomacia')">
+          <div class="stamp">em andamento</div>
+          <div class="tag">Dossiê II</div>
+          <h2>Diplomacia</h2>
+          <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
+          <div class="foot">
+            <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
+            <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna da Direita: Painel Integrado Despacho Diário (Substituindo o quadrado laranja) -->
+      <div class="daily-brief-container">
+        <h3><span>❖</span> Despacho do Dia: Agenda & Obrigações</h3>
+        <div id="dailyBriefContent"></div>
       </div>
     </div>
 
@@ -849,7 +929,7 @@ function materiasDefault(){
     ] },
     { id: uid(), nome:'🇧🇷 Português', topicos:[
       t('Leitura e interpretação de textos'), t('Ortografia, acentuação e pontuação'), t('Concordância verbal e nominal, crase'),
-      t('Sintaxe do período simples e composto'), t('Interpretação de textos dissertativos'), t('Coesão e coherence textual'),
+      t('Sintaxe do período simples e composto'), t('Interpretação de textos dissertativos'), t('Coesão e coerência textual'),
       t('Redação em português (tema CACD)'), t('Técnica de resumo')
     ] },
     { id: uid(), nome:'🇺🇸 Inglês', topicos:[
@@ -1354,6 +1434,66 @@ function renderCronograma(){
   el.innerHTML = html;
 }
 
+/* ===== MOTOR DE RENDERIZAÇÃO DO DESPACHO DIÁRIO (DAILY BRIEF) ===== */
+function renderDailyBrief() {
+  const container = document.getElementById('dailyBriefContent');
+  if(!container) return;
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  let html = "";
+
+  // 1. SINCRONIZAÇÃO DA FRENTE I (PALAVRAS)
+  html += `
+    <div class="brief-section">
+      <span class="brief-section-title">Frente I — Hub Linguístico</span>
+      <div class="brief-item brief-item-palavras" onclick="goTab('palavras')">
+        <div class="brief-item-meta"><span>Transmissão Segura</span><span>Ativa ✓</span></div>
+        <div class="brief-item-title">SRS & Vocabulário Diário</div>
+      </div>
+    </div>
+  `;
+
+  // 2. SINCRONIZAÇÃO DA FRENTE II (DIPLOMACIA)
+  const pendentesDiarias = cronograma.filter(c => {
+    const d = parseBR(c.data);
+    return d && isMesmoDia(d, hoje) && !c.feito;
+  });
+
+  const pendentesAtrasadas = cronograma.filter(c => isAtrasado(c));
+
+  html += `<div class="brief-section"><span class="brief-section-title">Frente II — Processo de Diplomacia</span>`;
+
+  if (!pendentesDiarias.length && !pendentesAtrasadas.length) {
+    html += `<div class="empty" style="padding:10px 0; font-size:12.5px;">Nenhum despacho ou pendência para o dia de hoje.</div>`;
+  } else {
+    // Listar Atrasadas com prioridade máxima
+    pendentesAtrasadas.forEach(c => {
+      html += `
+        <div class="brief-item item-atrasado" onclick="openCronoEditModal('${c.id}')">
+          <div class="brief-item-meta"><span>${c.materia}</span><span style="color:var(--bad);">🚨 ATRASADO (${c.data})</span></div>
+          <div class="brief-item-title">${c.tema}</div>
+        </div>
+      `;
+    });
+
+    // Listar as do dia de hoje
+    pendentesDiarias.forEach(c => {
+      html += `
+        <div class="brief-item" onclick="openCronoEditModal('${c.id}')">
+          <div class="brief-item-meta"><span>${c.materia}</span><span>Meta de Hoje</span></div>
+          <div class="brief-item-title">${c.tema}</div>
+        </div>
+      `;
+    });
+  }
+  html += `</div>`;
+
+  // 3. ESPAÇO PREPARADO PARA FUTURAS ABAS (FRENTE III, IV...)
+  // Aqui você poderá plugar novas checagens de dados facilmente.
+
+  container.innerHTML = html;
+}
+
 const REVISAO_KEY = 'diplo_revisao';
 function revisaoDefault(){
   return [
@@ -1528,7 +1668,7 @@ function addAtualidade(){
 function delAtualidade(id){ if(!confirm('Remover esta atualidade?')) return; atualidades = atualidades.filter(x=>x.id!==id); save(ATUALIDADES_KEY, atualidades); renderAtualidades(); }
 function renderAtualidades(){
   const el = document.getElementById('atualidadesList'); if(!el) return;
-  el.innerHTML = atualidades.length ? Empty = atualidades.map(a => `
+  el.innerHTML = atualidades.length ? atualidades.map(a => `
     <div class="card nota">${a.tema ? `<div class="ntag">${a.tema}</div>` : ''}<h4>${a.titulo}</h4><p>${a.resumo}</p>${a.fonte ? `<div style="font-size:11px; color:var(--brass-light); margin-bottom:6px;">${a.fonte}</div>` : ''}<div class="nfoot"><span>${new Date(a.criadoEm).toLocaleDateString('pt-BR')}</span><button class="btn small ghost" onclick="delAtualidade('${a.id}')">Remover</button></div></div>
   `).join('') : '<div class="empty">Nenhuma atualidade guardada ainda.</div>';
 }
@@ -1537,16 +1677,27 @@ const NOTAS_KEY = 'diplo_notas';
 let notas = load(NOTAS_KEY, []);
 function addNota(){
   const materia = document.getElementById('nMateria').value.trim(); const titulo = document.getElementById('nTitulo').value.trim(); const texto = document.getElementById('nTexto').value.trim(); if(!titulo || !texto){ alert('Preencha título e texto.'); return; }
-  notas.unshift({ id: uid(), materia, titulo, texto, criadoEm: Date.now() }); save(NOTAS_KEY, notas); ['nMateria','nTitulo','nTexto'].forEach(id => document.getElementById(id).value = ''); bumpStreak(); renderNotas();
+  notas.unshift({ id: uid(), materia, titulo, texto, criadoEm: Date.now() }); save(NOTAS_KEY, notes); ['nMateria','nTitulo','nTexto'].forEach(id => document.getElementById(id).value = ''); bumpStreak(); renderNotas();
 }
 function delNota(id){ if(!confirm('Remover anotação?')) return; notas = notas.filter(x=>x.id!==id); save(NOTAS_KEY, notas); renderNotas(); }
 function renderNotas(){ const el = document.getElementById('notasList'); el.innerHTML = notas.length ? notas.map(n => `<div class="card nota">${n.materia ? `<div class="ntag">${n.materia}</div>` : ''}<h4>${n.titulo}</h4><p>${n.texto}</p><div class="nfoot"><span>${new Date(n.criadoEm).toLocaleDateString('pt-BR')}</span><button class="btn small ghost" onclick="delNota('${n.id}')">Remover</button></div></div>`).join('') : '<div class="empty">Nenhuma anotação ainda.</div>'; refreshStats(); }
 
-function refreshStats(){
-  document.getElementById('statMaterias').textContent = materias.length; document.getElementById('statQuestoes').textContent = questoes.length; document.getElementById('statNotas').textContent = notas.length;
-  const p = pctGeral(); document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
-  const ring = document.getElementById('diploRing'); if(ring) ring.style.setProperty('--pct', p);
-  const pctEl = document.getElementById('diploProgressPct'); if(pctEl) pctEl.textContent = p + '%'; renderStreak();
+function refreshStats() {
+  document.getElementById('statMaterias').textContent = materias.length; 
+  document.getElementById('statQuestoes').textContent = questoes.length; 
+  document.getElementById('statNotas').textContent = notas.length;
+  
+  const p = pctGeral(); 
+  document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
+  
+  const ring = document.getElementById('diploRing'); 
+  if(ring) ring.style.setProperty('--pct', p);
+  
+  const pctEl = document.getElementById('diploProgressPct'); 
+  if(pctEl) pctEl.textContent = p + '%'; 
+  
+  renderStreak();
+  renderDailyBrief(); // Atualiza o Despacho Diário sempre que houver mudanças de dados
 }
 
 renderMateriaOptions(); renderMaterias(); renderCronoFiltro(); renderCronograma(); renderRevisao(); renderQuestoes(); renderDiscursivas(); renderAtualidades(); renderNotas(); addItemField(); renderStreak();
