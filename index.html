@@ -393,13 +393,40 @@
   .tag-chip button{ background:none; border:none; color:inherit; margin-left:5px; font-size:9.5px; cursor:pointer; padding:0; opacity:.75; }
   .tag-chip button:hover{ opacity:1; }
   .biblio-editor-wrap{ display:grid; grid-template-columns:1fr; gap:16px; }
-  .biblio-editor-toolbar{ display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; background:var(--ink-3); border:1px solid var(--border-color); border-radius:9px; padding:5px; }
-  .biblio-editor-toolbar button{ background:none; border:none; color:var(--text-main); font-size:12.5px; padding:6px 10px; border-radius:6px; }
+  .biblio-editor-toolbar{ display:flex; gap:3px; flex-wrap:wrap; align-items:center; margin-bottom:8px; background:var(--ink-3); border:1px solid var(--border-color); border-radius:9px; padding:6px; position:sticky; top:0; z-index:2; }
+  .biblio-editor-toolbar button{ background:none; border:none; color:var(--text-main); font-size:12.5px; padding:6px 9px; border-radius:6px; white-space:nowrap; }
   .biblio-editor-toolbar button:hover{ background:rgba(255,255,255,.06); }
+  .biblio-editor-toolbar select{ background:var(--ink-2); border:1px solid var(--border-color); color:var(--text-main); font-size:12px; padding:6px 7px; border-radius:6px; width:auto; }
+  .biblio-editor-toolbar input[type=color]{ width:26px; height:26px; padding:0; border:1px solid var(--border-color); border-radius:6px; background:none; cursor:pointer; }
+  .toolbar-sep{ width:1px; align-self:stretch; background:var(--border-color); margin:2px 3px; }
+  .toolbar-fs-spacer{ flex:1; }
+  .editor-wordcount{ font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; padding:0 6px; white-space:nowrap; }
   .biblio-body-editable{ min-height:260px; background:var(--input-bg); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px; font-size:13.5px; line-height:1.7; color:var(--text-main); }
   .biblio-body-editable:focus{ outline:none; border-color:var(--ub-azul); }
-  .biblio-body-editable blockquote{ border-left:3px solid var(--brass); margin:8px 0; padding:4px 12px; color:var(--text-muted); font-style:italic; }
-  .biblio-body-editable pre{ background:var(--ink); padding:10px; border-radius:6px; overflow:auto; font-family:'IBM Plex Mono'; font-size:12px; }
+  .biblio-body-editable h1{ font-family:'Fraunces', serif; font-size:25px; color:var(--text-main); margin:16px 0 8px; font-weight:700; line-height:1.25; }
+  .biblio-body-editable h2{ font-family:'Fraunces', serif; font-size:20px; color:var(--text-main); margin:15px 0 7px; font-weight:700; line-height:1.28; }
+  .biblio-body-editable h3{ font-family:'Fraunces', serif; font-size:16.5px; color:var(--text-main); margin:13px 0 6px; font-weight:600; }
+  .biblio-body-editable h4{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--brass-light); margin:12px 0 6px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+  .biblio-body-editable p{ margin:0 0 10px; }
+  .biblio-body-editable ul, .biblio-body-editable ol{ margin:8px 0; padding-left:22px; }
+  .biblio-body-editable li{ margin:4px 0; }
+  .biblio-body-editable blockquote{ border-left:3px solid var(--brass); margin:10px 0; padding:4px 12px; color:var(--text-muted); font-style:italic; }
+  .biblio-body-editable pre{ background:var(--ink); padding:10px; border-radius:6px; overflow:auto; font-family:'IBM Plex Mono'; font-size:12px; white-space:pre-wrap; }
+  .biblio-body-editable code{ font-family:'IBM Plex Mono', monospace; background:rgba(180,145,75,.14); padding:1px 5px; border-radius:4px; font-size:12.5px; }
+  .biblio-body-editable hr{ border:none; border-top:1px solid var(--border-color); margin:18px 0; }
+  .biblio-body-editable img{ max-width:100%; border-radius:6px; display:block; margin:10px 0; }
+  .biblio-body-editable a{ color:var(--ub-azul); text-decoration:underline; }
+  .biblio-body-editable table.doc-table{ border-collapse:collapse; width:100%; margin:12px 0; font-size:13px; }
+  .biblio-body-editable table.doc-table td, .biblio-body-editable table.doc-table th{ border:1px solid var(--border-color); padding:7px 9px; text-align:left; vertical-align:top; }
+  .biblio-body-editable table.doc-table th{ background:rgba(180,145,75,.12); color:var(--brass-light); font-family:'IBM Plex Mono'; font-size:10.5px; text-transform:uppercase; }
+  .biblio-body-editable ul.tasklist{ list-style:none; padding-left:2px; }
+  .biblio-body-editable ul.tasklist li{ display:flex; align-items:flex-start; gap:8px; padding:3px 0; margin:0; }
+  .biblio-body-editable ul.tasklist input[type=checkbox]{ margin-top:4px; accent-color:var(--ub-azul); cursor:pointer; flex-shrink:0; }
+  .biblio-body-editable ul.tasklist li.checked{ text-decoration:line-through; color:var(--text-muted); }
+  #docConteudoWrap.fullscreen-mode{ position:fixed; inset:0; z-index:998; background:var(--ink); padding:18px 18px 30px; overflow:auto; }
+  #docConteudoWrap.fullscreen-mode .biblio-body-editable{ max-width:760px; margin:0 auto; min-height:calc(100vh - 130px); font-size:15px; padding:26px 30px; }
+  #docConteudoWrap.fullscreen-mode .biblio-editor-toolbar{ max-width:760px; margin:0 auto 8px; }
+  body.editor-fullscreen-active{ overflow:hidden; }
   .biblio-related{ margin-top:6px; }
   .biblio-related h4{ font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; letter-spacing:.06em; }
   .biblio-related-list{ display:flex; flex-direction:column; gap:6px; }
@@ -735,16 +762,58 @@
               </div>
 
               <label class="field-label" style="margin-top:16px;">Conteúdo</label>
-              <div class="biblio-editor-toolbar">
-                <button type="button" onclick="fmt('bold')"><b>B</b></button>
-                <button type="button" onclick="fmt('italic')"><i>I</i></button>
-                <button type="button" onclick="fmt('formatBlock','H3')">H</button>
-                <button type="button" onclick="fmt('insertUnorderedList')">• lista</button>
-                <button type="button" onclick="fmt('formatBlock','BLOCKQUOTE')">" citação</button>
-                <button type="button" onclick="fmt('formatBlock','PRE')">{ } código</button>
-                <button type="button" onclick="fmtLink()">🔗 link</button>
+              <div id="docConteudoWrap">
+                <div class="biblio-editor-toolbar" id="docToolbar">
+                  <button type="button" title="Desfazer" onclick="fmt('undo')">↺</button>
+                  <button type="button" title="Refazer" onclick="fmt('redo')">↻</button>
+                  <span class="toolbar-sep"></span>
+                  <select title="Estilo de parágrafo" onchange="if(this.value){fmt('formatBlock', this.value);} this.selectedIndex=0;">
+                    <option value="">Estilo ▾</option>
+                    <option value="P">Parágrafo</option>
+                    <option value="H1">Título 1</option>
+                    <option value="H2">Título 2</option>
+                    <option value="H3">Título 3</option>
+                    <option value="H4">Rótulo</option>
+                  </select>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Negrito (Ctrl+B)" onclick="fmt('bold')"><b>B</b></button>
+                  <button type="button" title="Itálico (Ctrl+I)" onclick="fmt('italic')"><i>I</i></button>
+                  <button type="button" title="Sublinhado (Ctrl+U)" onclick="fmt('underline')"><u>S</u></button>
+                  <button type="button" title="Tachado" onclick="fmt('strikeThrough')"><s>T</s></button>
+                  <button type="button" title="Sobrescrito" onclick="fmt('superscript')">x²</button>
+                  <button type="button" title="Subscrito" onclick="fmt('subscript')">x₂</button>
+                  <span class="toolbar-sep"></span>
+                  <input type="color" title="Cor do texto" value="#e3c481" oninput="fmt('foreColor', this.value)">
+                  <input type="color" title="Cor de realce" value="#3e5c76" oninput="highlightColor(this.value)">
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Alinhar à esquerda" onclick="fmt('justifyLeft')">≡</button>
+                  <button type="button" title="Centralizar" onclick="fmt('justifyCenter')">≣</button>
+                  <button type="button" title="Alinhar à direita" onclick="fmt('justifyRight')">☰</button>
+                  <button type="button" title="Justificar" onclick="fmt('justifyFull')">▤</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Lista com marcadores" onclick="fmt('insertUnorderedList')">• lista</button>
+                  <button type="button" title="Lista numerada" onclick="fmt('insertOrderedList')">1. lista</button>
+                  <button type="button" title="Lista de tarefas" onclick="insertChecklist()">☑ tarefas</button>
+                  <button type="button" title="Diminuir recuo" onclick="fmt('outdent')">⇤</button>
+                  <button type="button" title="Aumentar recuo" onclick="fmt('indent')">⇥</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Citação" onclick="fmt('formatBlock','BLOCKQUOTE')">" citação</button>
+                  <button type="button" title="Bloco de código" onclick="fmt('formatBlock','PRE')">{ } código</button>
+                  <button type="button" title="Linha divisória" onclick="fmt('insertHorizontalRule')">―</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Link" onclick="fmtLink()">🔗 link</button>
+                  <button type="button" title="Remover link" onclick="fmt('unlink')">🔗✕</button>
+                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️ imagem</button>
+                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦ tabela</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Limpar formatação" onclick="clearFormatting()">limpar</button>
+                  <span class="toolbar-fs-spacer"></span>
+                  <span class="editor-wordcount" id="docWordCount">0 palavras</span>
+                  <button type="button" title="Tela cheia" onclick="toggleEditorFullscreen()">⛶</button>
+                </div>
+                <input type="file" id="docImgFileInput" accept="image/*" style="display:none" onchange="handleImageFile(event)">
+                <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
               </div>
-              <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
 
               <label class="field-label" style="margin-top:14px;">Observações</label>
               <textarea id="docObservacoes" style="min-height:60px;"></textarea>
@@ -1217,6 +1286,7 @@ function novoDocumento(){
   document.getElementById('biblioRelatedList').innerHTML = '<div class="biblio-empty" style="padding:14px;">Adicione tags para ver documentos relacionados.</div>';
   document.getElementById('biblioListView').style.display = 'none';
   document.getElementById('biblioEditorView').style.display = 'block';
+  updateWordCount();
 }
 function abrirDocumento(id){
   const d = biblioDocs.find(x=>x.id===id); if(!d) return;
@@ -1235,8 +1305,11 @@ function abrirDocumento(id){
   renderRelacionados(d);
   document.getElementById('biblioListView').style.display = 'none';
   document.getElementById('biblioEditorView').style.display = 'block';
+  updateWordCount();
 }
 function fecharDocumento(){
+  document.getElementById('docConteudoWrap').classList.remove('fullscreen-mode');
+  document.body.classList.remove('editor-fullscreen-active');
   document.getElementById('biblioEditorView').style.display = 'none';
   document.getElementById('biblioListView').style.display = 'block';
   renderBiblioDocList(); renderBiblioTree();
@@ -1301,8 +1374,83 @@ function renderRelacionados(doc){
     : '<div class="biblio-empty" style="padding:14px;">Nenhum documento relacionado ainda.</div>';
 }
 
-function fmt(cmd, val){ document.getElementById('docConteudo').focus(); document.execCommand(cmd, false, val || null); }
+/* ---- Editor de texto rico da Biblioteca ---- */
+function fmt(cmd, val){ document.getElementById('docConteudo').focus(); document.execCommand(cmd, false, val || null); updateWordCount(); }
 function fmtLink(){ const url = prompt('URL do link:'); if(!url) return; fmt('createLink', url); }
+function highlightColor(val){
+  const el = document.getElementById('docConteudo'); el.focus();
+  if(!document.execCommand('hiliteColor', false, val)){ document.execCommand('backColor', false, val); }
+}
+function clearFormatting(){
+  const el = document.getElementById('docConteudo'); el.focus();
+  document.execCommand('removeFormat');
+  document.execCommand('formatBlock', false, 'P');
+  updateWordCount();
+}
+function insertChecklist(){
+  const el = document.getElementById('docConteudo'); el.focus();
+  document.execCommand('insertHTML', false, '<ul class="tasklist"><li><input type="checkbox"> Novo item</li></ul><p><br></p>');
+  updateWordCount();
+}
+function insertTable(){
+  const rows = Math.max(1, parseInt(prompt('Quantas linhas?', '3')) || 3);
+  const cols = Math.max(1, parseInt(prompt('Quantas colunas?', '3')) || 3);
+  let html = '<table class="doc-table"><tbody>';
+  for(let r = 0; r < rows; r++){
+    html += '<tr>';
+    for(let c = 0; c < cols; c++){
+      html += r === 0 ? '<th>Título</th>' : '<td> </td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table><p><br></p>';
+  const el = document.getElementById('docConteudo'); el.focus();
+  document.execCommand('insertHTML', false, html);
+  updateWordCount();
+}
+function insertImagePrompt(){
+  const usarArquivo = confirm('OK para enviar uma imagem do computador.\nCancelar para colar uma URL de imagem.');
+  if(usarArquivo){ document.getElementById('docImgFileInput').click(); }
+  else { const url = prompt('URL da imagem:'); if(url) insertImageHTML(url); }
+}
+function handleImageFile(ev){
+  const file = ev.target.files && ev.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { insertImageHTML(reader.result); ev.target.value = ''; };
+  reader.readAsDataURL(file);
+}
+function insertImageHTML(src){
+  const el = document.getElementById('docConteudo'); el.focus();
+  document.execCommand('insertHTML', false, `<img src="${src}" alt="">`);
+  updateWordCount();
+}
+function toggleEditorFullscreen(){
+  document.getElementById('docConteudoWrap').classList.toggle('fullscreen-mode');
+  document.body.classList.toggle('editor-fullscreen-active');
+}
+function updateWordCount(){
+  const el = document.getElementById('docConteudo'); const label = document.getElementById('docWordCount');
+  if(!el || !label) return;
+  const text = el.innerText.trim();
+  const words = text ? text.split(/\s+/).length : 0;
+  label.textContent = words + ' palavra' + (words === 1 ? '' : 's');
+}
+(function initEditorEvents(){
+  const el = document.getElementById('docConteudo'); if(!el) return;
+  el.addEventListener('input', updateWordCount);
+  el.addEventListener('change', e => {
+    if(e.target.matches('.tasklist input[type=checkbox]')){
+      e.target.closest('li').classList.toggle('checked', e.target.checked);
+    }
+  });
+  document.addEventListener('keydown', e => {
+    const wrap = document.getElementById('docConteudoWrap');
+    if(e.key === 'Escape' && wrap && wrap.classList.contains('fullscreen-mode')){
+      toggleEditorFullscreen();
+    }
+  });
+})();
+/* ---- fim editor rico ---- */
 
 function stripHtml(html){ const d = document.createElement('div'); d.innerHTML = html || ''; return d.textContent || ''; }
 function renderBiblioSearch(){
