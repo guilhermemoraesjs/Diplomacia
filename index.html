@@ -194,30 +194,59 @@
   .materia-card .m-title{font-family:'Fraunces', serif; font-size:17px; color:var(--parchment); font-weight:600;}
   .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--brass-light); font-weight:500;}
   .materia-card .bar{background:#1B2435; margin-top:10px;}
+  
+  /* ===== Árvore de Tópicos e Subtópicos ===== */
   .topic-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; flex-wrap:wrap;}
   .topic-row input[type=checkbox]{width:17px; height:17px; accent-color:var(--seal-light);}
   .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
-  .topic-row button.del-t{background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6; transition: var(--transition);}
+  .topic-row button.del-t{background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6; transition: var(--transition); cursor:pointer;}
   .topic-row button.del-t:hover{opacity:1; color:var(--bad);}
   .topic-badge{background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light); font-size:9.5px; padding:2px 7px; border-radius:20px; font-family:'IBM Plex Mono'; transition: var(--transition);}
   .topic-badge:hover{background:rgba(180,145,75,.15); border-color:var(--brass-light);}
   .add-topic-row{display:flex; gap:6px; margin-top:12px;}
   .add-topic-row input{flex:1;}
-  .del-materia{background:none; border:none; color:#9E7371; font-size:11px; margin-top:12px; text-decoration:underline; cursor:pointer; transition: var(--transition);}
-  .del-materia:hover{color:var(--bad);}
 
-  .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: var(--transition); display:inline-flex;}
+  .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: var(--transition); display:inline-flex; cursor:pointer;}
   .topic-toggle.open{transform:rotate(90deg);}
   .subtopics-wrap{display:none; margin:2px 0 8px 25px; padding-left:11px; border-left:2px solid rgba(180,145,75,.18);}
   .subtopics-wrap.open{display:block;}
-  .subtopic-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; color:var(--text-light);}
+  
+  .subtopic-row{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:13px; color:var(--text-light); flex-wrap:wrap;}
   .subtopic-row input[type=checkbox]{width:15px; height:15px; accent-color:var(--azul-light); flex-shrink:0;}
   .subtopic-row.done label{color:var(--text-muted); text-decoration:line-through;}
-  .subtopic-row button.del-t{background:none; border:none; color:#6a5350; font-size:13px; margin-left:auto; opacity:.55; transition: var(--transition);}
+  .subtopic-row button.del-t{background:none; border:none; color:#6a5350; font-size:13px; margin-left:auto; opacity:.55; transition: var(--transition); cursor:pointer;}
   .subtopic-row button.del-t:hover{opacity:1; color:var(--bad);}
-  .add-subtopic-row{display:flex; gap:6px; margin:6px 0 8px;}
+  
+  .add-subtopic-row{display:flex; gap:6px; margin:6px 0 8px; width:100%;}
   .add-subtopic-row input{flex:1; padding:7px 10px; font-size:12.5px;}
-  .add-subtopic-row button{flex-shrink:0;}
+  
+  /* Sub-subtópicos (2º Nível) */
+  .subsubtopics-wrap {
+    display: none;
+    margin: 2px 0 6px 20px;
+    padding-left: 9px;
+    border-left: 1.5px dashed rgba(180,145,75,.15);
+    width: 100%;
+  }
+  .subsubtopics-wrap.open { display: block; }
+  .subsubtopic-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: rgba(237, 230, 214, 0.85);
+  }
+  .subsubtopic-row input[type=checkbox] { width: 13px; height: 13px; accent-color: var(--brass); }
+  .subsubtopic-row.done label { color: var(--text-muted); text-decoration: line-through; }
+  .add-subsubtopic-row {
+    display: flex;
+    gap: 4px;
+    margin: 4px 0 4px 20px;
+    width: calc(100% - 20px);
+  }
+  .add-subsubtopic-row input { padding: 5px 8px; font-size: 11.5px; }
+
   .sub-count{font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-left:4px;}
 
   input[type=text], input[type=number], input[type=date], textarea, select{
@@ -276,7 +305,7 @@
   .crono.atrasado .ch{color:#E57373;}
   .crono .ct{font-family:'Fraunces', serif; font-size:15.5px; color:var(--parchment); margin:4px 0 6px; font-weight:600;}
   .crono .ce{font-size:13px; color:var(--text-muted); line-height:1.55;}
-  .crono .cactions{margin-top:10px;}
+  .crono .cactions{margin-top:10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;}
   .crono .cbody{flex:1; min-width:0;}
   .atraso-tag{color:var(--bad); font-weight:700; letter-spacing: 0.02em;}
 
@@ -288,6 +317,94 @@
   .revisao .rchecks input{width:16px; height:16px; accent-color:var(--seal-light); cursor:pointer;}
   .revisao .rdel{background:none; border:none; color:#9E7371; font-size:11.5px; margin-top:10px; text-decoration:underline; grid-column:1/-1; justify-self:start; cursor:pointer; transition: var(--transition);}
   .revisao .rdel:hover{color:var(--bad);}
+
+  /* ===== Novo Seletor de Data Em Linha ===== */
+  .inline-date-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(180,145,75,0.2);
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-top: 4px;
+  }
+  .inline-date-edit input[type=date] {
+    border: none;
+    background: transparent;
+    padding: 2px;
+    font-size: 11px;
+    color: var(--brass-light);
+    width: auto;
+    font-family: 'IBM Plex Mono';
+  }
+
+  /* ===== Calendário do Cronograma ===== */
+  .crono-cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 20px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(180,145,75,0.15);
+    border-radius: var(--radius-ui);
+    padding: 12px;
+  }
+  .cal-weekday {
+    text-align: center;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono';
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-bottom: 6px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+  }
+  .cal-day:hover {
+    background: rgba(180,145,75,0.08);
+    border-color: rgba(180,145,75,0.2);
+  }
+  .cal-day.empty-cell {
+    background: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+  .cal-day.today {
+    border-color: var(--brass-light);
+    background: rgba(180,145,75,0.05);
+  }
+  .cal-day.active-filter {
+    background: var(--azul);
+    border-color: var(--azul-light);
+  }
+  .cal-day-num {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono';
+    font-weight: 500;
+  }
+  .cal-day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--seal-glow);
+    box-shadow: 0 0 5px var(--seal-glow);
+  }
+  .cal-day.active-filter .cal-day-num {
+    color: #fff;
+    font-weight: 600;
+  }
 
   /* ===== Histórico de Tempos (Discursiva) ===== */
   .history-box {
@@ -506,7 +623,7 @@
       <!-- Filtros por Matéria -->
       <div class="filters" id="cronoFiltroMateria"></div>
       
-      <!-- Novo Filtro de Status para o Cronograma -->
+      <!-- Filtro de Status para o Cronograma -->
       <label class="field-label" style="margin-top:0px; margin-bottom:8px;">Filtrar por Status</label>
       <div class="filters">
         <button class="chip active" id="cronoStatusTodasBtn" onclick="setCronoStatusFiltro('todas')">📋 Todas</button>
@@ -518,6 +635,12 @@
       <div class="filters">
         <button class="chip active" id="cronoViewDiaBtn" onclick="setCronoView('dia')">📅 Por dia</button>
         <button class="chip" id="cronoViewMateriaBtn" onclick="setCronoView('materia')">Por matéria</button>
+        <button class="chip" id="cronoViewCalBtn" onclick="setCronoView('calendario')">📅 Calendário</button>
+      </div>
+
+      <!-- Área de Exibição do Calendário -->
+      <div id="calendarioWrap" style="display:none;">
+        <div id="calendarView" class="crono-cal"></div>
       </div>
 
       <div id="cronogramaList"></div>
@@ -860,7 +983,7 @@ function materiasDefault(){
       t('Redação (essay) em inglês'), t('Versão português → inglês'), t('Idiomatismos e falsos cognatos')
     ] },
     { id: uid(), nome:'🗺️ Geografia', topicos:[
-      t('Geopolítica, conceito de Estado, território e fronteira'), t('Geografia da população e migrações'),
+      t('Geopolítica, conceito de Estado, territory e fronteira'), t('Geografia da população e migrações'),
       t('Geografia econômica e globalização'), t('Geografia agrária e agronegócio'), t('Geografia urbana'),
       t('Geopolítica e meio ambiente'), t('Cartografia e geotecnologias')
     ] },
@@ -920,12 +1043,28 @@ function renderMaterias(){
             <button type="button" class="del-t" onclick="delTopico('${m.id}','${t.id}')" aria-label="Remover tópico">✕</button>
           </div>
           <div class="subtopics-wrap ${t.subOpen?'open':''}">
-            ${subs.map(s => `
+            ${subs.map(s => { const ssubs = s.subsubtopicos || []; const ssubFeitos = ssubs.filter(ss=>ss.feito).length; return `
               <div class="subtopic-row ${s.feito?'done':''}">
+                <button type="button" class="topic-toggle ${s.subOpen?'open':''}" onclick="toggleSubSubOpen('${m.id}','${t.id}','${s.id}')" aria-label="Expandir sub-subtópicos">▶</button>
                 <input type="checkbox" ${s.feito?'checked':''} onchange="toggleSubtopico('${m.id}','${t.id}','${s.id}')" id="st_${s.id}">
                 <label for="st_${s.id}">${s.nome}</label>
+                ${ssubs.length ? `<span class="sub-count">${ssubFeitos}/${ssubs.length}</span>` : ''}
                 <button type="button" class="del-t" onclick="delSubtopico('${m.id}','${t.id}','${s.id}')" aria-label="Remover subtópico">✕</button>
-              </div>`).join('')}
+              </div>
+              <div class="subsubtopics-wrap ${s.subOpen?'open':''}">
+                ${ssubs.map(ss => `
+                  <div class="subsubtopic-row ${ss.feito?'done':''}">
+                    <input type="checkbox" ${ss.feito?'checked':''} onchange="toggleSubsubtopico('${m.id}','${t.id}','${s.id}','${ss.id}')" id="sst_${ss.id}">
+                    <label for="sst_${ss.id}">${ss.nome}</label>
+                    <button type="button" class="del-t" onclick="delSubsubtopico('${m.id}','${t.id}','${s.id}','${ss.id}')" style="font-size:10px;" aria-label="Remover sub-subtópico">✕</button>
+                  </div>
+                `).join('')}
+                <div class="add-subsubtopic-row">
+                  <input type="text" placeholder="Novo item..." id="newsubsubtopic_${s.id}" onkeydown="if(event.key==='Enter'){addSubsubtopico('${m.id}','${t.id}','${s.id}')}">
+                  <button class="btn small ghost" style="padding: 4px 8px;" onclick="addSubsubtopico('${m.id}','${t.id}','${s.id}')">+</button>
+                </div>
+              </div>
+            `; }).join('')}
             <div class="add-subtopic-row">
               <input type="text" placeholder="Novo subtópico..." id="newsubtopic_${t.id}" onkeydown="if(event.key==='Enter'){addSubtopico('${m.id}','${t.id}')}">
               <button class="btn small ghost" onclick="addSubtopico('${m.id}','${t.id}')">+</button>
@@ -937,7 +1076,6 @@ function renderMaterias(){
         <input type="text" placeholder="Novo tópico..." id="newtopic_${m.id}" onkeydown="if(event.key==='Enter'){addTopico('${m.id}')}">
         <button class="btn small" onclick="addTopico('${m.id}')">+</button>
       </div>
-      <button class="del-materia" onclick="delMateria('${m.id}')">Remover matéria</button>
     </details>
   `).join('');
   refreshStats();
@@ -949,13 +1087,6 @@ function addMateria(){
   if(!nome) return;
   materias.push({ id: uid(), nome, topicos:[], open:true });
   input.value = '';
-  save(MATERIAS_KEY, materias);
-  renderMaterias();
-  renderMateriaOptions();
-}
-function delMateria(id){
-  if(!confirm('Remover esta matéria e todos os seus tópicos?')) return;
-  materias = materias.filter(m => m.id !== id);
   save(MATERIAS_KEY, materias);
   renderMaterias();
   renderMateriaOptions();
@@ -985,7 +1116,7 @@ function addSubtopico(mid, tid){
   const m = materias.find(x=>x.id===mid);
   const t = m.topicos.find(x=>x.id===tid);
   if(!t.subtopicos) t.subtopicos = [];
-  t.subtopicos.push({ id: uid(), nome, feito:false });
+  t.subtopicos.push({ id: uid(), nome, feito:false, subsubtopicos:[], subOpen:false });
   t.subOpen = true;
   m.open = true;
   save(MATERIAS_KEY, materias);
@@ -998,7 +1129,7 @@ function toggleSubtopico(mid, tid, sid){
   s.feito = !s.feito;
   t.subOpen = true;
   m.open = true;
-  if(s.feito) bumpStreak('Subtópico concluído: ' + s.nome + ' (' + t.nome + ')');
+  if(s.feito) bumpStreak();
   save(MATERIAS_KEY, materias);
   renderMaterias();
 }
@@ -1011,6 +1142,54 @@ function delSubtopico(mid, tid, sid){
   save(MATERIAS_KEY, materias);
   renderMaterias();
 }
+
+// Lógicas de Sub-subtópicos (2º Nível)
+function toggleSubSubOpen(mid, tid, sid){
+  const m = materias.find(x=>x.id===mid);
+  const t = m.topicos.find(x=>x.id===tid);
+  const s = t.subtopicos.find(x=>x.id===sid);
+  s.subOpen = !s.subOpen;
+  m.open = true;
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+function addSubsubtopico(mid, tid, sid){
+  const input = document.getElementById('newsubsubtopic_' + sid);
+  const nome = input.value.trim();
+  if(!nome) return;
+  const m = materias.find(x=>x.id===mid);
+  const t = m.topicos.find(x=>x.id===tid);
+  const s = t.subtopicos.find(x=>x.id===sid);
+  if(!s.subsubtopicos) s.subsubtopicos = [];
+  s.subsubtopicos.push({ id: uid(), nome, feito:false });
+  s.subOpen = true;
+  m.open = true;
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+function toggleSubsubtopico(mid, tid, sid, ssid){
+  const m = materias.find(x=>x.id===mid);
+  const t = m.topicos.find(x=>x.id===tid);
+  const s = t.subtopicos.find(x=>x.id===sid);
+  const ss = s.subsubtopicos.find(x=>x.id===ssid);
+  ss.feito = !ss.feito;
+  s.subOpen = true;
+  m.open = true;
+  if(ss.feito) bumpStreak();
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+function delSubsubtopico(mid, tid, sid, ssid){
+  const m = materias.find(x=>x.id===mid);
+  const t = m.topicos.find(x=>x.id===tid);
+  const s = t.subtopicos.find(x=>x.id===sid);
+  s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid);
+  s.subOpen = true;
+  m.open = true;
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+
 function toggleTopico(mid, tid){
   const m = materias.find(x=>x.id===mid);
   const t = m.topicos.find(x=>x.id===tid);
@@ -1042,7 +1221,7 @@ function cronogramaDefault(){
     c('Revolução Francesa e Napoleônica','Causas, principais eventos e consequências da Revolução Francesa; impacto do governo Napoleônico.','Semana 1','2h00','30/07/2025','🌐 História Mundial'),
     c('Estrutura da Constituição (Artigos 1–5)','Princípios fundamentais da Constituição Federal de 1988.','Semana 1','2h00','31/07/2025','⚖️ Direito Brasileiro', true),
     c('Revisão 1','História do Brasil e Português da semana; resolver 5 a 10 questões de cada.','Semana 1','2h30','01/08/2025','📝 Revisão + Questões'),
-    c('Geopolítica, conceito de Estado, território e fronteira','Definição de Estado, território, soberania, tipos de fronteira e conflitos geopolíticos.','Semana 2','2h30','04/08/2025','🗺️ Geografia'),
+    c('Geopolítica, conceito de Estado, territory e fronteira','Definição de Estado, território, soberania, tipos de fronteira e conflitos geopolíticos.','Semana 2','2h30','04/08/2025','🗺️ Geografia'),
     c('Concordância verbal e nominal, crase','Regras básicas e exercícios práticos.','Semana 2','2h30','05/08/2025','🇧🇷 Português'),
     c('Política externa brasileira no século XX','Principais diretrizes e momentos históricos da política externa brasileira.','Semana 2','2h30','06/08/2025','🏳️ Política Internacional'),
     c('Guerra Fria e descolonização','Divisão do mundo bipolar, corrida armamentista e independência das colônias.','Semana 2','2h30','07/08/2025','🌐 História Mundial'),
@@ -1062,13 +1241,25 @@ function cronogramaDefault(){
 let cronograma = load(CRONOGRAMA_KEY, null) || cronogramaDefault();
 save(CRONOGRAMA_KEY, cronograma);
 let cronoFiltro = 'todas';
-let cronoStatusFiltro = 'todas'; // Novo filtro de status do cronograma
+let cronoStatusFiltro = 'todas';
 let cronoViewMode = 'dia';
+let calendarFilterDate = null; // Filtro de data via clique no calendário
 
 function setCronoView(mode){
   cronoViewMode = mode;
   document.getElementById('cronoViewDiaBtn').classList.toggle('active', mode==='dia');
   document.getElementById('cronoViewMateriaBtn').classList.toggle('active', mode==='materia');
+  document.getElementById('cronoViewCalBtn').classList.toggle('active', mode==='calendario');
+  
+  const calWrap = document.getElementById('calendarioWrap');
+  if(mode === 'calendario'){
+    calWrap.style.display = 'block';
+    renderCalendarStructure();
+  } else {
+    calWrap.style.display = 'none';
+    calendarFilterDate = null;
+  }
+  
   renderCronograma();
 }
 const DIAS_SEMANA = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
@@ -1087,7 +1278,6 @@ function renderCronoFiltro(){
 }
 function setCronoFiltro(n){ cronoFiltro = n; renderCronoFiltro(); renderCronograma(); }
 
-// Gerenciamento do filtro de status do cronograma
 function setCronoStatusFiltro(status){
   cronoStatusFiltro = status;
   document.getElementById('cronoStatusTodasBtn').classList.toggle('active', status === 'todas');
@@ -1120,6 +1310,7 @@ function addCronograma(){
   ['cTema','cEstudar','cSemana','cData','cTempo'].forEach(id => document.getElementById(id).value = '');
   renderCronoFiltro();
   renderCronograma();
+  if(cronoViewMode === 'calendario') renderCalendarStructure();
   bumpStreak();
 }
 function toggleCronoFeito(id){
@@ -1128,6 +1319,15 @@ function toggleCronoFeito(id){
   save(CRONOGRAMA_KEY, cronograma);
   if(c.feito) bumpStreak();
   renderCronograma();
+  if(cronoViewMode === 'calendario') renderCalendarStructure();
+}
+function updateCronoData(id, novaDataISO){
+  const c = cronograma.find(x=>x.id===id);
+  if(!c) return;
+  c.data = novaDataISO ? isoToBR(novaDataISO) : '—';
+  save(CRONOGRAMA_KEY, cronograma);
+  renderCronograma();
+  if(cronoViewMode === 'calendario') renderCalendarStructure();
 }
 function delCronograma(id){
   if(!confirm('Remover este item do cronograma?')) return;
@@ -1135,6 +1335,7 @@ function delCronograma(id){
   save(CRONOGRAMA_KEY, cronograma);
   renderCronoFiltro();
   renderCronograma();
+  if(cronoViewMode === 'calendario') renderCalendarStructure();
 }
 function isAtrasado(c){
   if(c.feito) return false;
@@ -1145,6 +1346,16 @@ function isAtrasado(c){
 }
 function cronoItemCard(c){
   const atrasado = isAtrasado(c);
+  // Converte data "DD/MM/AAAA" para "AAAA-MM-DD" para o input date inline
+  let isoVal = "";
+  const parsed = parseBR(c.data);
+  if (parsed) {
+    const y = parsed.getFullYear();
+    const m = String(parsed.getMonth()+1).padStart(2,'0');
+    const d = String(parsed.getDate()).padStart(2,'0');
+    isoVal = `${y}-${m}-${d}`;
+  }
+
   return `
     <div class="card crono ${c.feito?'feito':''} ${atrasado?'atrasado':''}">
       <input type="checkbox" ${c.feito?'checked':''} onchange="toggleCronoFeito('${c.id}')" aria-label="Concluído">
@@ -1152,11 +1363,92 @@ function cronoItemCard(c){
         <div class="ch"><span>${c.materia} · ${c.semana}</span><span>${atrasado ? '<span class="atraso-tag">🚨 atrasado · </span>' : ''}${c.data} · ${c.tempo}</span></div>
         <div class="ct">${c.tema}</div>
         ${c.estudar ? `<div class="ce">${c.estudar}</div>` : ''}
-        <div class="cactions"><button class="btn small ghost" onclick="delCronograma('${c.id}')">Remover</button></div>
+        <div class="cactions">
+          <button class="btn small ghost" onclick="delCronograma('${c.id}')">Remover</button>
+          <div class="inline-date-edit">
+            <span style="font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono';">Alterar Data:</span>
+            <input type="date" value="${isoVal}" onchange="updateCronoData('${c.id}', this.value)">
+          </div>
+        </div>
       </div>
     </div>
   `;
 }
+
+/* ===== GERAÇÃO DO CALENDÁRIO ===== */
+function renderCalendarStructure(){
+  const calView = document.getElementById('calendarView');
+  if(!calView) return;
+  
+  // Usaremos o mês atual do sistema
+  const agora = new Date();
+  const ano = agora.getFullYear();
+  const mes = agora.getMonth(); // 0-indexed
+  
+  const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+  const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+  
+  const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  
+  let html = `<div style="grid-column: 1/-1; text-align: center; font-family:'Fraunces', serif; color:var(--brass-light); font-size:16px; font-weight:600; margin-bottom:10px;">${mesesNomes[mes]} de ${ano}</div>`;
+  
+  // Dias da semana
+  const diasAbrev = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  diasAbrev.forEach(da => {
+    html += `<div class="cal-weekday">${da}</div>`;
+  });
+  
+  // Espaços em branco iniciais
+  for(let i = 0; i < primeiroDiaSemana; i++){
+    html += `<div class="cal-day empty-cell"></div>`;
+  }
+  
+  // Mapear quais dias possuem eventos do cronograma
+  const eventosPorDia = {};
+  cronograma.forEach(c => {
+    const d = parseBR(c.data);
+    if(d && d.getFullYear() === ano && d.getMonth() === mes){
+      const diaNum = d.getDate();
+      eventosPorDia[diaNum] = (eventosPorDia[diaNum] || 0) + 1;
+    }
+  });
+  
+  // Renderizar os dias reais
+  for(let dia = 1; dia <= totalDiasMes; dia++){
+    const classeHoje = (agora.getDate() === dia) ? 'today' : '';
+    const temEvento = eventosPorDia[dia] ? `<div class="cal-day-dot"></div>` : '';
+    
+    let classeFiltroAtivo = '';
+    if(calendarFilterDate && calendarFilterDate.getDate() === dia) {
+      classeFiltroAtivo = 'active-filter';
+    }
+    
+    html += `
+      <div class="cal-day ${classeHoje} ${classeFiltroAtivo}" onclick="selectCalendarDate(${dia})">
+        <span class="cal-day-num">${dia}</span>
+        ${temEvento}
+      </div>
+    `;
+  }
+  
+  calView.innerHTML = html;
+}
+
+function selectCalendarDate(dia) {
+  const agora = new Date();
+  const selecionada = new Date(agora.getFullYear(), agora.getMonth(), dia);
+  
+  if (calendarFilterDate && isMesmoDia(calendarFilterDate, selecionada)) {
+    // Desclica se for o mesmo dia
+    calendarFilterDate = null;
+  } else {
+    calendarFilterDate = selecionada;
+  }
+  
+  renderCalendarStructure();
+  renderCronograma();
+}
+
 function renderCronograma(){
   let list = cronograma;
   
@@ -1172,6 +1464,14 @@ function renderCronograma(){
     list = list.filter(c => c.feito);
   }
 
+  // 3. Filtrar por data clicada no calendário
+  if(cronoViewMode === 'calendario' && calendarFilterDate) {
+    list = list.filter(c => {
+      const d = parseBR(c.data);
+      return d && isMesmoDia(d, calendarFilterDate);
+    });
+  }
+
   const el = document.getElementById('cronogramaList');
   if(!list.length){ el.innerHTML = '<div class="empty">Nenhum compromisso correspondente ao filtro.</div>'; return; }
 
@@ -1180,7 +1480,7 @@ function renderCronograma(){
     return;
   }
 
-  // Agrupar por dia
+  // Agrupar por dia (Usado em Visão por Dia e na Visão Filtrada do Calendário)
   const comData = list.filter(c => parseBR(c.data));
   const semData = list.filter(c => !parseBR(c.data));
   comData.sort((a,b) => parseBR(a.data) - parseBR(b.data));
@@ -1211,7 +1511,8 @@ function renderCronograma(){
     `;
   }).join('');
 
-  if(semData.length){
+  // Não exibe itens sem data no calendário para manter o foco visual
+  if(semData.length && cronoViewMode !== 'calendario'){
     html += `
       <div class="day-group">
         <div class="day-group-head">
@@ -1512,7 +1813,6 @@ function updateDiscursivaField(id, field, value){
   save(DISCURSIVAS_KEY, discursivas);
 }
 
-// Grava o tempo atual e insere no histórico do card
 function usarTempoCronometro(id){
   const d = discursivas.find(x=>x.id===id);
   const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs;
@@ -1521,11 +1821,9 @@ function usarTempoCronometro(id){
   d.tempoSeg = seg;
   if(!d.historyTempos) d.historyTempos = [];
   
-  // Guardar data atual e o tempo marcado
   const dataFormatada = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
   d.historyTempos.unshift({ data: dataFormatada, tempo: seg });
   
-  // Limitar histórico visual às últimas 5 tentativas para manter limpo
   if(d.historyTempos.length > 5) d.historyTempos.pop();
 
   save(DISCURSIVAS_KEY, discursivas);
