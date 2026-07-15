@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Chancelaria — Gabinete de Estudos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1826;
+    --ink-2:#182338;
+    --parchment:#F1EAD9;
+    --parchment-2:#E7DEC7;
+    --brass:#B4914B;
+    --brass-light:#D9BC7C;
+    --seal:#7C2D2D;
+    --seal-light:#9A4141;
+    --azul:#3E5C76;
+    --azul-light:#5A7B98;
+    --text-dark:#1C1A15;
+    --text-light:#EDE6D6;
+    --text-muted:#9CA9BD;
+    --ok:#5C7A4F;
+    --bad:#9A4141;
+    --radius:2px;
+    --shadow: 0 12px 30px -12px rgba(0,0,0,.5);
+    --tabbar-space:100px;
+    --sidebar-w:0px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text-light);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    -webkit-tap-highlight-color:transparent;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+  ::selection{background:var(--brass); color:var(--ink);}
+  h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; margin:0;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:.02em;}
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:2px solid var(--brass-light); outline-offset:2px;}
+
+  .letterhead{
+    padding:22px 20px 16px;
+    border-bottom:1px solid rgba(180,145,75,.25);
+    display:flex; justify-content:space-between; align-items:flex-start;
+    background:linear-gradient(180deg, var(--ink-2), var(--ink));
+  }
+  .letterhead .brand{display:flex; flex-direction:column; gap:2px;}
+  .letterhead .brand .crest{
+    width:34px; height:34px; border-radius:50%;
+    border:1.5px solid var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-size:15px; color:var(--brass-light);
+    margin-bottom:8px;
+  }
+  .letterhead h1{font-size:22px; color:var(--parchment); letter-spacing:.01em;}
+  .letterhead .sub{font-size:11.5px; color:var(--text-muted); margin-top:2px;}
+  .letterhead .protocolo{ text-align:right; font-size:10.5px; color:var(--brass-light); line-height:1.5; }
+
+  main{padding:18px 16px var(--tabbar-space); max-width:640px; margin:0 auto;}
+
+  .view{display:none; animation:fadeIn .35s ease;}
+  .view.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:14.5px; margin:4px 0 20px; line-height:1.6;}
+
+  .dossie{
+    position:relative; background:var(--parchment); color:var(--text-dark);
+    border-radius:var(--radius); padding:20px 18px 18px; margin-bottom:16px;
+    box-shadow:var(--shadow); border-left:5px solid var(--accent, var(--brass));
+    cursor:pointer; transform:scale(1); transition:transform .18s ease;
+  }
+  .dossie:active{transform:scale(.985);}
+  .dossie .tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--accent, var(--brass)); font-weight:500; }
+  .dossie h2{font-size:21px; margin-top:6px;}
+  .dossie p{font-size:13px; color:#5a5648; margin:8px 0 14px; line-height:1.55;}
+  .dossie .foot{display:flex; justify-content:space-between; align-items:center;}
+  .dossie .progress-label{font-size:11px; color:#6b6656; font-family:'IBM Plex Mono', monospace;}
+  .seal{
+    width:30px; height:30px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--accent-light, var(--brass-light)), var(--accent, var(--brass)) 70%);
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--parchment);
+    box-shadow:0 3px 8px rgba(0,0,0,.35); transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .dossie:active .seal{transform:rotate(-18deg) scale(.92);}
+
+  .bar{height:5px; background:#d8cfb6; border-radius:3px; overflow:hidden; margin-top:6px;}
+  .bar > span{display:block; height:100%; background:var(--accent, var(--brass));}
+
+  .stats-row{display:flex; gap:10px; margin-top:22px; flex-wrap:wrap;}
+  .stat-card{ flex:1; min-width:70px; background:var(--ink-2); border:1px solid rgba(180,145,75,.2); border-radius:var(--radius); padding:12px; text-align:center; }
+  .stat-card .n{font-family:'Fraunces', serif; font-size:24px; color:var(--brass-light);}
+  .stat-card .l{font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+
+  .subtabs{display:flex; gap:6px; margin-bottom:18px; border-bottom:1px solid rgba(180,145,75,.2); padding-bottom:0; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
+  .subtabs::-webkit-scrollbar{display:none;}
+  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:13px; padding:8px 4px; font-family:'IBM Plex Sans'; border-bottom:2px solid transparent; margin-right:14px; }
+  .subtab-btn.active{color:var(--parchment); border-color:var(--seal-light); font-weight:500;}
+  .subview{display:none;}
+  .subview.active{display:block;}
+
+  h3.section-title{color:var(--parchment); font-size:15px; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  h3.section-title::before{content:''; width:6px; height:6px; background:var(--seal-light); display:inline-block; border-radius:50%;}
+
+  .card{ background:var(--ink-2); border:1px solid rgba(180,145,75,.18); border-radius:var(--radius); padding:14px 14px; margin-bottom:10px; }
+  .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+  .materia-card summary::-webkit-details-marker{display:none;}
+  .materia-card .m-title{font-family:'Fraunces', serif; font-size:16px; color:var(--parchment);}
+  .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12px; color:var(--brass-light);}
+  .materia-card .bar{background:#26314a; margin-top:8px;}
+  .topic-row{display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13.5px; flex-wrap:wrap;}
+  .topic-row input[type=checkbox]{width:16px; height:16px; accent-color:var(--seal-light);}
+  .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
+  .topic-row button.del-t{background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6;}
+  .topic-badge{background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light); font-size:9.5px; padding:2px 7px; border-radius:20px; font-family:'IBM Plex Mono';}
+  .add-topic-row{display:flex; gap:6px; margin-top:10px;}
+  .add-topic-row input{flex:1;}
+  .del-materia{background:none; border:none; color:#7a5a58; font-size:11px; margin-top:10px; text-decoration:underline;}
+
+  input[type=text], input[type=number], input[type=date], textarea, select{
+    width:100%; background:var(--ink); border:1px solid rgba(180,145,75,.3); color:var(--text-light);
+    padding:9px 10px; border-radius:var(--radius); font-family:'IBM Plex Sans'; font-size:13.5px;
+  }
+  textarea{resize:vertical; min-height:64px;}
+  label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); display:block; margin:10px 0 4px;}
+  .btn{ background:var(--seal); color:var(--parchment); border:none; padding:9px 16px; border-radius:var(--radius); font-size:13px; font-weight:500; letter-spacing:.02em; }
+  .btn.secondary{background:var(--azul);}
+  .btn.ghost{background:none; border:1px solid rgba(180,145,75,.4); color:var(--brass-light);}
+  .btn.small{padding:6px 10px; font-size:11.5px;}
+
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+
+  .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .chip{ font-size:11.5px; padding:5px 10px; border-radius:20px; border:1px solid rgba(180,145,75,.35); color:var(--text-muted); background:none; }
+  .chip.active{background:var(--azul); color:var(--text-light); border-color:var(--azul);}
+
+  .questao{border-left:3px solid var(--azul-light);}
+  .questao.revisada{border-left-color:var(--ok);}
+  .questao .qh{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px;}
+  .questao .qtxt{font-size:13.5px; margin:8px 0; line-height:1.55;}
+  .questao .qgab{font-size:12.5px; color:var(--brass-light); margin-bottom:4px;}
+  .questao .qactions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+
+  .nota{border-left:3px solid var(--brass);}
+  .nota h4{font-family:'Fraunces', serif; font-size:14.5px; color:var(--parchment); margin-bottom:4px;}
+  .nota .ntag{font-size:10px; color:var(--brass-light); font-family:'IBM Plex Mono'; text-transform:uppercase;}
+  .nota p{font-size:13px; color:var(--text-light); white-space:pre-wrap; line-height:1.55; margin:6px 0 8px;}
+  .nota .nfoot{display:flex; justify-content:space-between; align-items:center; font-size:10.5px; color:var(--text-muted);}
+
+  .empty{font-size:12.5px; color:var(--text-muted); text-align:center; padding:20px 10px; font-style:italic;}
+
+  .crono{border-left:3px solid var(--brass); display:flex; gap:10px; align-items:flex-start;}
+  .crono.feito{border-left-color:var(--ok); opacity:.72;}
+  .crono.atrasado{border-left-color:var(--bad);}
+  .crono input[type=checkbox]{width:17px; height:17px; margin-top:2px; accent-color:var(--ok); flex-shrink:0;}
+  .crono .ch{display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px;}
+  .crono.atrasado .ch{color:var(--bad);}
+  .crono .ct{font-family:'Fraunces', serif; font-size:14.5px; color:var(--parchment); margin:3px 0 4px;}
+  .crono .ce{font-size:12.5px; color:var(--text-muted); line-height:1.5;}
+  .crono .cactions{margin-top:8px;}
+  .crono .cbody{flex:1; min-width:0;}
+  .atraso-tag{color:var(--bad); font-weight:600;}
+
+  .revisao{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center;}
+  .revisao .rname{font-family:'Fraunces', serif; font-size:14px; color:var(--parchment);}
+  .revisao .rmeta{font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-top:2px;}
+  .revisao .rchecks{display:flex; gap:10px; font-size:9.5px; color:var(--text-muted); text-align:center;}
+  .revisao .rchecks div{display:flex; flex-direction:column; align-items:center; gap:3px;}
+  .revisao .rchecks input{width:15px; height:15px; accent-color:var(--seal-light);}
+  .revisao .rdel{background:none; border:none; color:#7a5a58; font-size:11px; margin-top:8px; text-decoration:underline; grid-column:1/-1; justify-self:start;}
+
+  #view-palavras{margin:-18px -16px calc(-1 * var(--tabbar-space)); padding:0;}
+  .frame-wrap{border:none; overflow:hidden; height:calc(100vh - 92px - 66px - env(safe-area-inset-bottom)); display:none;}
+  .frame-wrap.show{display:block;}
+  .frame-wrap iframe{width:100%; height:100%; border:none; background:var(--parchment);}
+  .frame-fallback{padding:16px; text-align:center;}
+  .frame-fallback p{font-size:12px; color:var(--text-muted); margin-bottom:10px;}
+
+  #cronoDisplay{font-size:34px;}
+
+  .tabbar{
+    position:fixed; bottom:0; left:0; right:0; background:var(--ink-2); border-top:1px solid rgba(180,145,75,.25);
+    display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); z-index:20;
+  }
+  .tabbar button{ flex:1; background:none; border:none; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; padding:6px 2px; }
+  .tabbar button .ic{font-size:17px;}
+  .tabbar button.active{color:var(--brass-light);}
+
+  form{margin:0;}
+
+  @media (min-width:860px){
+    :root{ --tabbar-space:32px; --sidebar-w:210px; }
+    .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
+    main{ margin-left:var(--sidebar-w); margin-top:90px; max-width:760px; }
+    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:110px 0 20px; border-top:none; border-right:1px solid rgba(180,145,75,.25); }
+    .tabbar button{ flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13px; }
+    .tabbar button .ic{font-size:16px;}
+    .frame-wrap{ height:calc(100vh - 90px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="letterhead">
+  <div class="brand">
+    <div class="crest">GA</div>
+    <h1>Chancelaria</h1>
+    <div class="sub">gabinete pessoal de estudos</div>
+  </div>
+  <div class="protocolo mono">
+    <div id="protocoloData">—</div>
+    <div>Processo nº 001/2026</div>
+  </div>
+</div>
+
+<main>
+
+  <section class="view active" id="view-inicio">
+    <p class="intro-line">"Duas frentes, um só processo: a palavra e a mesa de negociação."</p>
+
+    <div class="dossie" style="--accent:var(--azul); --accent-light:var(--azul-light);" onclick="goTab('palavras')">
+      <div class="tag">Dossiê I</div>
+      <h2>Palavras</h2>
+      <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
+      <div class="foot">
+        <span class="progress-label">conectado ✓</span>
+        <div class="seal">✒</div>
+      </div>
+    </div>
+
+    <div class="dossie" style="--accent:var(--seal); --accent-light:var(--seal-light);" onclick="goTab('diplomacia')">
+      <div class="tag">Dossiê II</div>
+      <h2>Diplomacia</h2>
+      <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
+      <div class="foot">
+        <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
+        <div class="seal">❖</div>
+      </div>
+      <div class="bar"><span id="diploProgressBar" style="width:0%"></span></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="n" id="statMaterias">0</div><div class="l">matérias</div></div>
+      <div class="stat-card"><div class="n" id="statQuestoes">0</div><div class="l">questões</div></div>
+      <div class="stat-card"><div class="n" id="statNotas">0</div><div class="l">anotações</div></div>
+      <div class="stat-card"><div class="n" id="streakCount">0</div><div class="l">dias seguidos</div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-palavras">
+    <div class="frame-wrap show" id="hubFrameWrap">
+      <iframe id="hubFrame" title="Hub Linguístico" src="https://estuda-mais-theta.vercel.app/"></iframe>
+    </div>
+    <div class="frame-fallback" id="hubFallback">
+      <p>Se o Hub não aparecer acima, o site dele está bloqueando a exibição incorporada.</p>
+      <button class="btn ghost small" onclick="window.open('https://estuda-mais-theta.vercel.app/','_blank')">Abrir o Hub em nova aba</button>
+    </div>
+  </section>
+
+  <section class="view" id="view-diplomacia">
+    <h3 class="section-title">Diplomacia — CACD</h3>
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="materias" onclick="goSub('materias')">Matérias</button>
+      <button class="subtab-btn" data-sub="cronograma" onclick="goSub('cronograma')">Cronograma</button>
+      <button class="subtab-btn" data-sub="questoes" onclick="goSub('questoes')">Questões</button>
+      <button class="subtab-btn" data-sub="discursiva" onclick="goSub('discursiva')">Discursiva</button>
+      <button class="subtab-btn" data-sub="atualidades" onclick="goSub('atualidades')">Atualidades</button>
+      <button class="subtab-btn" data-sub="notas" onclick="goSub('notas')">Anotações</button>
+    </div>
+
+    <div class="subview active" id="sub-materias">
+      <p class="intro-line" style="margin-bottom:14px;">Tópicos baseados na estrutura tradicional do edital do CACD (Anexo III). Vale conferir contra o edital oficial do seu ano, especialmente Língua Inglesa.</p>
+      <div id="materiasList"></div>
+      <div class="card">
+        <label class="field-label">Nova matéria</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="novaMateriaInput" placeholder="Ex.: Direito Internacional Privado">
+          <button class="btn small" onclick="addMateria()">Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="subview" id="sub-cronograma">
+      <div class="filters" id="cronoFiltroMateria"></div>
+      <div id="cronogramaList"></div>
+      <div class="card">
+        <label class="field-label">Novo item do cronograma</label>
+        <input type="text" id="cTema" placeholder="Tema (ex.: Guerra do Paraguai)">
+        <textarea id="cEstudar" placeholder="O que estudar..." style="min-height:50px;"></textarea>
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="cMateria"></select></div>
+          <div><label class="field-label">Semana</label><input type="text" id="cSemana" placeholder="Semana 5"></div>
+        </div>
+        <div class="row2">
+          <div><label class="field-label">Data</label><input type="date" id="cData"></div>
+          <div><label class="field-label">Tempo estimado</label><input type="text" id="cTempo" placeholder="2h30"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn" onclick="addCronograma()">Adicionar ao cronograma</button></div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:22px;">Revisão espaçada</h3>
+      <p class="intro-line" style="margin-bottom:14px;">Marcar um tópico como feito em Matérias já cria a revisão aqui automaticamente, com as datas de 1, 7 e 30 dias calculadas.</p>
+      <div id="revisaoList"></div>
+      <div class="card">
+        <label class="field-label">Novo item de revisão (manual)</label>
+        <input type="text" id="rTema" placeholder="Tema (ex.: Sintaxe)">
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="rMateria"></select></div>
+          <div><label class="field-label">Data de estudo</label><input type="date" id="rData"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button></div>
+      </div>
+    </div>
+
+    <div class="subview" id="sub-questoes">
+      <div class="card" id="statsAcerto"></div>
+
+      <div class="card">
+        <label class="field-label">Matéria</label>
+        <select id="qMateria" onchange="renderQTopicoOptions()"></select>
+        <label class="field-label">Tópico (opcional)</label>
+        <select id="qTopico"><option value="">— nenhum —</option></select>
+        <div class="row2">
+          <div><label class="field-label">Tipo</label>
+            <select id="qTipo" onchange="onQTipoChange()">
+              <option value="C/E">Certo/Errado (bloco)</option>
+              <option value="Discursiva">Discursiva</option>
+            </select>
+          </div>
+          <div><label class="field-label">Ano / fonte</label><input type="text" id="qFonte" placeholder="CACD 2025, item 42..."></div>
+        </div>
+        <label class="field-label">Texto-base / contexto (opcional)</label>
+        <textarea id="qContexto" placeholder="Situação ou texto que introduz os itens..."></textarea>
+
+        <div id="qItensWrap"></div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <button class="btn small ghost" type="button" onclick="addItemField()">+ item</button>
+          <button class="btn small ghost" type="button" onclick="toggleImportBox()">Importar em lote</button>
+        </div>
+        <div id="importBox" style="display:none; margin-top:10px;">
+          <label class="field-label">Colar texto (cada item separado por linha em branco)</label>
+          <textarea id="importText" style="min-height:100px;"></textarea>
+          <button class="btn small secondary" type="button" onclick="importarItens()" style="margin-top:8px;">Gerar itens a partir do texto</button>
+        </div>
+
+        <div style="margin-top:14px;"><button class="btn" onclick="addQuestao()">Guardar questão</button></div>
+      </div>
+
+      <div class="filters" id="qFiltroMateria"></div>
+      <div class="filters">
+        <button class="chip active" data-f="todas" onclick="setFiltroRev('todas')">Todas</button>
+        <button class="chip" data-f="pendentes" onclick="setFiltroRev('pendentes')">Pendentes</button>
+        <button class="chip" data-f="revisadas" onclick="setFiltroRev('revisadas')">Revisadas</button>
+      </div>
+      <div id="questoesList"></div>
+    </div>
+
+    <div class="subview" id="sub-discursiva">
+      <div class="card" style="text-align:center;">
+        <label class="field-label">Cronômetro</label>
+        <div id="cronoDisplay" class="mono" style="color:var(--brass-light); margin:6px 0;">00:00</div>
+        <div style="display:flex; gap:8px; justify-content:center;">
+          <button class="btn small" onclick="cronoStart()">Iniciar</button>
+          <button class="btn small secondary" onclick="cronoPause()">Pausar</button>
+          <button class="btn small ghost" onclick="cronoReset()">Zerar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label class="field-label">Novo exercício discursivo</label>
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="dMateria"></select></div>
+          <div><label class="field-label">Tipo</label>
+            <select id="dTipo">
+              <option>Resumo</option><option>Versão</option><option>Redação</option><option>Tradução</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label">Tema / instruções</label>
+        <textarea id="dTema" placeholder="Ex.: Resuma o texto em até 30 linhas..."></textarea>
+        <label class="field-label">Extensão</label>
+        <input type="text" id="dLinhas" placeholder="30 linhas">
+        <div style="margin-top:12px;"><button class="btn" onclick="addDiscursiva()">Criar exercício</button></div>
+      </div>
+
+      <div id="discursivasList"></div>
+    </div>
+
+    <div class="subview" id="sub-atualidades">
+      <div class="card">
+        <label class="field-label">Tema</label>
+        <input type="text" id="aTema" placeholder="Ex.: Mercosul-UE, Guerra na Ucrânia...">
+        <label class="field-label">Título</label>
+        <input type="text" id="aTitulo" placeholder="Título do fato/notícia">
+        <label class="field-label">Resumo</label>
+        <textarea id="aResumo" placeholder="O que aconteceu e por que importa pro CACD..."></textarea>
+        <label class="field-label">Fonte (opcional)</label>
+        <input type="text" id="aFonte" placeholder="Link ou veículo">
+        <div style="margin-top:12px;"><button class="btn" onclick="addAtualidade()">Guardar atualidade</button></div>
+      </div>
+      <div id="atualidadesList"></div>
+    </div>
+
+    <div class="subview" id="sub-notas">
+      <div class="card">
+        <label class="field-label">Matéria / tema</label>
+        <input type="text" id="nMateria" placeholder="Ex.: Política Internacional — Guerra Fria">
+        <label class="field-label">Título</label>
+        <input type="text" id="nTitulo" placeholder="Título do resumo">
+        <label class="field-label">Texto</label>
+        <textarea id="nTexto" placeholder="Seu resumo ou anotação livre..." style="min-height:110px;"></textarea>
+        <div style="margin-top:12px;"><button class="btn" onclick="addNota()">Guardar anotação</button></div>
+      </div>
+      <div id="notasList"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="tabbar">
+  <button class="active" data-tab="inicio" onclick="goTab('inicio')"><span class="ic">⌂</span>Início</button>
+  <button data-tab="palavras" onclick="goTab('palavras')"><span class="ic">✒</span>Palavras</button>
+  <button data-tab="diplomacia" onclick="goTab('diplomacia')"><span class="ic">❖</span>Diplomacia</button>
+</div>
+
+<script>
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const load = (k, fallback) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? fallback; }catch(e){ return fallback; } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+document.getElementById('protocoloData').textContent = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function isoToBR(iso){ if(!iso) return ''; const p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function addDaysISO(iso, n){
+  const p = iso.split('-').map(Number);
+  const dt = new Date(p[0], p[1]-1, p[2]);
+  dt.setDate(dt.getDate()+n);
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth()+1).padStart(2,'0');
+  const dd = String(dt.getDate()).padStart(2,'0');
+  return yyyy + '-' + mm + '-' + dd;
+}
+function parseBR(d){
+  if(!d || d==='—') return null;
+  const parts = d.split('/').map(Number);
+  if(parts.length!==3) return null;
+  return new Date(parts[2], parts[1]-1, parts[0]);
+}
+
+const STREAK_KEY = 'diplo_streak';
+function bumpStreak(){
+  let s = load(STREAK_KEY, {last:null, count:0, best:0});
+  const today = todayISO();
+  if(s.last !== today){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    const yesterday = y.toISOString().slice(0,10);
+    s.count = (s.last === yesterday) ? s.count + 1 : 1;
+    s.last = today;
+    if(s.count > s.best) s.best = s.count;
+    save(STREAK_KEY, s);
+  }
+  renderStreak();
+}
+function renderStreak(){
+  const s = load(STREAK_KEY, {last:null,count:0,best:0});
+  const el = document.getElementById('streakCount');
+  if(el) el.textContent = s.count;
+}
+
+function goTab(tab){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goSub(sub){
+  document.querySelectorAll('.subview').forEach(v => v.classList.remove('active'));
+  document.getElementById('sub-' + sub).classList.add('active');
+  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === sub));
+}
+
+const hubFrameEl = document.getElementById('hubFrame');
+if(hubFrameEl){
+  hubFrameEl.addEventListener('error', () => {
+    const fb = document.getElementById('hubFallback');
+    if(fb) fb.style.display = 'block';
+  });
+}
+
+const MATERIAS_KEY = 'diplo_materias';
+function materiasDefault(){
+  const t = (nome, feito) => ({ id: uid(), nome, feito: !!feito, dataEstudo: feito ? todayISO() : null });
+  return [
+    { id: uid(), nome:'📜 História do Brasil', topicos:[
+      t('Período colonial (1500–1822)'), t('Primeiro Reinado e Período Regencial'), t('Segundo Reinado e Abolição'),
+      t('Proclamação da República e República Velha'), t('Era Vargas (1930–1945)'), t('República Populista (1945–1964)'),
+      t('Ditadura Militar (1964–1985)'), t('Nova República e redemocratização'), t('História da política externa brasileira')
+    ] },
+    { id: uid(), nome:'🌐 História Mundial', topicos:[
+      t('Absolutismo e Iluminismo'), t('Revolução Francesa e Napoleônica'), t('Revolução Industrial'),
+      t('Imperialismo e partilha da África/Ásia'), t('Primeira Guerra Mundial'), t('Entreguerras e totalitarismos'),
+      t('Segunda Guerra Mundial'), t('Guerra Fria e descolonização'), t('Ordem mundial pós-1991')
+    ] },
+    { id: uid(), nome:'🏳️ Política Internacional', topicos:[
+      t('Teorias das Relações Internacionais'), t('ONU e organismos multilaterais'), t('Política externa brasileira no século XX e XXI'),
+      t('Integração regional (Mercosul, UE e outros blocos)'), t('Segurança internacional e conflitos contemporâneos'),
+      t('Diplomacia econômica e comercial'), t('Direitos humanos, meio ambiente e desenvolvimento na agenda internacional')
+    ] },
+    { id: uid(), nome:'🇧🇷 Português', topicos:[
+      t('Leitura e interpretação de textos'), t('Ortografia, acentuação e pontuação'), t('Concordância verbal e nominal, crase'),
+      t('Sintaxe do período simples e composto'), t('Interpretação de textos dissertativos'), t('Coesão e coerência textual'),
+      t('Redação em português (tema CACD)'), t('Técnica de resumo')
+    ] },
+    { id: uid(), nome:'🇺🇸 Inglês', topicos:[
+      t('Reading comprehension (textos editoriais)'), t('Gramática avançada e vocabulário'),
+      t('Redação (essay) em inglês'), t('Versão português → inglês'), t('Idiomatismos e falsos cognatos')
+    ] },
+    { id: uid(), nome:'🗺️ Geografia', topicos:[
+      t('Geopolítica, conceito de Estado, território e fronteira'), t('Geografia da população e migrações'),
+      t('Geografia econômica e globalização'), t('Geografia agrária e agronegócio'), t('Geografia urbana'),
+      t('Geopolítica e meio ambiente'), t('Cartografia e geotecnologias')
+    ] },
+    { id: uid(), nome:'🇫🇷 Francês', topicos:[
+      t('Leitura + resumo de texto curto'), t('Gramática (verbos, tempos, concordância)'),
+      t('Versão português → francês'), t('Vocabulário temático (política, economia, atualidades)')
+    ] },
+    { id: uid(), nome:'🇪🇸 Espanhol', topicos:[
+      t('Leitura + resumo de texto curto'), t('Gramática (verbos, tempos, concordância)'),
+      t('Versão português → espanhol'), t('Vocabulário temático (política, economia, atualidades)')
+    ] },
+    { id: uid(), nome:'⚖️ Direito Brasileiro', topicos:[
+      t('Estrutura da Constituição (Artigos 1–5)', true), t('Organização do Estado e dos Poderes'),
+      t('Poderes da Administração Pública'), t('Atos e contratos administrativos'),
+      t('Controle de constitucionalidade'), t('Direitos e garantias fundamentais')
+    ] },
+    { id: uid(), nome:'💼 Direito Internacional', topicos:[
+      t('Fontes do Direito Internacional Público (tratados, costume, princípios gerais)'), t('Sujeitos de Direito Internacional'),
+      t('Responsabilidade internacional'), t('Direito Internacional dos Direitos Humanos'), t('Direito do Mar'),
+      t('Solução pacífica de controvérsias'), t('Direito Internacional Privado: nacionalidade e cooperação jurídica')
+    ] },
+    { id: uid(), nome:'📈 Economia', topicos:[
+      t('Conceitos básicos: escassez, escolha e custo de oportunidade'), t('Microeconomia: oferta, demanda e mercados'),
+      t('Macroeconomia: PIB, inflação, política monetária e fiscal'), t('Economia internacional: comércio, câmbio e balanço de pagamentos'),
+      t('Organismos econômicos internacionais (FMI, Banco Mundial, OMC)'), t('Economia brasileira contemporânea')
+    ] },
+  ];
+}
+let materias = load(MATERIAS_KEY, null) || materiasDefault();
+save(MATERIAS_KEY, materias);
+
+function pctMateria(m){ if(!m.topicos.length) return 0; return Math.round(100 * m.topicos.filter(t => t.feito).length / m.topicos.length); }
+function pctGeral(){
+  const total = materias.reduce((a,m) => a + m.topicos.length, 0);
+  const feitos = materias.reduce((a,m) => a + m.topicos.filter(t=>t.feito).length, 0);
+  return total ? Math.round(100*feitos/total) : 0;
+}
+function countQuestoesTopico(tid){ return questoes.filter(q=>q.topicoId===tid).length; }
+
+function renderMaterias(){
+  const el = document.getElementById('materiasList');
+  el.innerHTML = materias.map(m => `
+    <details class="card materia-card" ${m.open ? 'open':''}>
+      <summary onclick="toggleOpen('${m.id}')">
+        <span class="m-title">${m.nome}</span>
+        <span class="m-pct mono">${pctMateria(m)}%</span>
+      </summary>
+      <div class="bar"><span style="width:${pctMateria(m)}%; background:var(--seal-light);"></span></div>
+      <div style="margin-top:8px;">
+        ${m.topicos.map(t => `
+          <div class="topic-row ${t.feito ? 'done':''}">
+            <input type="checkbox" ${t.feito?'checked':''} onchange="toggleTopico('${m.id}','${t.id}')" id="t_${t.id}">
+            <label for="t_${t.id}">${t.nome}</label>
+            ${countQuestoesTopico(t.id) > 0 ? `<button type="button" class="topic-badge" onclick="irParaQuestoesDoTopico('${m.nome.replace(/'/g,"\\'")}','${t.id}')">${countQuestoesTopico(t.id)}q</button>` : ''}
+            <button type="button" class="del-t" onclick="delTopico('${m.id}','${t.id}')" aria-label="Remover tópico">✕</button>
+          </div>`).join('') || '<div class="empty">Nenhum tópico ainda.</div>'}
+      </div>
+      <div class="add-topic-row">
+        <input type="text" placeholder="Novo tópico..." id="newtopic_${m.id}" onkeydown="if(event.key==='Enter'){addTopico('${m.id}')}">
+        <button class="btn small" onclick="addTopico('${m.id}')">+</button>
+      </div>
+      <button class="del-materia" onclick="delMateria('${m.id}')">Remover matéria</button>
+    </details>
+  `).join('');
+  refreshStats();
+}
+function toggleOpen(id){ const m = materias.find(x=>x.id===id); m.open = !m.open; save(MATERIAS_KEY, materias); }
+function addMateria(){
+  const input = document.getElementById('novaMateriaInput');
+  const nome = input.value.trim();
+  if(!nome) return;
+  materias.push({ id: uid(), nome, topicos:[], open:true });
+  input.value = '';
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+  renderMateriaOptions();
+}
+function delMateria(id){
+  if(!confirm('Remover esta matéria e todos os seus tópicos?')) return;
+  materias = materias.filter(m => m.id !== id);
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+  renderMateriaOptions();
+}
+function addTopico(mid){
+  const input = document.getElementById('newtopic_' + mid);
+  const nome = input.value.trim();
+  if(!nome) return;
+  const m = materias.find(x=>x.id===mid);
+  m.topicos.push({ id: uid(), nome, feito:false, dataEstudo:null });
+  m.open = true;
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+function toggleTopico(mid, tid){
+  const m = materias.find(x=>x.id===mid);
+  const t = m.topicos.find(x=>x.id===tid);
+  t.feito = !t.feito;
+  m.open = true;
+  if(t.feito){
+    if(!t.dataEstudo) t.dataEstudo = todayISO();
+    ensureRevisaoForTopico(m, t);
+    bumpStreak();
+  }
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+  renderRevisao();
+}
+function delTopico(mid, tid){
+  const m = materias.find(x=>x.id===mid);
+  m.topicos = m.topicos.filter(x=>x.id!==tid);
+  m.open = true;
+  save(MATERIAS_KEY, materias);
+  renderMaterias();
+}
+
+const CRONOGRAMA_KEY = 'diplo_cronograma';
+function cronogramaDefault(){
+  const c = (tema, estudar, semana, tempo, data, materia, feito) => ({ id: uid(), tema, estudar, semana, tempo, data, materia, feito: !!feito });
+  return [
+    c('Período colonial (1500–1822)','A ocupação do território: Capitanias hereditárias e Governo-Geral, economia açucareira, estrutura social e administração.','Semana 1','2h30','28/07/2025','📜 História do Brasil'),
+    c('Leitura e interpretação de textos','Estratégias de leitura, tipos de texto, coesão, coerência e estrutura textual.','Semana 1','2h30','29/07/2025','🇧🇷 Português'),
+    c('Revolução Francesa e Napoleônica','Causas, principais eventos e consequências da Revolução Francesa; impacto do governo Napoleônico.','Semana 1','2h00','30/07/2025','🌐 História Mundial'),
+    c('Estrutura da Constituição (Artigos 1–5)','Princípios fundamentais da Constituição Federal de 1988.','Semana 1','2h00','31/07/2025','⚖️ Direito Brasileiro', true),
+    c('Revisão 1','História do Brasil e Português da semana; resolver 5 a 10 questões de cada.','Semana 1','2h30','01/08/2025','📝 Revisão + Questões'),
+    c('Geopolítica, conceito de Estado, território e fronteira','Definição de Estado, território, soberania, tipos de fronteira e conflitos geopolíticos.','Semana 2','2h30','04/08/2025','🗺️ Geografia'),
+    c('Concordância verbal e nominal, crase','Regras básicas e exercícios práticos.','Semana 2','2h30','05/08/2025','🇧🇷 Português'),
+    c('Política externa brasileira no século XX','Principais diretrizes e momentos históricos da política externa brasileira.','Semana 2','2h30','06/08/2025','🏳️ Política Internacional'),
+    c('Guerra Fria e descolonização','Divisão do mundo bipolar, corrida armamentista e independência das colônias.','Semana 2','2h30','07/08/2025','🌐 História Mundial'),
+    c('Revisão 2','Revisar Geografia e Política Internacional da semana; questões objetivas e discursivas.','Semana 2','2h30','08/08/2025','📝 Revisão + Questões'),
+    c('Poderes da Administração Pública','Conceitos básicos, poderes vinculados, discricionários, e limites da administração.','Semana 3','2h30','11/08/2025','⚖️ Direito Brasileiro'),
+    c('Conceitos básicos: escassez, escolha e custo de oportunidade','Fundamentos da microeconomia, decisão racional e trade-offs.','Semana 3','2h30','12/08/2025','📈 Economia'),
+    c('Interpretação de textos dissertativos','Identificação de ideias principais, inferência e argumentação.','Semana 3','2h30','13/08/2025','🇧🇷 Português'),
+    c('Segundo Reinado e Abolição','Contexto político, econômico e social do Segundo Reinado; movimentos abolicionistas.','Semana 3','2h30','14/08/2025','📜 História do Brasil'),
+    c('Revisão 3','Revisar Direito, Economia e História do Brasil; praticar com questões de provas anteriores.','Semana 3','2h30','15/08/2025','📝 Revisão + Questões'),
+    c('Reading + vocabulário (editorial)','Compreensão de textos editoriais, inferência de vocabulário e estrutura textual.','Semana 4','2h30','18/08/2025','🇺🇸 Inglês'),
+    c('Redação em português (tema CACD)','Prática de redação dissertativa, argumentação e coesão textual.','Semana 4','2h30','19/08/2025','🇧🇷 Português'),
+    c('Leitura + resumo de texto curto','Compreensão e produção textual básica na segunda língua.','Semana 4','2h30','20/08/2025','🇫🇷 Francês'),
+    c('Primeira Guerra Mundial','Causas, eventos principais e consequências do conflito.','Semana 4','2h30','21/08/2025','🌐 História Mundial'),
+    c('Revisão 4','Inglês, francês e História Mundial; responder questões e exercícios práticos.','Semana 4','2h30','22/08/2025','📝 Revisão + Questões'),
+  ];
+}
+let cronograma = load(CRONOGRAMA_KEY, null) || cronogramaDefault();
+save(CRONOGRAMA_KEY, cronograma);
+let cronoFiltro = 'todas';
+
+function cronoMateriasOptions(){ return [...new Set(cronograma.map(c=>c.materia).concat(materias.map(m=>m.nome)))]; }
+function renderCronoFiltro(){
+  const el = document.getElementById('cronoFiltroMateria');
+  const nomes = ['todas', ...cronoMateriasOptions()];
+  el.innerHTML = nomes.map(n => `<button class="chip ${cronoFiltro===n?'active':''}" onclick="setCronoFiltro('${n.replace(/'/g,"\\'")}')">${n==='todas'?'Todas':n}</button>`).join('');
+}
+function setCronoFiltro(n){ cronoFiltro = n; renderCronoFiltro(); renderCronograma(); }
+
+function renderCMateriaSelect(){
+  const sel = document.getElementById('cMateria');
+  if(sel) sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('') + '<option value="📝 Revisão + Questões">📝 Revisão + Questões</option>';
+  const rsel = document.getElementById('rMateria');
+  if(rsel) rsel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  const dsel = document.getElementById('dMateria');
+  if(dsel) dsel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+}
+
+function addCronograma(){
+  const tema = document.getElementById('cTema').value.trim();
+  const estudar = document.getElementById('cEstudar').value.trim();
+  const materia = document.getElementById('cMateria').value;
+  const semana = document.getElementById('cSemana').value.trim() || '—';
+  const dataRaw = document.getElementById('cData').value;
+  const data = dataRaw ? isoToBR(dataRaw) : '—';
+  const tempo = document.getElementById('cTempo').value.trim() || '—';
+  if(!tema){ alert('Dê um nome ao tema.'); return; }
+  cronograma.push({ id: uid(), tema, estudar, semana, tempo, data, materia, feito:false });
+  save(CRONOGRAMA_KEY, cronograma);
+  ['cTema','cEstudar','cSemana','cData','cTempo'].forEach(id => document.getElementById(id).value = '');
+  renderCronoFiltro();
+  renderCronograma();
+  bumpStreak();
+}
+function toggleCronoFeito(id){
+  const c = cronograma.find(x=>x.id===id);
+  c.feito = !c.feito;
+  save(CRONOGRAMA_KEY, cronograma);
+  if(c.feito) bumpStreak();
+  renderCronograma();
+}
+function delCronograma(id){
+  if(!confirm('Remover este item do cronograma?')) return;
+  cronograma = cronograma.filter(x=>x.id!==id);
+  save(CRONOGRAMA_KEY, cronograma);
+  renderCronoFiltro();
+  renderCronograma();
+}
+function isAtrasado(c){
+  if(c.feito) return false;
+  const d = parseBR(c.data);
+  if(!d) return false;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return d < today;
+}
+function renderCronograma(){
+  let list = cronograma;
+  if(cronoFiltro !== 'todas') list = list.filter(c => c.materia === cronoFiltro);
+  const el = document.getElementById('cronogramaList');
+  el.innerHTML = list.length ? list.map(c => {
+    const atrasado = isAtrasado(c);
+    return `
+    <div class="card crono ${c.feito?'feito':''} ${atrasado?'atrasado':''}">
+      <input type="checkbox" ${c.feito?'checked':''} onchange="toggleCronoFeito('${c.id}')" aria-label="Concluído">
+      <div class="cbody">
+        <div class="ch"><span>${c.materia} · ${c.semana}</span><span>${atrasado ? '<span class="atraso-tag">atrasado · </span>' : ''}${c.data} · ${c.tempo}</span></div>
+        <div class="ct">${c.tema}</div>
+        ${c.estudar ? `<div class="ce">${c.estudar}</div>` : ''}
+        <div class="cactions"><button class="btn small ghost" onclick="delCronograma('${c.id}')">Remover</button></div>
+      </div>
+    </div>
+  `; }).join('') : '<div class="empty">Nada aqui ainda.</div>';
+}
+
+const REVISAO_KEY = 'diplo_revisao';
+function revisaoDefault(){
+  return [
+    { id: uid(), tema:'Capitanias', materia:'📜 História do Brasil', topicoId:null, dataEstudo:null, r1:false, r2:false, r3:false },
+    { id: uid(), tema:'Sintaxe', materia:'🇧🇷 Português', topicoId:null, dataEstudo:null, r1:false, r2:false, r3:false },
+  ];
+}
+let revisao = load(REVISAO_KEY, null) || revisaoDefault();
+save(REVISAO_KEY, revisao);
+
+function ensureRevisaoForTopico(m, t){
+  if(revisao.find(r => r.topicoId === t.id)) return;
+  revisao.unshift({ id: uid(), tema: t.nome, materia: m.nome, topicoId: t.id, dataEstudo: t.dataEstudo || todayISO(), r1:false, r2:false, r3:false });
+  save(REVISAO_KEY, revisao);
+}
+function addRevisao(){
+  const tema = document.getElementById('rTema').value.trim();
+  const materia = document.getElementById('rMateria').value;
+  const dataRaw = document.getElementById('rData').value;
+  if(!tema){ alert('Dê um nome ao tema.'); return; }
+  revisao.push({ id: uid(), tema, materia, topicoId:null, dataEstudo: dataRaw || null, r1:false, r2:false, r3:false });
+  save(REVISAO_KEY, revisao);
+  document.getElementById('rTema').value=''; document.getElementById('rData').value='';
+  renderRevisao();
+}
+function toggleRevisaoCheck(id, campo){
+  const r = revisao.find(x=>x.id===id);
+  r[campo] = !r[campo];
+  save(REVISAO_KEY, revisao);
+  if(r[campo]) bumpStreak();
+  renderRevisao();
+}
+function delRevisao(id){
+  if(!confirm('Remover este item de revisão?')) return;
+  revisao = revisao.filter(x=>x.id!==id);
+  save(REVISAO_KEY, revisao);
+  renderRevisao();
+}
+function renderRevisao(){
+  const el = document.getElementById('revisaoList');
+  if(!el) return;
+  el.innerHTML = revisao.length ? revisao.map(r => {
+    const d1 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,1)) : '—';
+    const d2 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,7)) : '—';
+    const d3 = r.dataEstudo ? isoToBR(addDaysISO(r.dataEstudo,30)) : '—';
+    return `
+    <div class="card revisao">
+      <div>
+        <div class="rname">${r.tema}</div>
+        <div class="rmeta">${r.materia}${r.dataEstudo ? ' · estudado em ' + isoToBR(r.dataEstudo) : ''}</div>
+      </div>
+      <div class="rchecks">
+        <div><input type="checkbox" ${r.r1?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div>
+        <div><input type="checkbox" ${r.r2?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div>
+        <div><input type="checkbox" ${r.r3?'checked':''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div>
+      </div>
+      <button class="rdel" onclick="delRevisao('${r.id}')">Remover</button>
+    </div>
+  `; }).join('') : '<div class="empty">Nada aqui ainda.</div>';
+}
+
+const QUESTOES_KEY = 'diplo_questoes';
+let questoes = load(QUESTOES_KEY, []);
+let filtroMateria = 'todas';
+let filtroTopico = null;
+let filtroRev = 'todas';
+let draftItens = [];
+
+function renderMateriaOptions(){
+  const sel = document.getElementById('qMateria');
+  sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  const filtEl = document.getElementById('qFiltroMateria');
+  filtEl.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(nome => `
+    <button class="chip ${filtroMateria===nome?'active':''}" onclick="setFiltroMateria('${nome.replace(/'/g,"\\'")}')">${nome==='todas' ? 'Todas as matérias' : nome}</button>
+  `).join('');
+  renderCMateriaSelect();
+  renderCronoFiltro();
+  renderQTopicoOptions();
+}
+function renderQTopicoOptions(){
+  const materiaNome = document.getElementById('qMateria').value;
+  const m = materias.find(x => x.nome === materiaNome);
+  const sel = document.getElementById('qTopico');
+  if(sel) sel.innerHTML = '<option value="">— nenhum —</option>' + (m ? m.topicos.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('') : '');
+}
+function setFiltroMateria(nome){ filtroMateria = nome; filtroTopico = null; renderMateriaOptions(); renderQuestoes(); }
+function setFiltroRev(f){ filtroRev = f; document.querySelectorAll('#sub-questoes .filters:nth-of-type(2) .chip').forEach(c=>c.classList.toggle('active', c.dataset.f===f)); renderQuestoes(); }
+function irParaQuestoesDoTopico(materiaNome, topicoId){
+  goTab('diplomacia'); goSub('questoes');
+  filtroMateria = materiaNome; filtroTopico = topicoId;
+  renderMateriaOptions(); renderQuestoes();
+}
+
+function addItemField(){
+  const tipo = document.getElementById('qTipo').value;
+  if(tipo === 'Discursiva' && draftItens.length >= 1){ alert('Questões discursivas têm apenas um item.'); return; }
+  draftItens.push({ id: uid(), texto:'', gabarito:'' });
+  renderDraftItens();
+}
+function removeItemField(id){ draftItens = draftItens.filter(i => i.id !== id); renderDraftItens(); }
+function updateDraftItem(id, field, value){ const it = draftItens.find(i=>i.id===id); if(it) it[field] = value; }
+function renderDraftItens(){
+  const tipo = document.getElementById('qTipo').value;
+  const wrap = document.getElementById('qItensWrap');
+  wrap.innerHTML = draftItens.map((it, idx) => `
+    <div class="card" style="margin-top:8px;">
+      <label class="field-label">${tipo==='Discursiva' ? 'Enunciado' : 'Item ' + (idx+1)}</label>
+      <textarea oninput="updateDraftItem('${it.id}','texto', this.value)" style="min-height:50px;">${it.texto}</textarea>
+      ${tipo === 'C/E' ? `
+        <label class="field-label">Gabarito</label>
+        <select onchange="updateDraftItem('${it.id}','gabarito', this.value)">
+          <option value="">—</option>
+          <option value="Certo" ${it.gabarito==='Certo'?'selected':''}>Certo</option>
+          <option value="Errado" ${it.gabarito==='Errado'?'selected':''}>Errado</option>
+        </select>
+      ` : `
+        <label class="field-label">Resposta esperada / gabarito</label>
+        <textarea oninput="updateDraftItem('${it.id}','gabarito', this.value)" style="min-height:50px;">${it.gabarito}</textarea>
+      `}
+      <button class="btn small ghost" type="button" style="margin-top:8px;" onclick="removeItemField('${it.id}')">Remover item</button>
+    </div>
+  `).join('') || '<div class="empty">Nenhum item ainda — clique em "+ item" ou importe em lote.</div>';
+}
+function onQTipoChange(){
+  const tipo = document.getElementById('qTipo').value;
+  if(tipo === 'Discursiva' && draftItens.length > 1){ draftItens = draftItens.slice(0,1); }
+  renderDraftItens();
+}
+function toggleImportBox(){
+  const box = document.getElementById('importBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+function importarItens(){
+  const raw = document.getElementById('importText').value;
+  const chunks = raw.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+  if(!chunks.length){ alert('Cole algum texto primeiro.'); return; }
+  const tipo = document.getElementById('qTipo').value;
+  draftItens = (tipo === 'Discursiva') ? [{ id: uid(), texto: chunks[0], gabarito:'' }] : chunks.map(c => ({ id: uid(), texto: c, gabarito:'' }));
+  renderDraftItens();
+  document.getElementById('importText').value = '';
+  document.getElementById('importBox').style.display = 'none';
+}
+function addQuestao(){
+  const materia = document.getElementById('qMateria').value;
+  const topicoId = document.getElementById('qTopico').value || null;
+  const tipo = document.getElementById('qTipo').value;
+  const fonte = document.getElementById('qFonte').value.trim();
+  const contexto = document.getElementById('qContexto').value.trim();
+  if(!draftItens.length || draftItens.some(i=>!i.texto.trim())){ alert('Adicione ao menos um item com texto (use "+ item" ou "Importar em lote").'); return; }
+  questoes.unshift({ id: uid(), materia, topicoId, tipo, fonte, contexto, itens: draftItens.map(i=>({ id:i.id, texto:i.texto, gabarito:i.gabarito, acertou:null })), revisada:false, criadoEm: Date.now() });
+  save(QUESTOES_KEY, questoes);
+  document.getElementById('qFonte').value=''; document.getElementById('qContexto').value='';
+  draftItens = [];
+  renderDraftItens();
+  bumpStreak();
+  renderQuestoes();
+  renderMaterias();
+}
+function toggleRevisada(id){
+  const q = questoes.find(x=>x.id===id);
+  q.revisada = !q.revisada;
+  save(QUESTOES_KEY, questoes);
+  renderQuestoes();
+}
+function delQuestao(id){
+  if(!confirm('Remover esta questão?')) return;
+  questoes = questoes.filter(x=>x.id!==id);
+  save(QUESTOES_KEY, questoes);
+  renderQuestoes();
+  renderMaterias();
+}
+function marcarAcerto(qid, iid, val){
+  const q = questoes.find(x=>x.id===qid);
+  const it = q.itens.find(x=>x.id===iid);
+  it.acertou = (it.acertou === val) ? null : val;
+  save(QUESTOES_KEY, questoes);
+  bumpStreak();
+  renderQuestoes();
+}
+function topicoNome(tid){
+  for(const m of materias){ const t = m.topicos.find(x=>x.id===tid); if(t) return t.nome; }
+  return '';
+}
+function renderStatsAcerto(){
+  const el = document.getElementById('statsAcerto');
+  if(!el) return;
+  const porMateria = {};
+  questoes.forEach(q => q.itens.forEach(it => {
+    if(it.acertou === null || it.acertou === undefined) return;
+    porMateria[q.materia] = porMateria[q.materia] || {acertos:0, total:0};
+    porMateria[q.materia].total++;
+    if(it.acertou) porMateria[q.materia].acertos++;
+  }));
+  const entries = Object.entries(porMateria);
+  if(!entries.length){ el.innerHTML = '<label class="field-label">Desempenho por matéria</label><div class="empty">Marque "Acertei/Errei" nos itens pra ver seu desempenho aqui.</div>'; return; }
+  el.innerHTML = '<label class="field-label">Desempenho por matéria</label>' + entries.map(([materia, s]) => {
+    const pct = Math.round(100*s.acertos/s.total);
+    return `<div style="margin-bottom:8px;"><div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;"><span>${materia}</span><span class="mono">${pct}% (${s.acertos}/${s.total})</span></div><div class="bar" style="background:#26314a;"><span style="width:${pct}%; background:var(--seal-light);"></span></div></div>`;
+  }).join('');
+}
+function renderQuestoes(){
+  let list = questoes;
+  if(filtroMateria !== 'todas') list = list.filter(q => q.materia === filtroMateria);
+  if(filtroTopico) list = list.filter(q => q.topicoId === filtroTopico);
+  if(filtroRev === 'pendentes') list = list.filter(q => !q.revisada);
+  if(filtroRev === 'revisadas') list = list.filter(q => q.revisada);
+  const el = document.getElementById('questoesList');
+  el.innerHTML = list.length ? list.map(q => `
+    <div class="card questao ${q.revisada?'revisada':''}">
+      <div class="qh"><span>${q.materia}${q.topicoId ? ' · ' + topicoNome(q.topicoId) : ''} · ${q.tipo}${q.fonte ? ' · ' + q.fonte : ''}</span><span>${new Date(q.criadoEm).toLocaleDateString('pt-BR')}</span></div>
+      ${q.contexto ? `<div class="qtxt">${q.contexto}</div>` : ''}
+      ${q.itens.map((it, idx) => `
+        <div style="border-top:1px solid rgba(255,255,255,.06); padding-top:8px; margin-top:8px;">
+          <div class="qtxt" style="margin:0 0 6px;">${q.tipo==='C/E' ? (idx+1)+'. ' : ''}${it.texto}</div>
+          ${q.tipo==='C/E' ? `
+            <div class="qgab">Gabarito: ${it.gabarito || '—'}</div>
+            <div class="qactions">
+              <button class="btn small ${it.acertou===true?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',true)">Acertei</button>
+              <button class="btn small ${it.acertou===false?'secondary':'ghost'}" onclick="marcarAcerto('${q.id}','${it.id}',false)">Errei</button>
+            </div>
+          ` : `<div class="qgab">Gabarito/resposta esperada: ${it.gabarito || '—'}</div>`}
+        </div>
+      `).join('')}
+      <div class="qactions" style="margin-top:10px;">
+        <button class="btn small ${q.revisada?'ghost':'secondary'}" onclick="toggleRevisada('${q.id}')">${q.revisada ? 'Marcar pendente' : 'Marcar revisada'}</button>
+        <button class="btn small ghost" onclick="delQuestao('${q.id}')">Remover</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Nenhuma questão aqui ainda.</div>';
+  renderStatsAcerto();
+  refreshStats();
+}
+
+const DISCURSIVAS_KEY = 'diplo_discursivas';
+let discursivas = load(DISCURSIVAS_KEY, []);
+let cronoState = { running:false, startedAt:0, elapsedMs:0 };
+let cronoInterval = null;
+function cronoStart(){
+  if(cronoState.running) return;
+  cronoState.running = true;
+  cronoState.startedAt = Date.now() - cronoState.elapsedMs;
+  cronoInterval = setInterval(updateCronoDisplay, 500);
+}
+function cronoPause(){
+  if(!cronoState.running) return;
+  cronoState.running = false;
+  cronoState.elapsedMs = Date.now() - cronoState.startedAt;
+  clearInterval(cronoInterval);
+  updateCronoDisplay();
+}
+function cronoReset(){
+  cronoState = { running:false, startedAt:0, elapsedMs:0 };
+  clearInterval(cronoInterval);
+  updateCronoDisplay();
+}
+function updateCronoDisplay(){
+  const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs;
+  const totalSec = Math.floor(ms/1000);
+  const mm = String(Math.floor(totalSec/60)).padStart(2,'0');
+  const ss = String(totalSec%60).padStart(2,'0');
+  const el = document.getElementById('cronoDisplay');
+  if(el) el.textContent = mm + ':' + ss;
+}
+function fmtTempo(seg){
+  seg = seg || 0;
+  const mm = String(Math.floor(seg/60)).padStart(2,'0');
+  const ss = String(seg%60).padStart(2,'0');
+  return mm + ':' + ss;
+}
+function addDiscursiva(){
+  const materia = document.getElementById('dMateria').value;
+  const tipo = document.getElementById('dTipo').value;
+  const tema = document.getElementById('dTema').value.trim();
+  const linhas = document.getElementById('dLinhas').value.trim();
+  if(!tema){ alert('Descreva o tema ou instrução.'); return; }
+  discursivas.unshift({ id: uid(), materia, tipo, tema, linhas, rascunho:'', padraoResposta:'', tempoSeg:0, concluido:false, criadoEm: Date.now(), open:true });
+  save(DISCURSIVAS_KEY, discursivas);
+  document.getElementById('dTema').value=''; document.getElementById('dLinhas').value='';
+  bumpStreak();
+  renderDiscursivas();
+}
+function updateDiscursivaField(id, field, value){
+  const d = discursivas.find(x=>x.id===id);
+  d[field] = value;
+  save(DISCURSIVAS_KEY, discursivas);
+}
+function usarTempoCronometro(id){
+  const d = discursivas.find(x=>x.id===id);
+  const ms = cronoState.running ? Date.now() - cronoState.startedAt : cronoState.elapsedMs;
+  d.tempoSeg = Math.floor(ms/1000);
+  save(DISCURSIVAS_KEY, discursivas);
+  renderDiscursivas();
+}
+function toggleDiscursivaConcluido(id){
+  const d = discursivas.find(x=>x.id===id);
+  d.concluido = !d.concluido;
+  if(d.concluido) bumpStreak();
+  save(DISCURSIVAS_KEY, discursivas);
+  renderDiscursivas();
+}
+function toggleDiscOpen(id){ const d = discursivas.find(x=>x.id===id); d.open = !d.open; save(DISCURSIVAS_KEY, discursivas); }
+function delDiscursiva(id){
+  if(!confirm('Remover este exercício?')) return;
+  discursivas = discursivas.filter(x=>x.id!==id);
+  save(DISCURSIVAS_KEY, discursivas);
+  renderDiscursivas();
+}
+function renderDiscursivas(){
+  const el = document.getElementById('discursivasList');
+  if(!el) return;
+  el.innerHTML = discursivas.length ? discursivas.map(d => `
+    <details class="card materia-card" ${d.open?'open':''}>
+      <summary onclick="toggleDiscOpen('${d.id}')">
+        <span class="m-title">${d.tipo} — ${d.materia}${d.concluido ? ' ✓' : ''}</span>
+        <span class="m-pct mono">${fmtTempo(d.tempoSeg)}</span>
+      </summary>
+      <div class="ce" style="margin:8px 0;">${d.tema}${d.linhas ? ' · ' + d.linhas : ''}</div>
+      <label class="field-label">Rascunho</label>
+      <textarea style="min-height:120px;" oninput="updateDiscursivaField('${d.id}','rascunho', this.value)">${d.rascunho||''}</textarea>
+      <label class="field-label">Padrão de resposta (quando divulgado)</label>
+      <textarea oninput="updateDiscursivaField('${d.id}','padraoResposta', this.value)">${d.padraoResposta||''}</textarea>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+        <button class="btn small ghost" onclick="usarTempoCronometro('${d.id}')">Usar tempo do cronômetro</button>
+        <button class="btn small ${d.concluido?'ghost':'secondary'}" onclick="toggleDiscursivaConcluido('${d.id}')">${d.concluido?'Reabrir':'Marcar concluído'}</button>
+        <button class="btn small ghost" onclick="delDiscursiva('${d.id}')">Remover</button>
+      </div>
+    </details>
+  `).join('') : '<div class="empty">Nenhum exercício ainda.</div>';
+}
+
+const ATUALIDADES_KEY = 'diplo_atualidades';
+let atualidades = load(ATUALIDADES_KEY, []);
+function addAtualidade(){
+  const tema = document.getElementById('aTema').value.trim();
+  const titulo = document.getElementById('aTitulo').value.trim();
+  const resumo = document.getElementById('aResumo').value.trim();
+  const fonte = document.getElementById('aFonte').value.trim();
+  if(!titulo || !resumo){ alert('Preencha título e resumo.'); return; }
+  atualidades.unshift({ id: uid(), tema, titulo, resumo, fonte, criadoEm: Date.now() });
+  save(ATUALIDADES_KEY, atualidades);
+  ['aTema','aTitulo','aResumo','aFonte'].forEach(id => document.getElementById(id).value = '');
+  bumpStreak();
+  renderAtualidades();
+}
+function delAtualidade(id){
+  if(!confirm('Remover esta atualidade?')) return;
+  atualidades = atualidades.filter(x=>x.id!==id);
+  save(ATUALIDADES_KEY, atualidades);
+  renderAtualidades();
+}
+function renderAtualidades(){
+  const el = document.getElementById('atualidadesList');
+  if(!el) return;
+  el.innerHTML = atualidades.length ? atualidades.map(a => `
+    <div class="card nota">
+      ${a.tema ? `<div class="ntag">${a.tema}</div>` : ''}
+      <h4>${a.titulo}</h4>
+      <p>${a.resumo}</p>
+      ${a.fonte ? `<div style="font-size:11px; color:var(--brass-light); margin-bottom:6px;">${a.fonte}</div>` : ''}
+      <div class="nfoot">
+        <span>${new Date(a.criadoEm).toLocaleDateString('pt-BR')}</span>
+        <button class="btn small ghost" onclick="delAtualidade('${a.id}')">Remover</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Nenhuma atualidade guardada ainda.</div>';
+}
+
+const NOTAS_KEY = 'diplo_notas';
+let notas = load(NOTAS_KEY, []);
+function addNota(){
+  const materia = document.getElementById('nMateria').value.trim();
+  const titulo = document.getElementById('nTitulo').value.trim();
+  const texto = document.getElementById('nTexto').value.trim();
+  if(!titulo || !texto){ alert('Preencha título e texto.'); return; }
+  notas.unshift({ id: uid(), materia, titulo, texto, criadoEm: Date.now() });
+  save(NOTAS_KEY, notas);
+  ['nMateria','nTitulo','nTexto'].forEach(id => document.getElementById(id).value = '');
+  bumpStreak();
+  renderNotas();
+}
+function delNota(id){
+  if(!confirm('Remover esta anotação?')) return;
+  notas = notas.filter(x=>x.id!==id);
+  save(NOTAS_KEY, notas);
+  renderNotas();
+}
+function renderNotas(){
+  const el = document.getElementById('notasList');
+  el.innerHTML = notas.length ? notas.map(n => `
+    <div class="card nota">
+      ${n.materia ? `<div class="ntag">${n.materia}</div>` : ''}
+      <h4>${n.titulo}</h4>
+      <p>${n.texto}</p>
+      <div class="nfoot">
+        <span>${new Date(n.criadoEm).toLocaleDateString('pt-BR')}</span>
+        <button class="btn small ghost" onclick="delNota('${n.id}')">Remover</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Nenhuma anotação ainda.</div>';
+  refreshStats();
+}
+
+function refreshStats(){
+  document.getElementById('statMaterias').textContent = materias.length;
+  document.getElementById('statQuestoes').textContent = questoes.length;
+  document.getElementById('statNotas').textContent = notas.length;
+  const p = pctGeral();
+  document.getElementById('diploProgressLabel').textContent = p + '% do edital coberto';
+  document.getElementById('diploProgressBar').style.width = p + '%';
+  renderStreak();
+}
+
+renderMateriaOptions();
+renderMaterias();
+renderCronoFiltro();
+renderCronograma();
+renderRevisao();
+renderQuestoes();
+renderDiscursivas();
+renderAtualidades();
+renderNotas();
+addItemField();
+renderStreak();
+</script>
+</body>
+</html>
