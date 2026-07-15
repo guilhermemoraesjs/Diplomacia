@@ -6,8 +6,7 @@
 <title>Chancelaria — Gabinete de Estudos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Fonte Montserrat para simular perfeitamente a estética geométrica e limpa da Gotham -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
@@ -16,13 +15,11 @@
     --ink:#070A11;
     --ink-2:#111726;
     --ink-3:#161E30;
-    --parchment:#141B2D;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --text-main:#F4F6F9;
+    --parchment:#F4EEDD;
+    --parchment-2:#E9DFC3;
+    --text-dark:#1C1A15;
     --text-light:#EDE6D6;
     --text-muted:#8592A8;
-    --input-bg: rgba(0,0,0,0.4);
-    --bg-gradient: radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0, 122, 255, 0.08), transparent 60%);
     --card-hover-bg: rgba(180,145,75,.06);
     --bg-overlay-opacity: .22;
   }
@@ -31,13 +28,11 @@
     --ink:#F4F6F9;
     --ink-2:#FFFFFF;
     --ink-3:#EAEFF3;
-    --parchment:#FFFFFF;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --text-main:#1C1A15;
+    --parchment:#1C1A15;
+    --parchment-2:#3A3D40;
+    --text-dark:#EDE6D6;
     --text-light:#1C1A15;
     --text-muted:#6B7A8C;
-    --input-bg: rgba(255,255,255,0.8);
-    --bg-gradient: radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0, 122, 255, 0.04), transparent 60%);
     --card-hover-bg: rgba(0,122,255,0.05);
     --bg-overlay-opacity: .05;
   }
@@ -61,10 +56,10 @@
     --tabbar-space:100px;
     --sidebar-w:0px;
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Cores UbWiki */
+
+    /* Cores UbWiki solicitadas */
     --ub-verde:#2EC4B6;
-    --ub-azul:#007ATT;
+    --ub-azul:#007AFF;
     --ub-cinza:#A0AAB5;
     --ub-branco:#FFFFFF;
   }
@@ -72,9 +67,12 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background: var(--bg-gradient), var(--ink);
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(180,145,75,.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(62,92,118,.14), transparent 55%),
+      var(--ink);
     color:var(--text-light);
-    font-family:'Montserrat', sans-serif;
+    font-family:'IBM Plex Sans', sans-serif;
     min-height:100vh;
     -webkit-tap-highlight-color:transparent;
     position:relative;
@@ -96,7 +94,7 @@
     *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
   }
   ::selection{background:var(--brass); color:var(--ink);}
-  h1,h2,h3,h4{font-weight:600; margin:0;}
+  h1,h2,h3,h4{font-family:'Fraunces', serif; font-weight:600; margin:0;}
   .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:.02em;}
   a{color:inherit;}
   button{font-family:inherit; cursor:pointer;}
@@ -125,13 +123,13 @@
     background:linear-gradient(90deg, transparent, rgba(180,145,75,.5), transparent);
   }
   .letterhead .brand{display:flex; flex-direction:column; gap:2px;}
-  .letterhead .brand .crest{ width:38px; height:38px; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+  .letterhead .brand .crest{ width:38px; height:38px; font-family:'Fraunces', serif; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:10px; }
   .letterhead h1{font-size:24px; color:var(--text-main); letter-spacing:.04em; text-transform:uppercase;}
-  .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:3px; text-transform:uppercase; letter-spacing:0.08em;}
-  
+  .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:3px; font-style:italic; font-family:'Fraunces', serif;}
+
   .top-right-cabinet { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .theme-toggle-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight: 600; transition: var(--transition); }
-  .theme-toggle-btn:hover { border-color: var(--ub-azul); background: var(--border-color); }
+  .theme-toggle-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 500; transition: var(--transition); }
+  .theme-toggle-btn:hover { border-color: var(--ub-azul); }
 
   .protocolo{ text-align:right; font-size:10.5px; color:var(--brass-light); line-height:1.6; }
   .authbox{display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:10px;}
@@ -145,7 +143,7 @@
   .sync-dot{width:6px; height:6px; border-radius:50%; background:var(--ok-glow); box-shadow:0 0 6px var(--ok-glow); display:inline-block; margin-right:5px; animation:pulseDot 2.4s ease infinite;}
   @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.35;}}
 
-  /* ===== Ajuste de Iframe de Palavras Dinâmico ===== */
+  /* ===== Ajuste de Iframe de Palavras Dinâmico Sem Margens Cortes ===== */
   main{padding:18px 16px var(--tabbar-space); max-width:1200px; margin:0 auto;}
   body[data-active-tab="palavras"] main { max-width: 100vw; padding-left: 0; padding-right: 0; padding-top: 0; }
   body[data-active-tab="palavras"] .dispatch-frame { height: calc(100vh - 92px); }
@@ -154,7 +152,7 @@
   .view.active{display:block;}
   @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
 
-  .intro-line{color:var(--text-muted); font-size:14.5px; margin:4px 0 20px; line-height:1.6;}
+  .intro-line{font-family:'Fraunces', serif; font-style:italic; color:var(--text-muted); font-size:14.5px; margin:4px 0 20px; line-height:1.6;}
 
   .inicio-split { display: grid; grid-template-columns: 1fr; gap: 24px; }
 
@@ -181,7 +179,7 @@
   .dossie .foot{display:flex; justify-content:space-between; align-items:center; gap:12px;}
   .dossie .progress-label{font-size:11px; font-family:'IBM Plex Mono', monospace;}
 
-  /* anel de progresso */
+  /* anel de progresso (donut via conic-gradient) */
   .ring{
     --pct:0; position:relative; width:52px; height:52px; border-radius:50%; flex-shrink:0;
     background:conic-gradient(var(--accent, var(--brass)) calc(var(--pct)*1%), var(--ink-3) 0);
@@ -210,12 +208,12 @@
   .stats-row{display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;}
   .stat-card{ flex:1; min-width:70px; background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:15px 10px; text-align:center; transition:border-color .18s ease; }
   .stat-card:hover{ border-color:rgba(180,145,75,.32); }
-  .stat-card .n{font-size:25px; color:var(--brass-light); font-weight: 600;}
+  .stat-card .n{font-family:'Fraunces', serif; font-size:25px; color:var(--brass-light);}
   .stat-card .l{font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-top:4px;}
 
   .subtabs{display:flex; gap:4px; margin-bottom:20px; border-bottom:none; background:rgba(0,0,0,.22); border:1px solid var(--border-color); border-radius:12px; padding:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
   .subtabs::-webkit-scrollbar{display:none;}
-  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:12.5px; padding:8px 12px; font-radius:9px; margin-right:0; transition:background .18s ease, color .18s ease; font-weight: 600;}
+  .subtab-btn{ background:none; border:none; color:var(--text-muted); flex-shrink:0; white-space:nowrap; font-size:12.5px; padding:8px 12px; font-family:'IBM Plex Sans'; border-radius:9px; margin-right:0; transition:background .18s ease, color .18s ease; }
   .subtab-btn.active{color:var(--ink); background:var(--brass-light); font-weight:600; box-shadow:0 4px 12px -4px rgba(227,196,129,.5); }
   .subtab-btn:not(.active):hover{color:var(--text-main); background:rgba(180,145,75,.1);}
   .subview{display:none;}
@@ -228,22 +226,22 @@
   .card:hover{ border-color:rgba(180,145,75,.3); }
   .materia-card summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
   .materia-card summary::-webkit-details-marker{display:none;}
-  
+
   /* ===== HIERARQUIA CORES UBWIKI ===== */
-  .materia-card .m-title{ font-size:16px; color:var(--ub-verde); font-weight:700; }
+  .materia-card .m-title{ font-family:'Fraunces', serif; font-size:16px; color:var(--ub-verde); font-weight:700; }
   .materia-card .m-pct{font-family:'IBM Plex Mono'; font-size:12px; color:var(--brass-light);}
   .materia-card .bar{background:var(--ink-3); margin-top:8px;}
-  
+
   .topic-row{display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13.5px; flex-wrap:wrap; font-weight:600; color:var(--ub-azul);}
   .topic-row input[type=checkbox]{width:16px; height:16px; accent-color:var(--ub-azul); cursor:pointer;}
   .topic-row.done label{color:var(--text-muted); text-decoration:line-through;}
-  
+
   .subtopics-wrap{display:none; margin:2px 0 8px 25px; padding-left:11px; border-left:2px solid var(--border-color); width:100%;}
   .subtopics-wrap.open{display:block;}
   .subtopic-row{display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12.5px; font-weight:500; color:var(--ub-cinza); width:100%; flex-wrap:wrap;}
   .subtopic-row input[type=checkbox]{width:14px; height:14px; accent-color:var(--ub-cinza); flex-shrink:0; cursor:pointer;}
   .subtopic-row.done label{color:var(--text-muted); text-decoration:line-through;}
-  
+
   .subsubtopics-wrap { display:none; margin:2px 0 6px 20px; padding-left:9px; border-left:1.5px dashed var(--border-color); width:100%; }
   .subsubtopics-wrap.open { display:block; }
   .subsubtopic-row { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:12px; font-weight:400; color:var(--ub-branco); width:100%;}
@@ -252,7 +250,7 @@
 
   .topic-row button.del-t, .subtopic-row button.del-t, .subsubtopic-row button.del-t { background:none; border:none; color:#6a5350; font-size:15px; margin-left:auto; opacity:.6; cursor:pointer; }
   .topic-row button.del-t:hover, .subtopic-row button.del-t:hover, .subsubtopic-row button.del-t:hover { opacity:1; color:var(--bad); }
-  
+
   .topic-badge{background:none; border:1px solid var(--border-color); color:var(--brass-light); font-size:9.5px; padding:2px 7px; border-radius:20px; font-family:'IBM Plex Mono';}
   .topic-toggle{background:none; border:none; color:var(--text-muted); font-size:11px; padding:2px 4px; flex-shrink:0; transition: transform .15s ease; display:inline-flex; cursor:pointer;}
   .topic-toggle.open{transform:rotate(90deg);}
@@ -263,13 +261,13 @@
 
   input[type=text], input[type=number], input[type=date], textarea, select{
     width:100%; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main);
-    padding:11px 12px; border-radius:var(--radius-sm); font-size:13.5px; transition:border-color .15s, box-shadow .15s;
+    padding:11px 12px; border-radius:var(--radius-sm); font-family:'IBM Plex Sans'; font-size:13.5px; transition:border-color .15s, box-shadow .15s;
   }
   input:focus, textarea:focus, select:focus{ border-color:var(--ub-azul); box-shadow:0 0 0 3px rgba(0,122,255,0.15); outline:none; }
   textarea{resize:vertical; min-height:64px;}
   label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); display:block; margin:10px 0 5px; font-weight:500;}
-  
-  .btn{ background:var(--seal); color:var(--text-light); border:none; padding:10.5px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; letter-spacing:.02em; transition: var(--transition); }
+
+  .btn{ background:var(--seal); color:var(--text-light); border:none; padding:10.5px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; letter-spacing:.02em; transition: var(--transition); }
   .btn:hover{ filter:brightness(1.14); box-shadow:0 8px 20px -10px rgba(124,45,45,.65); transform:translateY(-1px); }
   .btn.secondary{background:var(--ub-azul); color:#fff;}
   .btn.ghost{background:rgba(255,255,255,.02); border:1px solid var(--border-color); color:var(--text-muted);}
@@ -277,7 +275,7 @@
 
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
-  .chip{ font-size:11.5px; padding:6px 13px; border-radius:20px; border:1px solid var(--border-color); color:var(--text-muted); background:var(--ink-2); transition:all .15s; cursor:pointer; font-weight: 500; }
+  .chip{ font-size:11.5px; padding:6px 13px; border-radius:20px; border:1px solid var(--border-color); color:var(--text-muted); background:var(--ink-2); transition:all .15s; cursor:pointer; }
   .chip:hover{ border-color:var(--ub-azul); color:var(--text-main); }
   .chip.active{background:var(--ub-azul); color:#fff; border-color:var(--ub-azul); box-shadow:0 4px 12px -6px rgba(0,122,255,.5);}
 
@@ -289,7 +287,7 @@
   .crono input[type=checkbox]{width:17px; height:17px; margin-top:2px; accent-color:var(--ok); flex-shrink:0; cursor:pointer; position:relative; z-index:5;}
   .crono .ch{display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); font-family:'IBM Plex Mono'; flex-wrap:wrap; gap:4px;}
   .crono.atrasado .ch{color:#E57373;}
-  .crono .ct{font-size:14.5px; color:var(--text-main); margin:3px 0 4px; font-weight:600;}
+  .crono .ct{font-family:'Fraunces', serif; font-size:14.5px; color:var(--text-main); margin:3px 0 4px; font-weight:600;}
   .crono .ce{font-size:12.5px; color:var(--text-muted); line-height:1.5; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
   .crono .cactions{margin-top:8px; display:flex; gap:6px;}
   .crono .cbody{flex:1; min-width:0;}
@@ -299,7 +297,7 @@
   .modal-overlay { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: var(--transition); }
   .modal-overlay.show { opacity: 1; pointer-events: auto; }
   .modal-card { width: 100%; max-width: 560px; background: var(--ink-2); border-radius: var(--radius-ui); padding: 26px 22px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
-  .modal-card h3 { color: var(--text-main); font-size: 20px; margin-bottom: 12px; }
+  .modal-card h3 { font-family: 'Fraunces', serif; color: var(--text-main); font-size: 20px; margin-bottom: 12px; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; border-top: 1px solid var(--border-color); padding-top: 12px; }
 
   /* ===== Grade do Calendário Mensal ===== */
@@ -315,7 +313,7 @@
 
   .day-group{margin-bottom:22px;}
   .day-group-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border-color);}
-  .day-group-head .dgd{font-size:16px; color:var(--text-main); text-transform:capitalize;}
+  .day-group-head .dgd{font-family:'Fraunces', serif; font-size:16px; color:var(--text-main); text-transform:capitalize;}
   .day-group-head .dgw{font-size:10.5px; color:var(--text-muted); font-family:'IBM Plex Mono'; text-transform:uppercase; letter-spacing:.05em;}
   .day-group-head.hoje .dgd{color:var(--brass-light);}
   .day-group-head.hoje .dgw{color:var(--brass-light);}
@@ -330,13 +328,13 @@
   .questao .qactions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
   .nota { border-left: 3px solid var(--brass); margin-bottom: 12px; }
-  .nota h4 { font-size: 14.5px; color: var(--text-main); margin-bottom: 4px; }
+  .nota h4 { font-family: 'Fraunces', serif; font-size: 14.5px; color: var(--text-main); margin-bottom: 4px; }
   .nota .ntag { font-size: 10px; color: var(--brass-light); font-family: 'IBM Plex Mono'; text-transform: uppercase; }
   .nota p { font-size: 13px; color: var(--text-light); white-space: pre-wrap; line-height: 1.55; margin: 6px 0 8px; }
   .nota .nfoot { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; color: var(--text-muted); }
 
   .revisao { margin-bottom: 12px; }
-  .revisao .rname { font-size: 14px; color: var(--text-main); }
+  .revisao .rname { font-family: 'Fraunces', serif; font-size: 14px; color: var(--text-main); }
   .revisao .rmeta { font-size: 10.5px; color: var(--text-muted); font-family: 'IBM Plex Mono'; margin-top: 2px; }
   .revisao .rchecks { display: flex; gap: 10px; font-size: 9.5px; color: var(--text-muted); text-align: center; }
   .revisao .rchecks div { display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -350,7 +348,7 @@
 
   /* ===== Sidebar Barra de Navegação Lateral Fixa ===== */
   .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; }
-  .tabbar button { flex: 1; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; padding: 8px; transition: color .15s; border-left: 3px solid transparent; cursor: pointer; }
+  .tabbar button { flex: 1; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; padding: 6px 2px; transition: color .15s; border-left: 3px solid transparent; }
   .tabbar button .ic { font-size: 17px; }
   .tabbar button.active { color: var(--brass-light); font-weight: 700; }
 
@@ -358,8 +356,8 @@
     :root{ --tabbar-space:0px; --sidebar-w:224px; }
     .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
     main{ margin-left:var(--sidebar-w); margin-top:96px; }
-    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 16px 20px; border-top:none; border-right:1px solid var(--border-color); box-shadow: 8px 0 24px rgba(0,0,0,0.3); }
-    .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 24px; font-size:14px; border-radius: 8px; margin-bottom: 4px; }
+    .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
+    .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13.5px; border-radius: 8px; margin-bottom: 4px; }
     .tabbar button.active { border-left-color: var(--brass-light); background: rgba(255,255,255,0.03); color: var(--brass-light); }
     .inicio-split { grid-template-columns: 1.2fr 1fr; }
   }
@@ -367,18 +365,18 @@
 </head>
 <body data-theme="dark" data-active-tab="inicio">
 
-<!-- MODAL DE ANOTAÇÕES -->
+<!-- GABINETE MODAL DE ANOTAÇÕES -->
 <div id="editCronoModal" class="modal-overlay" onclick="closeEditModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <h3>Gabinete de Estudo — Detalhes</h3>
     <input type="hidden" id="editCronoId">
-    
+
     <label class="field-label">Tema / Tópico</label>
     <input type="text" id="editCronoTema">
-    
+
     <label class="field-label">Fichamento / Suas Anotações de Estudo</label>
     <textarea id="editCronoEstudar" placeholder="Escreva aqui seus resumos, insights e anotações do que foi estudado..."></textarea>
-    
+
     <div class="row2">
       <div>
         <label class="field-label">Matéria</label>
@@ -389,7 +387,7 @@
         <input type="text" id="editCronoSemana">
       </div>
     </div>
-    
+
     <div class="row2">
       <div>
         <label class="field-label">Data de Execução</label>
@@ -400,7 +398,7 @@
         <input type="text" id="editCronoTempo">
       </div>
     </div>
-    
+
     <div class="modal-actions">
       <button class="btn ghost small" onclick="closeEditModalDirect()">Cancelar</button>
       <button class="btn secondary small" onclick="saveCronoEdition()">Salvar Alterações</button>
@@ -419,6 +417,7 @@
 
 <div class="letterhead">
   <div class="brand">
+    <div class="wax crest">GA</div>
     <h1>Chancelaria</h1>
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
@@ -602,7 +601,7 @@
       </div>
       <div id="atualidadesList"></div>
     </div>
-    
+
     <div class="subview" id="sub-notas">
       <div class="card">
         <input type="text" id="nMateria" placeholder="Matéria">
@@ -624,7 +623,6 @@
 <script>
 const fbCfg = {apiKey:"AIzaSyA-LdSk34sspNiABm7wUn0_Jry-Qe2dqok",authDomain:"estudamais-e8a60.firebaseapp.com",projectId:"estudamais-e8a60",storageBucket:"estudamais-e8a60.firebasestorage.app",messagingSenderId:"1030390489355",appId:"1:1030390489355:web:4f09a3c04b6cd61ebe020e"};
 const HUB_ORIGIN = 'https://estuda-mais-theta.vercel.app';
-const DIPLO_KEYS = ['diplo_materias','diplo_cronograma','diplo_questoes','diplo_discursivas','diplo_atualidades','diplo_notas'];
 
 try{ firebase.initializeApp(fbCfg); }catch(e){}
 
@@ -637,10 +635,10 @@ function toggleTheme() {
 }
 
 firebase.auth().onAuthStateChanged(user => {
-  if(user){ 
+  if(user){
     const box = document.getElementById('authBox');
     if(box) box.innerHTML = `<div class="avatar">${user.displayName ? user.displayName.charAt(0) : 'U'}</div>`;
-    reloadStateFromLocalStorage(); 
+    reloadStateFromLocalStorage();
   }
 });
 
@@ -650,14 +648,15 @@ const save = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); };
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function isoToBR(iso){ if(!iso) return ''; const p = iso.split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : iso; }
+function addDaysISO(iso, days){ const d = new Date(iso); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 
-function parseBR(d){ 
-  if(!d || d==='—') return null; 
-  const parts = d.split('/').map(Number); 
+function parseBR(d){
+  if(!d || d==='—') return null;
+  const parts = d.split('/').map(Number);
   if(parts.length!==3) return null;
   let ano = parts[2];
-  if(ano < 1000) ano = 2026; 
-  return new Date(ano, parts[1]-1, parts[0]); 
+  if(ano < 1000) ano = 2026;
+  return new Date(ano, parts[1]-1, parts[0]);
 }
 function isMesmoDia(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
 
@@ -665,7 +664,7 @@ function goTab(tab){
   document.body.setAttribute('data-active-tab', tab);
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + tab).classList.add('active');
-  
+
   document.querySelectorAll('.tabbar button').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-tab') === tab);
   });
@@ -727,10 +726,10 @@ function renderMaterias(){
                 <div class="add-subsubtopic-row"><input type="text" placeholder="Novo subtópico..." id="news_${s.id}" onkeydown="if(event.key==='Enter')addSubsubtopico('${m.id}','${t.id}','${s.id}')"></div>
               </div>
             `; }).join('')}
-            <div class="add-subtopic-row"><input type="text" placeholder="Novo tópico..." id="newt_${t.id}" onkeydown="if(event.key==='Enter')addSubtopico('${m.id}','${t.id}')}"></div>
+            <div class="add-subtopic-row"><input type="text" placeholder="Novo tópico..." id="newt_${t.id}" onkeydown="if(event.key==='Enter')addSubtopico('${m.id}','${t.id}')"></div>
           </div>
         `; }).join('')}
-        <div class="add-topic-row"><input type="text" placeholder="Novo tema..." id="newm_${m.id}" onkeydown="if(event.key==='Enter')addTopico('${m.id}')}"></div>
+        <div class="add-topic-row"><input type="text" placeholder="Novo tema..." id="newm_${m.id}" onkeydown="if(event.key==='Enter')addTopico('${m.id}')"></div>
       </div>
     </details>
   `).join('');
@@ -743,18 +742,26 @@ function toggleSubSubOpen(mid, tid, sid){ const m = materias.find(x=>x.id===mid)
 function addTopico(mid){ const input = document.getElementById('newm_'+mid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); m.topicos.push({id:uid(), nome:input.value.trim(), feito:false, subtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
 function addSubtopico(mid, tid){ const input = document.getElementById('newt_'+tid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos.push({id:uid(), nome:input.value.trim(), feito:false, subsubtopicos:[]}); save(MATERIAS_KEY, materias); renderMaterias(); }
 function addSubsubtopico(mid, tid, sid){ const input = document.getElementById('news_'+sid); if(!input.value.trim()) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos.push({id:uid(), nome:input.value.trim(), feito:false}); save(MATERIAS_KEY, materias); renderMaterias(); }
-function toggleTopico(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.feito = !t.feito; if(t.feito) { if(!t.dataEstudo) t.dataEstudo = todayISO(); ensureRevisaoForTopico(m, t); } save(MATERIAS_KEY, materias); refreshStats(); renderMaterias(); renderRevisao(); }
+function toggleTopico(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.feito = !t.feito; save(MATERIAS_KEY, materias); refreshStats(); renderMaterias(); }
 function toggleSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.feito = !s.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
 function toggleSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); const ss = s.subsubtopicos.find(x=>x.id===ssid); ss.feito = !ss.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
 function delTopico(mid, tid){ const m = materias.find(x=>x.id===mid); m.topicos = m.topicos.filter(x=>x.id!==tid); save(MATERIAS_KEY, materias); renderMaterias(); }
 function delSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos = t.subtopicos.filter(x=>x.id!==sid); save(MATERIAS_KEY, materias); renderMaterias(); }
 function delSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid); save(MATERIAS_KEY, materias); renderMaterias(); }
 
+function cronogramaDefault(){ return []; }
+
 let cronograma = load('diplo_cronograma', []) || cronogramaDefault();
 let questoes = load('diplo_questoes', []);
 let discursivas = load('diplo_discursivas', []);
 let atualidades = load('diplo_atualidades', []);
 let notas = load('diplo_notas', []);
+
+// Estado de filtros/visões da aba Cronograma e rascunho de questões
+let cronoViewMode = 'dia';
+let cronoStatusFiltro = 'todas';
+let calendarFilterDate = null;
+let draftItens = [];
 
 function openCronoEditModal(id){
   const c = cronograma.find(x=>x.id===id); if(!c) return;
@@ -766,7 +773,7 @@ function openCronoEditModal(id){
   const sel = document.getElementById('editCronoMateria');
   sel.innerHTML = materias.map(m=>`<option value="${m.nome}">${m.nome}</option>`).join('');
   sel.value = c.materia;
-  
+
   let isoVal = ""; const parsed = parseBR(c.data);
   if(parsed) isoVal = `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}`;
   document.getElementById('editCronoData').value = isoVal;
@@ -787,10 +794,10 @@ function renderDailyBrief(){
   const container = document.getElementById('dailyBriefContent'); if(!container) return;
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   let html = `<div class="brief-section"><span class="brief-section-title">Frente I — Idiomas (SRS)</span><div class="brief-item" onclick="goTab('palavras')"><div class="brief-item-meta"><span>Transmissão Ativa</span><span>Palavras</span></div><div class="brief-item-title">Revisão Espaçada Diária</div></div></div>`;
-  
+
   const diarias = cronograma.filter(c => { const d = parseBR(c.data); return d && isMesmoDia(d, hoje) && !c.feito; });
   const atrasadas = cronograma.filter(c => { const d = parseBR(c.data); return d && d < hoje && !c.feito; });
-  
+
   html += `<div class="brief-section"><span class="brief-section-title">Frente II — Edital Diplomacia</span>`;
   atrasadas.forEach(c => { html += `<div class="brief-item item-atrasado" onclick="openCronoEditModal('${c.id}')"><div class="brief-item-meta"><span>${c.materia}</span><span style="color:var(--bad);">🚨 ATRASADA</span></div><div class="brief-item-title">${c.tema}</div></div>`; });
   diarias.forEach(c => { html += `<div class="brief-item" onclick="openCronoEditModal('${c.id}')"><div class="brief-item-meta"><span>${c.materia}</span><span>HOJE</span></div><div class="brief-item-title">${c.tema}</div></div>`; });
@@ -800,7 +807,25 @@ function renderDailyBrief(){
 }
 
 function renderCronograma(){
-  let list = cronograma; const el = document.getElementById('cronogramaList'); if(!el) return;
+  let list = cronograma;
+
+  // Filtro por status
+  if(cronoStatusFiltro === 'pendentes') list = list.filter(c => !c.feito && !isAtrasado(c));
+  else if(cronoStatusFiltro === 'atrasados') list = list.filter(c => isAtrasado(c));
+  else if(cronoStatusFiltro === 'concluidos') list = list.filter(c => c.feito);
+
+  // Filtro por dia selecionado no calendário
+  if(cronoViewMode === 'calendario' && calendarFilterDate){
+    list = list.filter(c => { const d = parseBR(c.data); return d && isMesmoDia(d, calendarFilterDate); });
+  }
+
+  const el = document.getElementById('cronogramaList'); if(!el) return;
+
+  if(!list.length){
+    el.innerHTML = '<div class="empty" style="padding:12px 0; color:var(--text-muted);">Nenhum item encontrado para este filtro.</div>';
+    return;
+  }
+
   el.innerHTML = list.map(c => `
     <div class="card crono ${c.feito?'feito':''} ${isAtrasado(c)?'atrasado':''}" onclick="openCronoEditModal('${c.id}')">
       <input type="checkbox" ${c.feito?'checked':''} onchange="event.stopPropagation(); toggleCronoFeito('${c.id}')">
@@ -819,22 +844,22 @@ function renderCalendarStructure(){
   const agora = new Date(); const ano = agora.getFullYear(); const mes = agora.getMonth();
   const primeiroDiaSemana = new Date(ano, mes, 1).getDay(); const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
   const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-  
+
   let html = `<div style="grid-column: 1/-1; text-align: center; font-weight:600; margin-bottom:10px; color:var(--brass-light);">${mesesNomes[mes]} de ${ano}</div>`;
   ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].forEach(da => { html += `<div class="cal-weekday">${da}</div>`; });
   for(let i = 0; i < primeiroDiaSemana; i++) html += `<div class="cal-day empty-cell"></div>`;
-  
+
   const eventosPorDia = {};
   cronograma.forEach(c => {
     const d = parseBR(c.data); if(d && d.getFullYear() === ano && d.getMonth() === mes){
       const diaNum = d.getDate(); eventosPorDia[diaNum] = (eventosPorDia[diaNum] || 0) + 1;
     }
   });
-  
+
   for(let dia = 1; dia <= totalDiasMes; dia++){
     const classeHoje = (agora.getDate() === dia) ? 'today' : '';
     const temEvento = eventosPorDia[dia] ? `<div class="cal-day-dot"></div>` : '';
-    let classeFiltroAtivo = (calendarFilterDate && calendarFilterDate.getDate() === dia) ? 'active-filter' : '';
+    let classeFiltroAtivo = (calendarFilterDate && calendarFilterDate.getMonth() === mes && calendarFilterDate.getFullYear() === ano && calendarFilterDate.getDate() === dia) ? 'active-filter' : '';
     html += `<div class="cal-day ${classeHoje} ${classeFiltroAtivo}" onclick="selectCalendarDate(${dia})"><span class="cal-day-num">${dia}</span>${temEvento}</div>`;
   }
   calView.innerHTML = html;
@@ -847,10 +872,21 @@ function selectCalendarDate(dia) {
 function setCronoView(mode){
   cronoViewMode = mode;
   document.getElementById('calendarioWrap').style.display = (mode === 'calendario') ? 'block' : 'none';
+  document.getElementById('cronoViewDiaBtn').classList.toggle('active', mode === 'dia');
+  document.getElementById('cronoViewMateriaBtn').classList.toggle('active', mode === 'materia');
+  document.getElementById('cronoViewCalBtn').classList.toggle('active', mode === 'calendario');
   if(mode==='calendario') renderCalendarStructure();
   renderCronograma();
 }
-function setCronoStatusFiltro(status){ cronoStatusFiltro = status; renderCronograma(); }
+function setCronoStatusFiltro(status){
+  cronoStatusFiltro = status;
+  ['Todas','Pendentes','Atrasados','Concluidos'].forEach(k => {});
+  document.getElementById('cronoStatusTodasBtn').classList.toggle('active', status === 'todas');
+  document.getElementById('cronoStatusPendentesBtn').classList.toggle('active', status === 'pendentes');
+  document.getElementById('cronoStatusAtrasadosBtn').classList.toggle('active', status === 'atrasados');
+  document.getElementById('cronoStatusConcluidosBtn').classList.toggle('active', status === 'concluidos');
+  renderCronograma();
+}
 
 function addMateria(){ const input = document.getElementById('novaMateriaInput'); const nome = input.value.trim(); if(!nome) return; materias.push({ id: uid(), nome, topicos:[], open:true }); input.value = ''; save(MATERIAS_KEY, materias); renderMaterias(); renderMateriaOptions(); }
 function addCronograma(){
@@ -882,12 +918,14 @@ function renderRevisao(){
 }
 
 function renderQTopicoOptions(){ const m = materias.find(x => x.nome === document.getElementById('qMateria').value); const sel = document.getElementById('qTopico'); if(sel) sel.innerHTML = '<option value="">— nenhum —</option>' + (m ? m.topicos.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('') : ''); }
-function renderMateriaOptions(){ 
+function renderMateriaOptions(){
   const sel = document.getElementById('qMateria'); if(sel) sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
   const filt = document.getElementById('qFiltroMateria'); if(filt) filt.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="setFiltroMateria('${n}')">${n}</button>`).join('');
+  const filtC = document.getElementById('cronoFiltroMateria'); if(filtC) filtC.innerHTML = ['todas', ...materias.map(m=>m.nome)].map(n => `<button class="chip" onclick="setCronoFiltroMateria('${n}')">${n}</button>`).join('');
   renderCMateriaSelect();
 }
 function setFiltroMateria(n){ renderQuestoes(); }
+function setCronoFiltroMateria(n){ renderCronograma(); }
 function addItemField(){ draftItens.push({ id: uid(), texto:'', gabarito:'' }); const w = document.getElementById('qItensWrap'); if(w) w.innerHTML = draftItens.map((i,idx)=>`<div style="margin-top:6px;"><label class="field-label">Item ${idx+1}</label><textarea oninput="draftItens[${idx}].texto=this.value"></textarea></div>`).join(''); }
 function addQuestao(){}
 function onQTipoChange(){}
@@ -903,16 +941,10 @@ function addNota(){ const tit = document.getElementById('nTitulo').value; if(!ti
 function renderNotas(){ const el = document.getElementById('notasList'); if(el) el.innerHTML = notas.map(n=>`<div class="card"><h4>${n.titulo}</h4><p>${n.texto}</p></div>`).join(''); }
 
 let cronoInterval = null; let cronoState = { running:false, elapsedMs:0 };
-function cronoStart(){ if(cronoState.running) return; cronoState.running=true; const start = Date.now()-cronoState.elapsedMs; cronoInterval=setInterval(()=>{ const ms = Date.now()-start; document.getElementById('cronoDisplay').textContent=fmtTempo(Math.floor(ms/1000)); },500); }
+function cronoStart(){ if(cronoState.running) return; cronoState.running=true; const start = Date.now()-cronoState.elapsedMs; cronoInterval=setInterval(()=>{ const ms = Date.now()-start; cronoState.elapsedMs = ms; document.getElementById('cronoDisplay').textContent=fmtTempo(Math.floor(ms/1000)); },500); }
 function cronoPause(){ cronoState.running=false; clearInterval(cronoInterval); }
-// Correção cirúrgica do bug de ano truncado na checagem de atrasos
-function isAtrasado(c){ 
-  const d = parseBR(c.data); 
-  if(!d) return false;
-  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const today = new Date(); today.setHours(0,0,0,0);
-  return target < today.getTime() && !c.feito; 
-}
+function cronoReset(){ cronoState.running=false; cronoState.elapsedMs=0; clearInterval(cronoInterval); document.getElementById('cronoDisplay').textContent="00:00"; }
+function isAtrasado(c){ const d = parseBR(c.data); return d && d < new Date().setHours(0,0,0,0) && !c.feito; }
 function fmtTempo(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
 
 function renderCMateriaSelect(){
@@ -930,11 +962,13 @@ function reloadStateFromLocalStorage(){
 }
 function refreshStats(){
   document.getElementById('statMaterias').textContent = materias.length;
+  document.getElementById('statQuestoes').textContent = questoes.length;
+  document.getElementById('statNotas').textContent = notas.length;
   document.getElementById('diploProgressLabel').textContent = pctGeral() + '% do edital coberto';
   const r = document.getElementById('diploRing'); if(r) r.style.setProperty('--pct', pctGeral());
+  const pct = document.getElementById('diploProgressPct'); if(pct) pct.textContent = pctGeral() + '%';
   renderDailyBrief();
 }
-// Forçando o parâmetro de data atualizada na inicialização do Hub Linguístico
 function connectHub(){ document.getElementById('hubFrame').src = HUB_ORIGIN + '/'; }
 
 reloadStateFromLocalStorage();
