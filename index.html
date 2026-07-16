@@ -710,6 +710,14 @@
     <h3 class="section-title">Biblioteca</h3>
     <p class="intro-line">Seu acervo pessoal: documentos, fichamentos e leituras — organizados e conectados por tema.</p>
 
+    <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Fraunces',serif; font-size:15px; color:var(--text-main);">🔁 Revisão espaçada</div>
+        <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
+      </div>
+      <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
+    </div>
+
     <input type="text" id="biblioSearch" class="biblio-search" placeholder="Buscar por título, autor, tag ou conteúdo..." oninput="renderBiblioSearch()">
     <div id="biblioSearchResults"></div>
 
@@ -751,7 +759,7 @@
             <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
             <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
             <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(180,145,75,.1); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
-              <span>📅 Próxima revisão: <strong id="viewRevisaoData"></strong> · também está no Cronograma</span>
+              <span>🔁 Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
             </div>
             <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;"></div>
             <div id="viewConteudo" class="biblio-body-editable" style="margin-top:18px; border:none; background:none; padding:0;"></div>
@@ -763,6 +771,29 @@
           <div class="biblio-related" style="margin-top:16px;">
             <h4>Relacionados por tag</h4>
             <div class="biblio-related-list" id="biblioRelatedListView"></div>
+          </div>
+        </div>
+
+        <div id="biblioReviewMode" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <button class="btn ghost small" onclick="encerrarRevisao()">← Encerrar revisão</button>
+            <span class="mono" id="reviewProgress" style="font-size:11px; color:var(--text-muted);"></span>
+          </div>
+          <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
+            <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
+            <h2 id="reviewTitulo" style="font-family:'Fraunces',serif; font-size:21px; color:var(--text-main);"></h2>
+            <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
+            <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
+              <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">❌ Não lembrei</button>
+              <button class="btn ghost small" style="flex:1; min-width:120px;" onclick="rateReview('hard')">😐 Mais ou menos</button>
+              <button class="btn secondary small" style="flex:1; min-width:120px;" onclick="rateReview('good')">✅ Lembrei bem</button>
+            </div>
+          </div>
+          <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
+            <div style="font-size:32px; margin-bottom:10px;">🎉</div>
+            <div style="font-family:'Fraunces',serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
+            <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
           </div>
         </div>
 
@@ -799,8 +830,11 @@
                 <input type="text" id="docTagNovo" placeholder="Adicionar tag e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
               </div>
 
-              <label class="field-label" style="margin-top:16px;">Próxima revisão <span style="text-transform:none; opacity:.7;">(agenda automaticamente no Cronograma)</span></label>
-              <input type="date" id="docProximaRevisao">
+              <label class="field-label" style="margin-top:16px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="docSrsAtivo" style="width:16px; height:16px; accent-color:var(--ub-azul); cursor:pointer; flex-shrink:0;">
+                <span style="text-transform:none; letter-spacing:0; font-size:12.5px;">🔁 Incluir na revisão espaçada da Biblioteca</span>
+              </label>
+              <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:4px;"></div>
 
               <label class="field-label" style="margin-top:16px;">Conteúdo</label>
               <div id="docConteudoWrap">
@@ -1252,6 +1286,7 @@ function autoPastasFromMaterias(){
 }
 function getAllPastas(){ return [...autoPastasFromMaterias(), ...biblioPastas]; }
 let biblioDocs = load('biblio_docs', []);
+migrarRevisaoAntigaBiblioteca();
 let biblioCurrentPasta = null;
 let biblioCurrentDocId = null;
 let docTagsAtual = [];
@@ -1450,11 +1485,12 @@ function renderDocMateriaOptions(){
   sel.innerHTML = '<option value="">— nenhuma —</option>' + materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
 }
 
-/* Alterna entre lista, visualização (somente leitura) e edição de um documento */
+/* Alterna entre lista, visualização, edição e revisão de um documento */
 function showBiblioPanel(panel){
   document.getElementById('biblioListView').style.display = panel === 'list' ? 'block' : 'none';
   document.getElementById('biblioViewMode').style.display = panel === 'view' ? 'block' : 'none';
   document.getElementById('biblioEditorView').style.display = panel === 'edit' ? 'block' : 'none';
+  document.getElementById('biblioReviewMode').style.display = panel === 'review' ? 'block' : 'none';
   if(panel !== 'edit'){
     document.getElementById('docConteudoWrap').classList.remove('fullscreen-mode');
     document.body.classList.remove('editor-fullscreen-active');
@@ -1471,7 +1507,8 @@ function novoDocumento(){
   document.getElementById('docFonte').value = '';
   document.getElementById('docMateria').value = '';
   document.getElementById('docData').value = '';
-  document.getElementById('docProximaRevisao').value = '';
+  document.getElementById('docSrsAtivo').checked = false;
+  document.getElementById('docSrsStatus').textContent = '';
   document.getElementById('docConteudo').innerHTML = '';
   document.getElementById('docObservacoes').value = '';
   renderTagsInput();
@@ -1498,8 +1535,11 @@ function renderDocumentoView(d){
   document.getElementById('viewMeta').textContent = metaParts.join(' · ');
   document.getElementById('viewFonte').textContent = d.fonte ? ('Fonte: ' + d.fonte) : '';
   const revWrap = document.getElementById('viewRevisaoWrap');
-  if(d.proximaRevisao){ revWrap.style.display = 'flex'; document.getElementById('viewRevisaoData').textContent = isoToBR(d.proximaRevisao); }
-  else { revWrap.style.display = 'none'; }
+  if(d.srsAtivo && d.srs){
+    revWrap.style.display = 'flex';
+    document.getElementById('viewRevisaoData').textContent = isoToBR(d.srs.nextReview);
+    document.getElementById('viewRevisaoIntervalo').textContent = d.srs.interval;
+  } else { revWrap.style.display = 'none'; }
   document.getElementById('viewTags').innerHTML = (d.tags||[]).map(t=>`<span class="tag-chip">${t}</span>`).join('');
   const conteudoEl = document.getElementById('viewConteudo');
   conteudoEl.innerHTML = d.conteudo && d.conteudo.trim() ? d.conteudo : '<p style="color:var(--text-muted);">Documento vazio.</p>';
@@ -1524,7 +1564,10 @@ function abrirDocumentoEdit(id){
   document.getElementById('docFonte').value = d.fonte || '';
   document.getElementById('docMateria').value = d.materia || '';
   document.getElementById('docData').value = d.data || '';
-  document.getElementById('docProximaRevisao').value = d.proximaRevisao || '';
+  document.getElementById('docSrsAtivo').checked = !!d.srsAtivo;
+  document.getElementById('docSrsStatus').textContent = d.srs
+    ? `Próxima revisão: ${isoToBR(d.srs.nextReview)} · intervalo atual: ${d.srs.interval}d · ${d.srs.reps} revisão(ões) feita(s)`
+    : '';
   document.getElementById('docConteudo').innerHTML = d.conteudo || '';
   document.getElementById('docObservacoes').value = d.observacoes || '';
   renderTagsInput();
@@ -1538,32 +1581,10 @@ function fecharDocumento(){
   renderBiblioDocList(); renderBiblioTree();
 }
 
-/* Cria, atualiza ou remove o item correspondente no Cronograma conforme a data de revisão do documento */
-function syncRevisaoCronograma(d){
-  if(d.proximaRevisao){
-    let item = d.cronogramaId ? cronograma.find(c => c.id === d.cronogramaId) : null;
-    if(!item){
-      item = { id: uid(), feito: false };
-      cronograma.push(item);
-      d.cronogramaId = item.id;
-    }
-    item.tema = 'Revisar: ' + d.titulo;
-    item.estudar = 'Fichamento da Biblioteca' + (d.pastaId ? ' · ' + pastaNome(d.pastaId) : '');
-    item.materia = d.materia || item.materia || '—';
-    item.semana = '📚 Biblioteca';
-    item.tempo = item.tempo || '—';
-    item.data = isoToBR(d.proximaRevisao);
-    item.origemBiblioId = d.id;
-  } else if(d.cronogramaId){
-    cronograma = cronograma.filter(c => c.id !== d.cronogramaId);
-    d.cronogramaId = null;
-  }
-  save('diplo_cronograma', cronograma);
-}
-
 function saveDocumento(){
   const titulo = document.getElementById('docTitulo').value.trim();
   if(!titulo){ alert('Dê um título ao documento.'); return; }
+  const srsAtivo = document.getElementById('docSrsAtivo').checked;
   const dados = {
     titulo,
     tipo: document.getElementById('docTipo').value,
@@ -1572,7 +1593,7 @@ function saveDocumento(){
     fonte: document.getElementById('docFonte').value.trim(),
     materia: document.getElementById('docMateria').value,
     data: document.getElementById('docData').value,
-    proximaRevisao: document.getElementById('docProximaRevisao').value,
+    srsAtivo,
     conteudo: document.getElementById('docConteudo').innerHTML,
     observacoes: document.getElementById('docObservacoes').value,
     tags: [...docTagsAtual]
@@ -1583,25 +1604,108 @@ function saveDocumento(){
   } else {
     d = { id: uid(), criadoEm: Date.now(), ...dados }; biblioDocs.unshift(d); biblioCurrentDocId = d.id;
   }
-  syncRevisaoCronograma(d);
+  if(srsAtivo && !d.srs){
+    d.srs = { interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
+  }
   save('biblio_docs', biblioDocs);
   refreshStats();
-  renderBiblioDocList(); renderBiblioTree(); renderCronograma();
+  renderBiblioDocList(); renderBiblioTree(); renderBiblioReviewBar();
   renderDocumentoView(d);
   showBiblioPanel('view');
 }
 function deleteDocumentoAtual(){
   if(!biblioCurrentDocId){ fecharDocumento(); return; }
   if(!confirm('Excluir este documento definitivamente?')) return;
-  const d = biblioDocs.find(x=>x.id===biblioCurrentDocId);
-  if(d && d.cronogramaId){
-    cronograma = cronograma.filter(c => c.id !== d.cronogramaId);
-    save('diplo_cronograma', cronograma);
-    renderCronograma();
-  }
   biblioDocs = biblioDocs.filter(x=>x.id!==biblioCurrentDocId);
-  save('biblio_docs', biblioDocs); refreshStats(); fecharDocumento();
+  save('biblio_docs', biblioDocs); refreshStats(); renderBiblioReviewBar(); fecharDocumento();
 }
+
+/* ---- Revisão espaçada (SRS) da Biblioteca — flashcards dos fichamentos ---- */
+function docsDueForReview(){
+  const today = todayISO();
+  return biblioDocs.filter(d => d.srsAtivo && d.srs && d.srs.nextReview <= today);
+}
+function renderBiblioReviewBar(){
+  const bar = document.getElementById('biblioReviewBar'); if(!bar) return;
+  const ativos = biblioDocs.filter(d => d.srsAtivo);
+  if(!ativos.length){ bar.style.display = 'none'; return; }
+  const due = docsDueForReview();
+  bar.style.display = 'flex';
+  document.getElementById('biblioReviewCountText').textContent = due.length
+    ? `${due.length} fichamento${due.length===1?'':'s'} pronto${due.length===1?'':'s'} para revisar hoje`
+    : `Tudo em dia · ${ativos.length} fichamento${ativos.length===1?'':'s'} ativo${ativos.length===1?'':'s'} na revisão espaçada`;
+  const btn = document.getElementById('biblioReviewBtn');
+  btn.disabled = due.length === 0;
+  btn.textContent = due.length ? 'Revisar agora' : 'Nada pendente';
+}
+
+let reviewQueue = [];
+let reviewIndex = 0;
+function iniciarRevisaoBiblioteca(){
+  reviewQueue = docsDueForReview();
+  reviewIndex = 0;
+  if(!reviewQueue.length){ return; }
+  document.getElementById('reviewCardWrap').style.display = 'block';
+  document.getElementById('reviewDone').style.display = 'none';
+  showBiblioPanel('review');
+  renderReviewCard();
+}
+function renderReviewCard(){
+  if(reviewIndex >= reviewQueue.length){
+    document.getElementById('reviewCardWrap').style.display = 'none';
+    document.getElementById('reviewDone').style.display = 'block';
+    document.getElementById('reviewProgress').textContent = '';
+    return;
+  }
+  const d = reviewQueue[reviewIndex];
+  document.getElementById('reviewProgress').textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
+  document.getElementById('reviewMeta').textContent = [pastaNome(d.pastaId), d.materia].filter(Boolean).join(' · ');
+  document.getElementById('reviewTitulo').textContent = d.titulo || '(sem título)';
+  const conteudoEl = document.getElementById('reviewConteudo');
+  conteudoEl.innerHTML = d.conteudo && d.conteudo.trim() ? d.conteudo : '<p style="color:var(--text-muted);">Documento vazio.</p>';
+  conteudoEl.querySelectorAll('input[type=checkbox]').forEach(cb => cb.disabled = true);
+}
+function rateReview(quality){
+  const d = reviewQueue[reviewIndex]; if(!d) return;
+  if(!d.srs) d.srs = { interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
+  if(quality === 'again'){
+    d.srs.interval = 1; d.srs.reps = 0;
+  } else if(quality === 'hard'){
+    d.srs.interval = Math.max(1, Math.round(d.srs.interval * 1.3));
+  } else {
+    d.srs.interval = d.srs.reps === 0 ? 3 : Math.round(d.srs.interval * 2.3);
+    d.srs.reps++;
+  }
+  d.srs.lastReview = todayISO();
+  d.srs.nextReview = addDaysISO(todayISO(), d.srs.interval);
+  save('biblio_docs', biblioDocs);
+  reviewIndex++;
+  renderReviewCard();
+  renderBiblioReviewBar();
+}
+function encerrarRevisao(){
+  showBiblioPanel('list');
+  renderBiblioDocList(); renderBiblioTree(); renderBiblioReviewBar();
+}
+/* Migra dados do antigo esquema (data única sincronizada com o Cronograma) para o novo SRS */
+function migrarRevisaoAntigaBiblioteca(){
+  let changed = false;
+  biblioDocs.forEach(d => {
+    if(d.cronogramaId){
+      cronograma = cronograma.filter(c => c.id !== d.cronogramaId);
+      d.cronogramaId = null;
+      changed = true;
+    }
+    if(d.proximaRevisao && !d.srs){
+      d.srsAtivo = true;
+      d.srs = { interval: 1, reps: 0, nextReview: d.proximaRevisao, lastReview: null };
+      delete d.proximaRevisao;
+      changed = true;
+    }
+  });
+  if(changed){ save('biblio_docs', biblioDocs); save('diplo_cronograma', cronograma); }
+}
+/* ---- fim revisão espaçada da Biblioteca ---- */
 
 function renderTagsInput(){
   const wrap = document.getElementById('docTagsInput'); if(!wrap) return;
@@ -1739,7 +1843,7 @@ function pctGeral(){ const total = materias.reduce((a,m) => a + m.topicos.length
 function reloadStateFromLocalStorage(){
   const t = localStorage.getItem('chancelaria_theme') || 'dark'; document.body.setAttribute('data-theme', t);
   renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao(); renderDiscursivas(); renderAtualidades(); renderNotas();
-  renderBiblioTree(); renderBiblioDocList();
+  renderBiblioTree(); renderBiblioDocList(); renderBiblioReviewBar();
   refreshStats();
 }
 function refreshStats(){
@@ -1750,7 +1854,11 @@ function refreshStats(){
   document.getElementById('diploProgressLabel').textContent = pctGeral() + '% do edital coberto';
   const r = document.getElementById('diploRing'); if(r) r.style.setProperty('--pct', pctGeral());
   const pct = document.getElementById('diploProgressPct'); if(pct) pct.textContent = pctGeral() + '%';
-  const bc = document.getElementById('biblioCountLabel'); if(bc) bc.textContent = biblioDocs.length + ' documento' + (biblioDocs.length===1?'':'s') + ' arquivado' + (biblioDocs.length===1?'':'s');
+  const bc = document.getElementById('biblioCountLabel');
+  if(bc){
+    const dueCount = docsDueForReview().length;
+    bc.textContent = biblioDocs.length + ' documento' + (biblioDocs.length===1?'':'s') + ' arquivado' + (biblioDocs.length===1?'':'s') + (dueCount ? ` · ${dueCount} p/ revisar` : '');
+  }
   renderDailyBrief();
 }
 function connectHub(){ document.getElementById('hubFrame').src = HUB_ORIGIN + '/'; }
