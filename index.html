@@ -379,6 +379,13 @@
   .biblio-node.active .bn-count{ color:rgba(255,255,255,.85); }
   .biblio-node .bn-del{ opacity:0; background:none; border:none; color:var(--bad); font-size:12px; padding:0 3px; flex-shrink:0; }
   .biblio-node:hover .bn-del{ opacity:.75; }
+  .bn-toggle{ background:none; border:none; color:var(--text-muted); font-size:10px; padding:2px 3px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; transition:transform .15s ease; cursor:pointer; }
+  .bn-toggle.open{ transform:rotate(90deg); }
+  .bn-toggle-spacer{ width:16px; flex-shrink:0; display:inline-block; }
+  .biblio-node{ cursor:grab; }
+  .biblio-node.dragging{ opacity:.4; }
+  .biblio-node.drag-over-before{ box-shadow: inset 0 2px 0 var(--ub-azul); }
+  .biblio-node.drag-over-after{ box-shadow: inset 0 -2px 0 var(--ub-azul); }
   .biblio-add-row{ display:flex; gap:5px; margin-top:10px; }
   .biblio-add-row input{ padding:7px 8px; font-size:12px; }
   .biblio-main{ min-width:0; }
@@ -1002,9 +1009,9 @@ function addSubsubtopico(mid, tid, sid){ const input = document.getElementById('
 function toggleTopico(mid, tid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.feito = !t.feito; save(MATERIAS_KEY, materias); refreshStats(); renderMaterias(); }
 function toggleSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.feito = !s.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
 function toggleSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); const ss = s.subsubtopicos.find(x=>x.id===ssid); ss.feito = !ss.feito; save(MATERIAS_KEY, materias); renderMaterias(); }
-function delTopico(mid, tid){ const m = materias.find(x=>x.id===mid); m.topicos = m.topicos.filter(x=>x.id!==tid); save(MATERIAS_KEY, materias); renderMaterias(); }
-function delSubtopico(mid, tid, sid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos = t.subtopicos.filter(x=>x.id!==sid); save(MATERIAS_KEY, materias); renderMaterias(); }
-function delSubsubtopico(mid, tid, sid, ssid){ const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid); save(MATERIAS_KEY, materias); renderMaterias(); }
+function delTopico(mid, tid){ if(!confirm('Excluir este tema e tudo dentro dele? Essa ação não pode ser desfeita.')) return; const m = materias.find(x=>x.id===mid); m.topicos = m.topicos.filter(x=>x.id!==tid); save(MATERIAS_KEY, materias); renderMaterias(); }
+function delSubtopico(mid, tid, sid){ if(!confirm('Excluir este tópico e tudo dentro dele? Essa ação não pode ser desfeita.')) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); t.subtopicos = t.subtopicos.filter(x=>x.id!==sid); save(MATERIAS_KEY, materias); renderMaterias(); }
+function delSubsubtopico(mid, tid, sid, ssid){ if(!confirm('Excluir este subtópico? Essa ação não pode ser desfeita.')) return; const m = materias.find(x=>x.id===mid); const t = m.topicos.find(x=>x.id===tid); const s = t.subtopicos.find(x=>x.id===sid); s.subsubtopicos = s.subsubtopicos.filter(x=>x.id!==ssid); save(MATERIAS_KEY, materias); renderMaterias(); }
 
 function cronogramaDefault(){ return []; }
 
@@ -1255,26 +1262,123 @@ function pastaNome(id){
   return /^\p{Extended_Pictographic}/u.test(p.nome) ? p.nome.replace(/^\S+\s/, '') : p.nome;
 }
 
+let biblioExpandedFolders = new Set(load('biblio_expanded_folders', []));
+function toggleFolderExpand(id){
+  if(biblioExpandedFolders.has(id)) biblioExpandedFolders.delete(id); else biblioExpandedFolders.add(id);
+  save('biblio_expanded_folders', [...biblioExpandedFolders]);
+  renderBiblioTree();
+}
+
 function renderBiblioTree(){
   const el = document.getElementById('biblioTree'); if(!el) return;
   const all = getAllPastas();
   const roots = all.filter(p => !p.parentId);
   function nodeHtml(p){
     const children = all.filter(c => c.parentId === p.id);
+    const hasChildren = children.length > 0;
+    const expanded = biblioExpandedFolders.has(p.id);
     const count = biblioDocs.filter(d => d.pastaId === p.id).length;
     const delBtn = p.auto
       ? `<button class="bn-del" title="Vem de Diplomacia → Matérias" onclick="event.stopPropagation(); alert('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.');">🔒</button>`
       : `<button class="bn-del" onclick="event.stopPropagation(); delPastaBiblio('${p.id}')">✕</button>`;
+    const toggleBtn = hasChildren
+      ? `<button type="button" class="bn-toggle ${expanded?'open':''}" onclick="event.stopPropagation(); toggleFolderExpand('${p.id}')">▶</button>`
+      : `<span class="bn-toggle-spacer"></span>`;
     return `<li>
-      <div class="biblio-node ${biblioCurrentPasta===p.id?'active':''}" onclick="selecionarPasta('${p.id}')">
+      <div class="biblio-node ${biblioCurrentPasta===p.id?'active':''}" draggable="true"
+           ondragstart="folderDragStart(event,'${p.id}')" ondragover="folderDragOver(event,'${p.id}')"
+           ondragleave="folderDragLeave(event)" ondrop="folderDrop(event,'${p.id}')" ondragend="folderDragEnd(event)"
+           onclick="selecionarPasta('${p.id}')">
+        ${toggleBtn}
         <span class="bn-name">${p.nome}</span>
         <span class="bn-count">${count}</span>
         ${delBtn}
       </div>
-      ${children.length ? `<ul>${children.map(nodeHtml).join('')}</ul>` : ''}
+      ${hasChildren && expanded ? `<ul>${children.map(nodeHtml).join('')}</ul>` : ''}
     </li>`;
   }
-  el.innerHTML = `<li><div class="biblio-node ${biblioCurrentPasta===null?'active':''}" onclick="selecionarPasta(null)"><span class="bn-name">📚 Todas as estantes</span><span class="bn-count">${biblioDocs.length}</span></div></li>` + roots.map(nodeHtml).join('');
+  el.innerHTML = `<li><div class="biblio-node ${biblioCurrentPasta===null?'active':''}" onclick="selecionarPasta(null)"><span class="bn-toggle-spacer"></span><span class="bn-name">📚 Todas as estantes</span><span class="bn-count">${biblioDocs.length}</span></div></li>` + roots.map(nodeHtml).join('');
+}
+
+/* ---- Arrastar para reordenar estantes/subpastas ---- */
+let dragFolderId = null;
+function folderDragStart(ev, id){
+  dragFolderId = id;
+  ev.dataTransfer.effectAllowed = 'move';
+  try{ ev.dataTransfer.setData('text/plain', id); }catch(e){}
+  ev.currentTarget.classList.add('dragging');
+}
+function folderDragOver(ev, id){
+  if(!dragFolderId || dragFolderId === id) return;
+  ev.preventDefault();
+  const rect = ev.currentTarget.getBoundingClientRect();
+  const before = (ev.clientY - rect.top) < rect.height / 2;
+  ev.currentTarget.classList.toggle('drag-over-before', before);
+  ev.currentTarget.classList.toggle('drag-over-after', !before);
+}
+function folderDragLeave(ev){
+  ev.currentTarget.classList.remove('drag-over-before', 'drag-over-after');
+}
+function folderDrop(ev, targetId){
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('drag-over-before', 'drag-over-after');
+  if(!dragFolderId || dragFolderId === targetId) return;
+  const rect = ev.currentTarget.getBoundingClientRect();
+  const position = (ev.clientY - rect.top) < rect.height / 2 ? 'before' : 'after';
+  handleFolderDrop(dragFolderId, targetId, position);
+  dragFolderId = null;
+}
+function folderDragEnd(ev){
+  ev.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.drag-over-before,.drag-over-after').forEach(el => el.classList.remove('drag-over-before', 'drag-over-after'));
+  dragFolderId = null;
+}
+function moveItemBeforeAfter(arr, dragId, targetId, position){
+  const idx = arr.findIndex(x => x.id === dragId); if(idx === -1) return false;
+  const [item] = arr.splice(idx, 1);
+  let targetIdx = arr.findIndex(x => x.id === targetId);
+  if(targetIdx === -1){ arr.push(item); return true; }
+  if(position === 'after') targetIdx++;
+  arr.splice(targetIdx, 0, item);
+  return true;
+}
+function getAutoArrayFor(autoId){
+  if(autoId.startsWith('auto_m_')) return materias;
+  if(autoId.startsWith('auto_t_')){
+    const topicoId = autoId.replace('auto_t_', '');
+    for(const m of materias){ if(m.topicos.some(t => t.id === topicoId)) return m.topicos; }
+  }
+  if(autoId.startsWith('auto_s_')){
+    const subId = autoId.replace('auto_s_', '');
+    for(const m of materias) for(const t of m.topicos){ if((t.subtopicos||[]).some(s => s.id === subId)) return t.subtopicos; }
+  }
+  if(autoId.startsWith('auto_ss_')){
+    const ssId = autoId.replace('auto_ss_', '');
+    for(const m of materias) for(const t of m.topicos) for(const s of (t.subtopicos||[])){ if((s.subsubtopicos||[]).some(ss => ss.id === ssId)) return s.subsubtopicos; }
+  }
+  return null;
+}
+function handleFolderDrop(dragId, targetId, position){
+  const dragIsAuto = dragId.startsWith('auto_');
+  const targetIsAuto = targetId.startsWith('auto_');
+  if(dragIsAuto !== targetIsAuto){ return; } // não mistura pastas de Matérias com pastas manuais
+  const all = getAllPastas();
+  const dragObj = all.find(x => x.id === dragId), targetObj = all.find(x => x.id === targetId);
+  if(!dragObj || !targetObj || dragObj.parentId !== targetObj.parentId) return; // só reordena entre irmãs do mesmo nível
+
+  if(dragIsAuto){
+    const arr = getAutoArrayFor(dragId);
+    if(!arr) return;
+    const realDragId = dragId.replace(/^auto_(m|t|s|ss)_/, '');
+    const realTargetId = targetId.replace(/^auto_(m|t|s|ss)_/, '');
+    moveItemBeforeAfter(arr, realDragId, realTargetId, position);
+    save(MATERIAS_KEY, materias);
+    renderMaterias();
+  } else {
+    moveItemBeforeAfter(biblioPastas, dragId, targetId, position);
+    save('biblio_pastas', biblioPastas);
+    renderBiblioTree();
+  }
 }
 
 function selecionarPasta(id){
