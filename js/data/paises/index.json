@@ -1,0 +1,62 @@
+[
+  {
+    "id": "brasil",
+    "nomeCurto": "Brasil",
+    "nomeOficial": "República Federativa do Brasil",
+    "bandeira": "🇧🇷",
+    "capital": "Brasília",
+    "continente": "América",
+    "regiao": "América do Sul",
+    "idiomas": ["Português"],
+    "organizacoes": ["ONU", "OMC", "Mercosul", "BRICS", "G20", "OEA", "CELAC"],
+    "populacao": "≈ 203 milhões (2024)"
+  },
+  {
+    "id": "eua",
+    "nomeCurto": "Estados Unidos",
+    "nomeOficial": "Estados Unidos da América",
+    "bandeira": "🇺🇸",
+    "capital": "Washington, D.C.",
+    "continente": "América",
+    "regiao": "América do Norte",
+    "idiomas": ["Inglês"],
+    "organizacoes": ["ONU", "OMC", "G7", "G20", "OTAN", "OCDE", "USMCA"],
+    "populacao": "≈ 335 milhões (2024)"
+  },
+  {
+    "id": "china",
+    "nomeCurto": "China",
+    "nomeOficial": "República Popular da China",
+    "bandeira": "🇨🇳",
+    "capital": "Pequim",
+    "continente": "Ásia",
+    "regiao": "Ásia Oriental",
+    "idiomas": ["Mandarim"],
+    "organizacoes": ["ONU", "OMC", "BRICS", "G20", "RCEP", "OCX", "APEC"],
+    "populacao": "≈ 1,41 bilhão (2024)"
+  },
+  {
+    "id": "franca",
+    "nomeCurto": "França",
+    "nomeOficial": "República Francesa",
+    "bandeira": "🇫🇷",
+    "capital": "Paris",
+    "continente": "Europa",
+    "regiao": "Europa Ocidental",
+    "idiomas": ["Francês"],
+    "organizacoes": ["ONU", "OTAN", "União Europeia", "G7", "G20", "OCDE", "Zona do Euro"],
+    "populacao": "≈ 68 milhões (2024)"
+  },
+  {
+    "id": "russia",
+    "nomeCurto": "Rússia",
+    "nomeOficial": "Federação Russa",
+    "bandeira": "🇷🇺",
+    "capital": "Moscou",
+    "continente": "Europa/Ásia",
+    "regiao": "Europa Oriental e Ásia Setentrional",
+    "idiomas": ["Russo"],
+    "organizacoes": ["ONU", "BRICS", "OTSC", "UEE", "G20", "OCX"],
+    "populacao": "≈ 144 milhões (2024)"
+  }
+]
