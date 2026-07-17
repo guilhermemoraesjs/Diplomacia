@@ -1,0 +1,74 @@
+{
+  "id": "eua",
+  "nomeOficial": "Estados Unidos da América",
+  "nomeCurto": "Estados Unidos",
+  "bandeira": "🇺🇸",
+  "capital": "Washington, D.C.",
+  "populacao": "≈ 335 milhões de habitantes (2024)",
+  "area": "9.834.000 km² (3º/4º maior país do mundo)",
+  "idiomas": ["Inglês (de fato, sem língua oficial federal)"],
+  "moeda": "Dólar americano (USD)",
+  "continente": "América",
+  "regiao": "América do Norte",
+  "fusoHorario": "UTC-10 a UTC-5 (múltiplos fusos)",
+  "dominio": ".us",
+  "codigoTelefonico": "+1",
+  "governo": {
+    "sistema": "República presidencialista federativa",
+    "chefeEstado": "Presidente dos Estados Unidos",
+    "chefeGoverno": "Presidente dos Estados Unidos",
+    "constituicao": "Constituição de 1787, a mais antiga constituição escrita ainda em vigor"
+  },
+  "economia": {
+    "pib": "≈ US$ 28 trilhões (nominal) — maior economia do mundo",
+    "pibPPC": "≈ US$ 28-29 trilhões (PPC, próximo ao nominal)",
+    "pibPerCapita": "≈ US$ 83.000",
+    "crescimento": "≈ 2 a 3% ao ano",
+    "inflacao": "≈ 2 a 3% ao ano (meta do Fed: 2%)",
+    "desemprego": "≈ 4%",
+    "exportacoes": "Máquinas, aeronaves, petróleo refinado, produtos químicos, produtos agrícolas",
+    "importacoes": "Eletrônicos, veículos, máquinas, petróleo, produtos farmacêuticos",
+    "parceiros": ["China", "México", "Canadá", "União Europeia", "Japão"],
+    "produtos": ["Tecnologia", "Serviços financeiros", "Petróleo e gás", "Produtos agrícolas", "Bens de capital"]
+  },
+  "relacoes": {
+    "brasil": "Parceria comercial relevante, com cooperação em defesa, ciência e comércio, mas também divergências pontuais sobre tarifas e política ambiental.",
+    "china": "A relação mais importante e tensa do sistema internacional contemporâneo, marcada por rivalidade estratégica, disputas comerciais e tecnológicas, e competição por influência global, ao lado de forte interdependência econômica.",
+    "ue": "Aliados históricos na OTAN e em valores democráticos ocidentais, com intenso comércio bilateral, apesar de atritos comerciais recorrentes (tarifas, subsídios, regulação digital).",
+    "regional": "Lidera o USMCA (acordo com México e Canadá) e mantém forte influência hemisférica através da OEA e de acordos bilaterais na América Latina."
+  },
+  "organizacoes": [
+    { "sigla": "ONU", "nome": "Membro permanente do Conselho de Segurança" },
+    { "sigla": "OMC", "nome": "Organização Mundial do Comércio" },
+    { "sigla": "G7", "nome": "Grupo dos 7" },
+    { "sigla": "G20", "nome": "Grupo dos 20" },
+    { "sigla": "OTAN", "nome": "Organização do Tratado do Atlântico Norte" },
+    { "sigla": "OCDE", "nome": "Organização para a Cooperação e Desenvolvimento Econômico" },
+    { "sigla": "USMCA", "nome": "Acordo EUA-México-Canadá" }
+  ],
+  "geografia": {
+    "clima": "Extremamente diverso: ártico no Alasca, tropical no Havaí e na Flórida, temperado, árido e continental nas demais regiões.",
+    "relevo": "Grandes planícies centrais, Montanhas Apalaches a leste e Montanhas Rochosas a oeste.",
+    "paisesVizinhos": ["Canadá", "México"],
+    "rios": ["Mississippi", "Missouri", "Colorado", "Rio Grande"],
+    "principaisCidades": ["Nova York", "Los Angeles", "Chicago", "Houston", "Washington, D.C."]
+  },
+  "historia": [
+    { "ano": "1776", "evento": "Declaração de Independência dos Estados Unidos." },
+    { "ano": "1787", "evento": "Assinatura da Constituição dos Estados Unidos." },
+    { "ano": "1861–1865", "evento": "Guerra Civil Americana e abolição da escravidão." },
+    { "ano": "1945", "evento": "Consolidação como superpotência após a Segunda Guerra Mundial." },
+    { "ano": "1991", "evento": "Fim da Guerra Fria com a dissolução da URSS." },
+    { "ano": "2001", "evento": "Atentados de 11 de setembro remodelam a política externa e de segurança." }
+  ],
+  "curiosidades": [
+    "É a maior economia do mundo em termos nominais.",
+    "A sede da ONU está localizada em Nova York.",
+    "Possui o maior orçamento militar do mundo."
+  ],
+  "flashcardsExtras": [
+    { "pergunta": "Em que ano os EUA declararam independência?", "resposta": "1776" }
+  ],
+  "atualidades": [],
+  "questoesCACD": []
+}
