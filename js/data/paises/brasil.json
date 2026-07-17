@@ -1,0 +1,77 @@
+{
+  "id": "brasil",
+  "nomeOficial": "República Federativa do Brasil",
+  "nomeCurto": "Brasil",
+  "bandeira": "🇧🇷",
+  "capital": "Brasília",
+  "populacao": "≈ 203 milhões de habitantes (2024)",
+  "area": "8.510.000 km² (5º maior país do mundo)",
+  "idiomas": ["Português"],
+  "moeda": "Real (BRL)",
+  "continente": "América",
+  "regiao": "América do Sul",
+  "fusoHorario": "UTC-5 a UTC-2 (Brasília: UTC-3)",
+  "dominio": ".br",
+  "codigoTelefonico": "+55",
+  "governo": {
+    "sistema": "República presidencialista federativa",
+    "chefeEstado": "Presidente da República (acumula chefia de Estado e de Governo)",
+    "chefeGoverno": "Presidente da República",
+    "constituicao": "Constituição de 1988 ('Constituição Cidadã')"
+  },
+  "economia": {
+    "pib": "≈ US$ 2,2 trilhões (nominal) — maior economia da América Latina",
+    "pibPPC": "≈ US$ 4,7 trilhões (PPC)",
+    "pibPerCapita": "≈ US$ 10.700",
+    "crescimento": "≈ 2 a 3% ao ano (média recente)",
+    "inflacao": "≈ 4 a 5% ao ano (meta do Banco Central: 3%)",
+    "desemprego": "≈ 7 a 8%",
+    "exportacoes": "Minério de ferro, soja, petróleo, carnes, açúcar",
+    "importacoes": "Combustíveis, maquinário, produtos químicos, eletrônicos",
+    "parceiros": ["China", "EUA", "Argentina", "Países Baixos", "União Europeia"],
+    "produtos": ["Soja", "Minério de ferro", "Petróleo", "Carnes", "Celulose"]
+  },
+  "relacoes": {
+    "eua": "Parceria histórica e complexa, com forte intercâmbio comercial, cooperação em defesa e pontos de divergência em política comercial e ambiental. Os EUA são um dos principais parceiros comerciais do Brasil.",
+    "china": "Desde 2009, a China é o maior parceiro comercial do Brasil, sobretudo pela exportação de commodities (soja, minério de ferro, petróleo). A relação é marcada por forte interdependência econômica e cooperação em fóruns como o BRICS.",
+    "ue": "Parceiro comercial e de investimento relevante; o Acordo Mercosul-União Europeia, negociado por mais de duas décadas, busca aprofundar o livre comércio, mas enfrenta resistências internas em ambos os blocos.",
+    "regional": "Líder histórico do Mercosul e da integração sul-americana, defendendo autonomia estratégica e multilateralismo na diplomacia regional."
+  },
+  "organizacoes": [
+    { "sigla": "ONU", "nome": "Organização das Nações Unidas" },
+    { "sigla": "OMC", "nome": "Organização Mundial do Comércio" },
+    { "sigla": "Mercosul", "nome": "Mercado Comum do Sul" },
+    { "sigla": "BRICS", "nome": "Brasil, Rússia, Índia, China e África do Sul" },
+    { "sigla": "G20", "nome": "Grupo dos 20" },
+    { "sigla": "OEA", "nome": "Organização dos Estados Americanos" },
+    { "sigla": "CELAC", "nome": "Comunidade de Estados Latino-Americanos e Caribenhos" }
+  ],
+  "geografia": {
+    "clima": "Predominantemente tropical, com variações equatorial (Norte), semiárido (Nordeste), tropical de altitude (Sudeste/Centro-Oeste) e subtropical (Sul).",
+    "relevo": "Predomínio de planaltos e depressões; poucas áreas de grande altitude, destacando-se o Planalto das Guianas e a Serra do Mar.",
+    "paisesVizinhos": ["Argentina", "Uruguai", "Paraguai", "Bolívia", "Peru", "Colômbia", "Venezuela", "Guiana", "Suriname"],
+    "rios": ["Amazonas", "São Francisco", "Paraná", "Tocantins"],
+    "principaisCidades": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Belo Horizonte"]
+  },
+  "historia": [
+    { "ano": "1500", "evento": "Chegada da expedição de Pedro Álvares Cabral e início da colonização portuguesa." },
+    { "ano": "1822", "evento": "Independência do Brasil, proclamada por Dom Pedro I." },
+    { "ano": "1889", "evento": "Proclamação da República, fim do Império." },
+    { "ano": "1930", "evento": "Revolução de 1930 leva Getúlio Vargas ao poder, marcando a Era Vargas." },
+    { "ano": "1964–1985", "evento": "Regime militar no Brasil." },
+    { "ano": "1988", "evento": "Promulgação da Constituição Federal, redemocratização." },
+    { "ano": "1994", "evento": "Plano Real estabiliza a economia e cria o Real." },
+    { "ano": "2009", "evento": "China se torna o maior parceiro comercial do Brasil." }
+  ],
+  "curiosidades": [
+    "O Brasil é o único país de língua portuguesa da América.",
+    "Possui a maior floresta tropical do mundo, a Amazônia.",
+    "É o único país sul-americano que faz fronteira com quase todos os demais países do continente."
+  ],
+  "flashcardsExtras": [
+    { "pergunta": "Em que ano o Brasil se tornou independente?", "resposta": "1822" },
+    { "pergunta": "Qual constituição rege o Brasil atualmente?", "resposta": "A Constituição de 1988" }
+  ],
+  "atualidades": [],
+  "questoesCACD": []
+}
