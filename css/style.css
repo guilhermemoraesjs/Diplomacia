@@ -477,3 +477,45 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .biblio-tags-input{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:var(--input-bg); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px; margin-top:4px; cursor:text; }
 .biblio-tags-input input{ border:none; background:none; flex:1; min-width:100px; padding:2px; font-size:12.5px; }
 .biblio-empty{ padding:34px 10px; text-align:center; color:var(--text-muted); font-size:13px; }
+/* ===== Países ===== */
+.paises-toolbar{ display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+.paises-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
+.pais-card{ display:flex; align-items:flex-start; gap:12px; position:relative; cursor:pointer; }
+.pais-card-flag{ font-size:30px; line-height:1; flex-shrink:0; margin-top:2px; }
+.pais-card-body{ flex:1; min-width:0; }
+.pais-card-nome{ font-family:'Inter', sans-serif; font-weight:700; font-size:15px; color:var(--text-main); }
+.pais-card-meta{ font-size:11px; color:var(--text-muted); margin-top:3px; }
+.pais-card-orgs{ display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.pais-fav-btn{ background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer; padding:2px; flex-shrink:0; transition:var(--transition); }
+.pais-fav-btn:hover{ color:var(--warn); }
+.pais-fav-btn.active{ color:var(--warn); }
+
+.pais-hero{ display:flex; align-items:center; gap:16px; padding:22px; }
+.pais-hero-flag{ font-size:52px; line-height:1; flex-shrink:0; }
+.pais-hero-nome{ font-family:'Fraunces','Inter',serif; font-weight:700; font-size:24px; color:var(--text-main); }
+.pais-hero-oficial{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+.pais-hero-orgs{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+
+.pais-info-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px 18px; font-size:13px; color:var(--text-light); }
+.pais-info-label{ display:block; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-bottom:3px; }
+
+.pais-relacao{ margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-color); }
+.pais-relacao:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.pais-relacao-titulo{ font-family:'Inter', sans-serif; font-weight:700; font-size:13px; color:var(--azul-light); margin-bottom:4px; }
+.pais-relacao p{ font-size:13px; color:var(--text-light); line-height:1.6; margin:0; }
+
+.pais-timeline{ position:relative; padding-left:18px; border-left:2px solid var(--border-color); }
+.pais-timeline-item{ position:relative; margin-bottom:16px; }
+.pais-timeline-item:last-child{ margin-bottom:0; }
+.pais-timeline-item::before{ content:''; position:absolute; left:-23px; top:3px; width:9px; height:9px; border-radius:50%; background:var(--azul); box-shadow:0 0 0 3px color-mix(in srgb, var(--azul) 20%, transparent); }
+.pais-timeline-ano{ font-size:11px; color:var(--azul-light); margin-bottom:2px; }
+.pais-timeline-evento{ font-size:13px; color:var(--text-light); line-height:1.5; }
+
+.pais-curiosidades{ margin:0; padding-left:18px; font-size:13px; color:var(--text-light); line-height:1.7; }
+.pais-curiosidades li{ margin-bottom:6px; }
+
+.pais-flashcard{ min-height:120px; background:var(--ink-4); border:1px solid var(--border-color); border-radius:var(--radius-ui); display:flex; align-items:center; justify-content:center; text-align:center; padding:20px; font-size:15px; color:var(--text-main); cursor:pointer; }
+.pais-flashcard-face{ display:none; }
+.pais-flashcard .pais-flashcard-front{ display:block; }
+.pais-flashcard.flipped .pais-flashcard-front{ display:none; }
+.pais-flashcard.flipped .pais-flashcard-back{ display:block; color:var(--azul-light); font-weight:600; }
