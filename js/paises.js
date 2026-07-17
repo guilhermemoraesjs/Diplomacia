@@ -1,273 +1,178 @@
 /* ==========================================================================
-   paises.js — módulo "Países": atlas diplomático de referência para
-   Relações Internacionais e CACD. Dados estáticos carregados sob demanda
-   de /data/paises/*.json (index.json para a listagem, arquivo individual
-   para a página de detalhe). Apenas favoritos são dados do usuário
-   (persistidos via save()/load(), sincronizando com a nuvem).
+   paises.js — módulo "Países": fichas geopolíticas (capital, população,
+   moeda, organizações internacionais) em grade de cards + mapa-múndi
+   interativo por coordenadas. Dados estáticos, sem dependência de API.
    ========================================================================== */
 
-const PAISES_INDEX_URL = 'data/paises/index.json';
-const PAISES_DATA_DIR = 'data/paises/';
+/* Paleta por continente — usada na barra inferior do card e nos marcadores
+   do mapa, para reforçar a hierarquia visual sem poluir a interface. */
+const CONTINENTE_COR = {
+  'Europa': 'var(--ub-azul)',
+  'América do Sul': 'var(--ub-verde)',
+  'América do Norte': 'var(--brass-light)',
+  'Ásia': 'var(--seal-glow)',
+  'Oceania': '#59D6C7',
+  'África': 'var(--brass)',
+  'Europa/Ásia': 'var(--azul-light)'
+};
+function continenteCor(c) { return CONTINENTE_COR[c] || 'var(--brass)'; }
 
-let paisesIndex = [];
-let paisesIndexCarregado = false;
-let paisesCache = {};
-let paisesFavoritos = load('paises_favoritos', []);
-let paisesFiltro = { busca: '', continente: 'todos', organizacao: 'todas', apenasFavoritos: false };
-let paisesAtualId = null;
-
-async function initPaisesTab() {
-  if (!paisesIndexCarregado) await carregarPaisesIndex();
-  showPaisesPanel('list');
-  renderPaisesFiltros();
-  renderPaisesList();
+function flagEmoji(code) {
+  if (!code) return '🏳️';
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+}
+function fmtPopulacao(n) {
+  if (n >= 1000000000) return (n / 1000000000).toFixed(n % 1000000000 === 0 ? 0 : 1) + ' bi';
+  if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + ' mi';
+  return n.toLocaleString('pt-BR');
 }
 
-async function carregarPaisesIndex() {
-  const el = document.getElementById('paisesList');
-  if (el) el.innerHTML = '<div class="biblio-empty">Carregando países…</div>';
-  try {
-    const resp = await fetch(PAISES_INDEX_URL);
-    paisesIndex = await resp.json();
-    paisesIndexCarregado = true;
-  } catch (e) {
-    console.error('Falha ao carregar índice de países:', e);
-    if (el) el.innerHTML = '<div class="biblio-empty">Não foi possível carregar a lista de países.</div>';
-  }
-}
-
-async function carregarPaisData(id) {
-  if (paisesCache[id]) return paisesCache[id];
-  const resp = await fetch(PAISES_DATA_DIR + id + '.json');
-  const data = await resp.json();
-  paisesCache[id] = data;
-  return data;
-}
-
-function showPaisesPanel(panel) {
-  document.getElementById('paisesListView').style.display = panel === 'list' ? 'block' : 'none';
-  document.getElementById('paisesDetailView').style.display = panel === 'detail' ? 'block' : 'none';
-}
-
-/* ---- Listagem / filtros ---- */
-function renderPaisesFiltros() {
-  const continentes = [...new Set(paisesIndex.map(p => p.continente))].sort();
-  const orgsSet = new Set();
-  paisesIndex.forEach(p => (p.organizacoes || []).forEach(o => orgsSet.add(o)));
-  const orgs = [...orgsSet].sort();
-
-  const contEl = document.getElementById('paisesFiltroContinente');
-  if (contEl) contEl.innerHTML = ['todos', ...continentes].map(c =>
-    `<button class="chip ${paisesFiltro.continente === c ? 'active' : ''}" onclick="setPaisesFiltroContinente('${c}')">${c === 'todos' ? 'Todos os continentes' : c}</button>`
-  ).join('');
-
-  const orgEl = document.getElementById('paisesFiltroOrganizacao');
-  if (orgEl) orgEl.innerHTML = ['todas', ...orgs].map(o =>
-    `<button class="chip ${paisesFiltro.organizacao === o ? 'active' : ''}" onclick="setPaisesFiltroOrganizacao('${o}')">${o === 'todas' ? 'Todas as organizações' : o}</button>`
-  ).join('');
-}
-function setPaisesFiltroContinente(c) { paisesFiltro.continente = c; renderPaisesFiltros(); renderPaisesList(); }
-function setPaisesFiltroOrganizacao(o) { paisesFiltro.organizacao = o; renderPaisesFiltros(); renderPaisesList(); }
-function setPaisesBusca(v) { paisesFiltro.busca = v.trim().toLowerCase(); renderPaisesList(); }
-function togglePaisesApenasFavoritos() {
-  paisesFiltro.apenasFavoritos = !paisesFiltro.apenasFavoritos;
-  const btn = document.getElementById('paisesFavBtn'); if (btn) btn.classList.toggle('active', paisesFiltro.apenasFavoritos);
-  renderPaisesList();
-}
-
-function paisesFiltrados() {
-  const q = paisesFiltro.busca;
-  return paisesIndex.filter(p => {
-    if (paisesFiltro.continente !== 'todos' && p.continente !== paisesFiltro.continente) return false;
-    if (paisesFiltro.organizacao !== 'todas' && !(p.organizacoes || []).includes(paisesFiltro.organizacao)) return false;
-    if (paisesFiltro.apenasFavoritos && !paisesFavoritos.includes(p.id)) return false;
-    if (!q) return true;
-    return p.nomeCurto.toLowerCase().includes(q) ||
-      p.nomeOficial.toLowerCase().includes(q) ||
-      p.capital.toLowerCase().includes(q) ||
-      (p.idiomas || []).some(i => i.toLowerCase().includes(q));
-  });
-}
-
-function renderPaisesList() {
-  const el = document.getElementById('paisesList'); if (!el) return;
-  const list = paisesFiltrados();
-  if (!list.length) { el.innerHTML = '<div class="biblio-empty">Nenhum país encontrado para esse filtro.</div>'; return; }
-  el.innerHTML = list.map(p => `
-    <div class="card pais-card" onclick="abrirPais('${p.id}')">
-      <div class="pais-card-flag">${p.bandeira}</div>
-      <div class="pais-card-body">
-        <div class="pais-card-nome">${p.nomeCurto}</div>
-        <div class="pais-card-meta mono">${p.capital} · ${p.continente}</div>
-        <div class="pais-card-orgs">${(p.organizacoes || []).slice(0, 4).map(o => `<span class="tag-chip">${o}</span>`).join('')}</div>
-      </div>
-      <button class="pais-fav-btn ${paisesFavoritos.includes(p.id) ? 'active' : ''}" onclick="event.stopPropagation(); togglePaisFavorito('${p.id}')" title="Favoritar">★</button>
-    </div>
-  `).join('');
-}
-function togglePaisFavorito(id) {
-  paisesFavoritos = paisesFavoritos.includes(id) ? paisesFavoritos.filter(x => x !== id) : [...paisesFavoritos, id];
-  save('paises_favoritos', paisesFavoritos);
-  renderPaisesList();
-  renderPaisFavBtnDetail();
-}
-
-/* ---- Página de detalhe ---- */
-async function abrirPais(id) {
-  paisesAtualId = id;
-  const wrap = document.getElementById('paisesDetailContent');
-  if (wrap) wrap.innerHTML = '<div class="biblio-empty">Carregando…</div>';
-  showPaisesPanel('detail');
-  const d = await carregarPaisData(id);
-  renderPaisDetail(d);
-}
-function fecharPais() { paisesAtualId = null; showPaisesPanel('list'); }
-function renderPaisFavBtnDetail() {
-  const btn = document.getElementById('paisDetailFavBtn'); if (!btn || !paisesAtualId) return;
-  btn.classList.toggle('active', paisesFavoritos.includes(paisesAtualId));
-}
-
-const PAISES_RELACAO_LABELS = { brasil: 'Relações com o Brasil', eua: 'Relações com os EUA', china: 'Relações com a China', ue: 'Relações com a União Europeia', regional: 'Integração Regional', vizinhos: 'Relações com Vizinhos' };
-
-function renderPaisDetail(d) {
-  const wrap = document.getElementById('paisesDetailContent'); if (!wrap) return;
-  wrap.innerHTML = `
-    <div class="card pais-hero">
-      <div class="pais-hero-flag">${d.bandeira}</div>
-      <div style="flex:1;">
-        <div class="pais-hero-nome">${d.nomeCurto}</div>
-        <div class="pais-hero-oficial">${d.nomeOficial}</div>
-        <div class="pais-hero-orgs">${(d.organizacoes || []).map(o => `<span class="tag-chip" title="${o.nome}">${o.sigla}</span>`).join('')}</div>
-      </div>
-      <button id="paisDetailFavBtn" class="pais-fav-btn ${paisesFavoritos.includes(d.id) ? 'active' : ''}" onclick="togglePaisFavorito('${d.id}')" title="Favoritar">★</button>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Informações Gerais</h3>
-      <div class="pais-info-grid">
-        <div><span class="pais-info-label">Capital</span>${d.capital}</div>
-        <div><span class="pais-info-label">População</span>${d.populacao}</div>
-        <div><span class="pais-info-label">Área</span>${d.area}</div>
-        <div><span class="pais-info-label">Idiomas</span>${(d.idiomas || []).join(', ')}</div>
-        <div><span class="pais-info-label">Moeda</span>${d.moeda}</div>
-        <div><span class="pais-info-label">Continente</span>${d.continente}</div>
-        <div><span class="pais-info-label">Região</span>${d.regiao}</div>
-        <div><span class="pais-info-label">Fuso horário</span>${d.fusoHorario}</div>
-        <div><span class="pais-info-label">Domínio</span>${d.dominio}</div>
-        <div><span class="pais-info-label">Código telefônico</span>${d.codigoTelefonico}</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Governo</h3>
-      <div class="pais-info-grid">
-        <div><span class="pais-info-label">Sistema político</span>${d.governo.sistema}</div>
-        <div><span class="pais-info-label">Chefe de Estado</span>${d.governo.chefeEstado}</div>
-        <div><span class="pais-info-label">Chefe de Governo</span>${d.governo.chefeGoverno}</div>
-        <div><span class="pais-info-label">Constituição</span>${d.governo.constituicao}</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Economia</h3>
-      <div class="pais-info-grid">
-        <div><span class="pais-info-label">PIB nominal</span>${d.economia.pib}</div>
-        <div><span class="pais-info-label">PIB (PPC)</span>${d.economia.pibPPC}</div>
-        <div><span class="pais-info-label">PIB per capita</span>${d.economia.pibPerCapita}</div>
-        <div><span class="pais-info-label">Crescimento</span>${d.economia.crescimento}</div>
-        <div><span class="pais-info-label">Inflação</span>${d.economia.inflacao}</div>
-        <div><span class="pais-info-label">Desemprego</span>${d.economia.desemprego}</div>
-        <div><span class="pais-info-label">Exportações</span>${d.economia.exportacoes}</div>
-        <div><span class="pais-info-label">Importações</span>${d.economia.importacoes}</div>
-      </div>
-      <div style="margin-top:10px;"><span class="pais-info-label">Principais parceiros comerciais</span><div class="pais-card-orgs">${(d.economia.parceiros || []).map(p => `<span class="tag-chip">${p}</span>`).join('')}</div></div>
-      <div style="margin-top:10px;"><span class="pais-info-label">Principais produtos</span><div class="pais-card-orgs">${(d.economia.produtos || []).map(p => `<span class="tag-chip">${p}</span>`).join('')}</div></div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Relações Internacionais</h3>
-      ${Object.keys(d.relacoes || {}).map(k => `<div class="pais-relacao"><div class="pais-relacao-titulo">${PAISES_RELACAO_LABELS[k] || k}</div><p>${d.relacoes[k]}</p></div>`).join('')}
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Organizações Internacionais</h3>
-      <div class="pais-card-orgs">${(d.organizacoes || []).map(o => `<span class="tag-chip" title="${o.nome}">${o.sigla}</span>`).join('')}</div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Geografia</h3>
-      <div class="pais-info-grid">
-        <div><span class="pais-info-label">Clima</span>${d.geografia.clima}</div>
-        <div><span class="pais-info-label">Relevo</span>${d.geografia.relevo}</div>
-      </div>
-      <div style="margin-top:10px;"><span class="pais-info-label">Países vizinhos</span><div class="pais-card-orgs">${(d.geografia.paisesVizinhos || []).map(p => `<span class="tag-chip">${p}</span>`).join('')}</div></div>
-      <div style="margin-top:10px;"><span class="pais-info-label">Principais rios</span><div class="pais-card-orgs">${(d.geografia.rios || []).map(p => `<span class="tag-chip">${p}</span>`).join('')}</div></div>
-      <div style="margin-top:10px;"><span class="pais-info-label">Principais cidades</span><div class="pais-card-orgs">${(d.geografia.principaisCidades || []).map(p => `<span class="tag-chip">${p}</span>`).join('')}</div></div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Linha do Tempo</h3>
-      <div class="pais-timeline">${(d.historia || []).map(h => `<div class="pais-timeline-item"><div class="pais-timeline-ano mono">${h.ano}</div><div class="pais-timeline-evento">${h.evento}</div></div>`).join('')}</div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Curiosidades</h3>
-      <ul class="pais-curiosidades">${(d.curiosidades || []).map(c => `<li>${c}</li>`).join('')}</ul>
-    </div>
-
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 class="section-title" style="margin-bottom:0;">Flashcards</h3>
-        <button class="btn secondary small" onclick="gerarFlashcardsPais('${d.id}')">🔁 Revisar flashcards</button>
-      </div>
-      <div id="paisFlashcardsWrap" style="margin-top:14px;"></div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Atualidades</h3>
-      <div class="biblio-empty">Em breve: integração automática com fontes de notícias sobre este país.</div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title">Questões CACD</h3>
-      <div class="biblio-empty">Em breve: banco de questões específico sobre este país.</div>
-    </div>
-  `;
-}
-
-/* ---- Flashcards automáticos ---- */
-function flashcardsAutomaticos(d) {
-  const cards = [
-    { p: `Qual é a capital de ${d.nomeCurto}?`, r: d.capital },
-    { p: `Qual é a moeda de ${d.nomeCurto}?`, r: d.moeda },
-    { p: `Quais os idiomas oficiais de ${d.nomeCurto}?`, r: (d.idiomas || []).join(', ') },
-    { p: `Qual o sistema político de ${d.nomeCurto}?`, r: d.governo.sistema },
-    { p: `De quais organizações internacionais ${d.nomeCurto} faz parte?`, r: (d.organizacoes || []).map(o => o.sigla).join(', ') },
-    { p: `Qual o PIB nominal de ${d.nomeCurto}?`, r: d.economia.pib }
+/* Fonte de verdade dos países. lat/lng ~ localização da capital, usada
+   para posicionar o marcador no mapa-múndi (projeção equiretangular). */
+function paisesDefault() {
+  return [
+    { id: 'de', code: 'DE', nome: 'Alemanha', continente: 'Europa', capital: 'Berlim', populacao: 84000000, moeda: 'Euro (EUR)', idioma: 'Alemão', governo: 'República Federal Parlamentarista', lat: 52.52, lng: 13.40, organizacoes: ['UE', 'OTAN', 'G7', 'ONU'] },
+    { id: 'ar', code: 'AR', nome: 'Argentina', continente: 'América do Sul', capital: 'Buenos Aires', populacao: 46000000, moeda: 'Peso argentino (ARS)', idioma: 'Espanhol', governo: 'República Presidencialista', lat: -34.60, lng: -58.38, organizacoes: ['Mercosul', 'G20', 'ONU'] },
+    { id: 'au', code: 'AU', nome: 'Austrália', continente: 'Oceania', capital: 'Camberra', populacao: 26000000, moeda: 'Dólar australiano (AUD)', idioma: 'Inglês', governo: 'Monarquia Parlamentarista', lat: -35.28, lng: 149.13, organizacoes: ['G20', 'APEC', 'ONU'] },
+    { id: 'br', code: 'BR', nome: 'Brasil', continente: 'América do Sul', capital: 'Brasília', populacao: 213000000, moeda: 'Real (BRL)', idioma: 'Português', governo: 'República Federativa Presidencialista', lat: -15.79, lng: -47.88, organizacoes: ['Mercosul', 'BRICS', 'G20', 'ONU', 'OMC'] },
+    { id: 'ca', code: 'CA', nome: 'Canadá', continente: 'América do Norte', capital: 'Ottawa', populacao: 39000000, moeda: 'Dólar canadense (CAD)', idioma: 'Inglês / Francês', governo: 'Monarquia Parlamentarista', lat: 45.42, lng: -75.70, organizacoes: ['G7', 'OTAN', 'ONU'] },
+    { id: 'cn', code: 'CN', nome: 'China', continente: 'Ásia', capital: 'Pequim', populacao: 1412000000, moeda: 'Yuan (CNY)', idioma: 'Mandarim', governo: 'República Popular Socialista', lat: 39.90, lng: 116.41, organizacoes: ['BRICS', 'G20', 'ONU (P5)', 'OMC'] },
+    { id: 'es', code: 'ES', nome: 'Espanha', continente: 'Europa', capital: 'Madri', populacao: 47000000, moeda: 'Euro (EUR)', idioma: 'Espanhol', governo: 'Monarquia Parlamentarista', lat: 40.42, lng: -3.70, organizacoes: ['UE', 'OTAN', 'ONU'] },
+    { id: 'us', code: 'US', nome: 'Estados Unidos', continente: 'América do Norte', capital: 'Washington, D.C.', populacao: 335000000, moeda: 'Dólar americano (USD)', idioma: 'Inglês', governo: 'República Federativa Presidencialista', lat: 38.90, lng: -77.04, organizacoes: ['G7', 'G20', 'OTAN', 'ONU (P5)'] },
+    { id: 'fr', code: 'FR', nome: 'França', continente: 'Europa', capital: 'Paris', populacao: 68400000, area: '643.801 km²', moeda: 'Euro (EUR)', idioma: 'Francês', fuso: 'UTC+1', governo: 'República semipresidencialista', nomeOficial: 'República Francesa', chefeEstado: 'Emmanuel Macron', chefeGoverno: 'Gabriel Attal', independencia: '4 de setembro de 1870', regiao: 'Europa Ocidental', subregiao: 'Europa Ocidental',
+      sobre: 'A França é uma república soberana transcontinental, cujo território metropolitano está localizado na Europa Ocidental e cujos territórios ultramarinos se espalham por diferentes regiões do mundo.',
+      curiosidade: 'A França é o país mais visitado do mundo, recebendo mais de 90 milhões de turistas por ano.',
+      lat: 48.86, lng: 2.35, organizacoes: ['ONU (P5)', 'UE', 'OTAN', 'OCDE', 'G7', 'G20', 'UNESCO'] },
+    { id: 'in', code: 'IN', nome: 'Índia', continente: 'Ásia', capital: 'Nova Délhi', populacao: 1428000000, moeda: 'Rupia indiana (INR)', idioma: 'Hindi / Inglês', governo: 'República Federativa Parlamentarista', lat: 28.61, lng: 77.21, organizacoes: ['BRICS', 'G20', 'ONU'] },
+    { id: 'il', code: 'IL', nome: 'Israel', continente: 'Ásia', capital: 'Jerusalém', populacao: 9800000, moeda: 'Novo shekel (ILS)', idioma: 'Hebraico / Árabe', governo: 'República Parlamentarista', lat: 31.77, lng: 35.21, organizacoes: ['ONU', 'OCDE'] },
+    { id: 'it', code: 'IT', nome: 'Itália', continente: 'Europa', capital: 'Roma', populacao: 59000000, moeda: 'Euro (EUR)', idioma: 'Italiano', governo: 'República Parlamentarista', lat: 41.90, lng: 12.50, organizacoes: ['UE', 'OTAN', 'G7', 'ONU'] },
+    { id: 'jp', code: 'JP', nome: 'Japão', continente: 'Ásia', capital: 'Tóquio', populacao: 124000000, moeda: 'Iene (JPY)', idioma: 'Japonês', governo: 'Monarquia Parlamentarista', lat: 35.68, lng: 139.65, organizacoes: ['G7', 'G20', 'ONU', 'OCDE'] },
+    { id: 'mx', code: 'MX', nome: 'México', continente: 'América do Norte', capital: 'Cidade do México', populacao: 128000000, moeda: 'Peso mexicano (MXN)', idioma: 'Espanhol', governo: 'República Federativa Presidencialista', lat: 19.43, lng: -99.13, organizacoes: ['G20', 'OCDE', 'ONU'] },
+    { id: 'pt', code: 'PT', nome: 'Portugal', continente: 'Europa', capital: 'Lisboa', populacao: 10300000, moeda: 'Euro (EUR)', idioma: 'Português', governo: 'República Semipresidencialista', lat: 38.72, lng: -9.14, organizacoes: ['UE', 'OTAN', 'ONU'] },
+    { id: 'gb', code: 'GB', nome: 'Reino Unido', continente: 'Europa', capital: 'Londres', populacao: 67700000, moeda: 'Libra esterlina (GBP)', idioma: 'Inglês', governo: 'Monarquia Parlamentarista', lat: 51.51, lng: -0.13, organizacoes: ['ONU (P5)', 'OTAN', 'G7', 'G20'] },
+    { id: 'ru', code: 'RU', nome: 'Rússia', continente: 'Europa/Ásia', capital: 'Moscou', populacao: 144000000, moeda: 'Rublo (RUB)', idioma: 'Russo', governo: 'República Federativa Semipresidencialista', lat: 55.75, lng: 37.62, organizacoes: ['BRICS', 'ONU (P5)', 'G20'] },
+    { id: 'tr', code: 'TR', nome: 'Turquia', continente: 'Europa/Ásia', capital: 'Ancara', populacao: 85300000, moeda: 'Lira turca (TRY)', idioma: 'Turco', governo: 'República Presidencialista', lat: 39.93, lng: 32.86, organizacoes: ['OTAN', 'G20', 'ONU'] },
+    { id: 'za', code: 'ZA', nome: 'África do Sul', continente: 'África', capital: 'Pretória', populacao: 60600000, moeda: 'Rand (ZAR)', idioma: 'Zulu / Inglês (+9)', governo: 'República Parlamentarista', lat: -25.75, lng: 28.19, organizacoes: ['BRICS', 'G20', 'ONU'] },
+    { id: 'kr', code: 'KR', nome: 'Coreia do Sul', continente: 'Ásia', capital: 'Seul', populacao: 51700000, moeda: 'Won (KRW)', idioma: 'Coreano', governo: 'República Presidencialista', lat: 37.57, lng: 126.98, organizacoes: ['G20', 'OCDE', 'ONU'] }
   ];
-  return cards.concat((d.flashcardsExtras || []).map(f => ({ p: f.pergunta, r: f.resposta })));
 }
-let paisesFlashcardsQueue = []; let paisesFlashcardsIndex = 0;
-function gerarFlashcardsPais(id) {
-  const d = paisesCache[id]; if (!d) return;
-  paisesFlashcardsQueue = flashcardsAutomaticos(d);
-  paisesFlashcardsIndex = 0;
-  renderFlashcardPais();
+let paises = load('diplo_paises', null) || paisesDefault();
+let paisesFiltroContinente = 'todos';
+let paisesOrdem = 'az';
+
+function listaContinentes() { return [...new Set(paises.map(p => p.continente))].sort(); }
+
+function renderPaisesFiltros() {
+  const el = document.getElementById('paisesFiltroContinente'); if (!el) return;
+  const conts = ['todos', ...listaContinentes()];
+  el.innerHTML = conts.map(c => `<button class="chip ${paisesFiltroContinente === c ? 'active' : ''}" onclick="setPaisesFiltroContinente('${c}')">${c === 'todos' ? 'Todos' : c}</button>`).join('');
 }
-function renderFlashcardPais() {
-  const wrap = document.getElementById('paisFlashcardsWrap'); if (!wrap) return;
-  if (paisesFlashcardsIndex >= paisesFlashcardsQueue.length) {
-    wrap.innerHTML = '<div class="biblio-empty">Flashcards concluídos. Clique em "Revisar flashcards" para recomeçar.</div>';
-    return;
-  }
-  const c = paisesFlashcardsQueue[paisesFlashcardsIndex];
-  wrap.innerHTML = `
-    <div class="pais-flashcard" onclick="this.classList.toggle('flipped')">
-      <div class="pais-flashcard-face pais-flashcard-front">${c.p}</div>
-      <div class="pais-flashcard-face pais-flashcard-back">${c.r}</div>
+function setPaisesFiltroContinente(c) { paisesFiltroContinente = c; renderPaisesFiltros(); renderPaises(); }
+function togglePaisesOrdem() {
+  paisesOrdem = paisesOrdem === 'az' ? 'za' : 'az';
+  document.getElementById('paisesOrdemBtn').textContent = paisesOrdem === 'az' ? 'A → Z' : 'Z → A';
+  renderPaises();
+}
+
+function paisCardHtml(p) {
+  const orgs = p.organizacoes || [];
+  return `
+    <div class="card pais-card" style="--accent:${continenteCor(p.continente)}" onclick="abrirPaisModal('${p.id}')">
+      <div class="pc-top">
+        <span class="pc-flag">${flagEmoji(p.code)}</span>
+        <div class="pc-name-wrap">
+          <div class="pc-name">${p.nome}</div>
+          <div class="pc-continent">${p.continente}</div>
+        </div>
+      </div>
+      <div class="pc-stats">
+        <div class="pc-stat"><span class="pc-stat-ic">🏛️</span><div><span class="pc-stat-label">Capital</span><span class="pc-stat-val">${p.capital}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">👥</span><div><span class="pc-stat-label">População</span><span class="pc-stat-val">${fmtPopulacao(p.populacao)}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">💰</span><div><span class="pc-stat-label">Moeda</span><span class="pc-stat-val">${p.moeda}</span></div></div>
+      </div>
+      ${orgs.length ? `<div class="pc-orgs">${orgs.slice(0, 3).map(o => `<span class="org-badge">${o}</span>`).join('')}${orgs.length > 3 ? `<span class="org-badge more">+${orgs.length - 3}</span>` : ''}</div>` : ''}
+      <div class="pc-bar"></div>
+    </div>`;
+}
+
+function renderPaises() {
+  const el = document.getElementById('paisesGrid'); if (!el) return;
+  const q = (document.getElementById('paisesSearch')?.value || '').trim().toLowerCase();
+  let list = paises.filter(p => {
+    const matchQ = !q || p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q);
+    const matchC = paisesFiltroContinente === 'todos' || p.continente === paisesFiltroContinente;
+    return matchQ && matchC;
+  });
+  list.sort((a, b) => paisesOrdem === 'az' ? a.nome.localeCompare(b.nome, 'pt-BR') : b.nome.localeCompare(a.nome, 'pt-BR'));
+
+  el.innerHTML = list.length ? list.map(paisCardHtml).join('') : '<div class="empty" style="padding:20px 0; color:var(--text-muted);">Nenhum país encontrado para esse filtro.</div>';
+
+  // reinicia a animação de entrada a cada filtragem/busca
+  el.classList.remove('filtering');
+  void el.offsetWidth;
+  el.classList.add('filtering');
+
+  const lbl = document.getElementById('paisesCountLabel');
+  if (lbl) lbl.textContent = paises.length + ' país' + (paises.length === 1 ? '' : 'es') + ' catalogado' + (paises.length === 1 ? '' : 's');
+}
+
+/* ---- Modal — ficha detalhada do país ---- */
+function abrirPaisModal(id) {
+  const p = paises.find(x => x.id === id); if (!p) return;
+  const orgs = p.organizacoes || [];
+  document.getElementById('paisModalBody').innerHTML = `
+    <div class="pm-hero" style="--accent:${continenteCor(p.continente)}">
+      <span class="pm-flag">${flagEmoji(p.code)}</span>
+      <div>
+        <h3 style="margin-bottom:2px;">${p.nome}</h3>
+        <div class="pm-sub mono">${p.nomeOficial || p.nome} · ${p.continente}</div>
+      </div>
     </div>
-    <div style="text-align:center; margin-top:10px; font-size:11px; color:var(--text-muted);">${paisesFlashcardsIndex + 1} / ${paisesFlashcardsQueue.length} · clique no card para virar</div>
-    <div style="display:flex; justify-content:center; margin-top:10px;"><button class="btn secondary small" onclick="proximoFlashcardPais()">Próximo →</button></div>
+    ${p.sobre ? `<p class="pm-sobre">${p.sobre}</p>` : ''}
+    <div class="pm-grid">
+      <div class="pm-item"><span class="field-label">Capital</span>${p.capital}</div>
+      <div class="pm-item"><span class="field-label">População</span>${fmtPopulacao(p.populacao)}</div>
+      <div class="pm-item"><span class="field-label">Moeda</span>${p.moeda}</div>
+      <div class="pm-item"><span class="field-label">Idioma</span>${p.idioma || '—'}</div>
+      <div class="pm-item"><span class="field-label">Governo</span>${p.governo || '—'}</div>
+      ${p.area ? `<div class="pm-item"><span class="field-label">Área</span>${p.area}</div>` : ''}
+      ${p.chefeEstado ? `<div class="pm-item"><span class="field-label">Chefe de Estado</span>${p.chefeEstado}</div>` : ''}
+      ${p.chefeGoverno ? `<div class="pm-item"><span class="field-label">Chefe de Governo</span>${p.chefeGoverno}</div>` : ''}
+    </div>
+    ${orgs.length ? `<div style="margin-top:14px;"><span class="field-label">Organizações internacionais</span><div class="pc-orgs" style="margin-top:6px;">${orgs.map(o => `<span class="org-badge">${o}</span>`).join('')}</div></div>` : ''}
+    ${p.curiosidade ? `<div class="pm-curiosidade"><span class="field-label">Curiosidade</span>${p.curiosidade}</div>` : ''}
+  `;
+  document.getElementById('paisModal').classList.add('show');
+}
+function closePaisModal(e) { if (e.target.classList.contains('modal-overlay')) closePaisModalDirect(); }
+function closePaisModalDirect() { document.getElementById('paisModal').classList.remove('show'); }
+
+/* ---- Mapa-múndi — marcadores por lat/lng em projeção equiretangular ---- */
+function latLngToPct(lat, lng) {
+  return { x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
+}
+function renderPaisesMapa() {
+  const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
+  const q = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
+
+  const pins = paises.map(p => {
+    const pos = latLngToPct(p.lat, p.lng);
+    const match = q && (p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q));
+    return `<button type="button" class="map-pin ${match ? 'match' : ''}" style="left:${pos.x}%; top:${pos.y}%; --accent:${continenteCor(p.continente)}" onclick="abrirPaisModal('${p.id}')" title="${p.nome}">
+        <span class="map-pin-dot"></span>
+        <span class="map-pin-label">${flagEmoji(p.code)} ${p.nome}</span>
+      </button>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="map-grid-lines"></div>
+    <div class="map-vignette"></div>
+    ${pins}
   `;
 }
-function proximoFlashcardPais() { paisesFlashcardsIndex++; renderFlashcardPais(); }
+
+function renderPaisesModule() {
+  renderPaisesFiltros();
+  renderPaises();
+  renderPaisesMapa();
+}
