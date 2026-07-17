@@ -7,7 +7,10 @@
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
 const load = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch (e) { return fb; } };
-const save = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); };
+const save = (k, v) => {
+  localStorage.setItem(k, JSON.stringify(v));
+  if (typeof syncKeyToCloud === 'function') syncKeyToCloud(k, v);
+};
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
 function isoToBR(iso) { if (!iso) return ''; const p = iso.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : iso; }
