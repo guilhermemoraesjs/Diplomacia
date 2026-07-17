@@ -12,6 +12,7 @@ function goTab(tab) {
     b.classList.toggle('active', b.getAttribute('data-tab') === tab);
   });
   if (tab === 'palavras') connectHub();
+  if (tab === 'paises') initPaisesTab();
 }
 
 function goSub(sub) {
