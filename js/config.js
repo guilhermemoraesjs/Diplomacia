@@ -15,4 +15,12 @@ const fbCfg = {
 
 const HUB_ORIGIN = 'https://estuda-mais-theta.vercel.app';
 
+const CLOUD_KEYS = [
+  'diplo_materias', 'diplo_cronograma', 'diplo_revisao', 'diplo_questoes',
+  'diplo_discursivas', 'diplo_atualidades', 'diplo_notas',
+  'biblio_docs', 'biblio_pastas', 'biblio_expanded_folders',
+  'chancelaria_theme'
+];
+let currentUid = null;
+
 try { firebase.initializeApp(fbCfg); } catch (e) {}
