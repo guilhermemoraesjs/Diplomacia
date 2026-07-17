@@ -1,0 +1,73 @@
+{
+  "id": "china",
+  "nomeOficial": "República Popular da China",
+  "nomeCurto": "China",
+  "bandeira": "🇨🇳",
+  "capital": "Pequim (Beijing)",
+  "populacao": "≈ 1,41 bilhão de habitantes (2024, em leve declínio)",
+  "area": "9.597.000 km² (3º/4º maior país do mundo)",
+  "idiomas": ["Mandarim"],
+  "moeda": "Yuan/Renminbi (CNY)",
+  "continente": "Ásia",
+  "regiao": "Ásia Oriental",
+  "fusoHorario": "UTC+8 (fuso único em todo o território)",
+  "dominio": ".cn",
+  "codigoTelefonico": "+86",
+  "governo": {
+    "sistema": "República socialista de partido único, sob liderança do Partido Comunista da China",
+    "chefeEstado": "Presidente da República Popular da China",
+    "chefeGoverno": "Premiê do Conselho de Estado",
+    "constituicao": "Constituição de 1982, com emendas subsequentes"
+  },
+  "economia": {
+    "pib": "≈ US$ 18-19 trilhões (nominal) — 2ª maior economia do mundo",
+    "pibPPC": "≈ US$ 35 trilhões (PPC) — maior do mundo por esse critério",
+    "pibPerCapita": "≈ US$ 13.000",
+    "crescimento": "≈ 4,5 a 5,5% ao ano (desaceleração frente a décadas anteriores)",
+    "inflacao": "Baixa, próxima de 0 a 2% ao ano",
+    "desemprego": "≈ 5% (urbano, dado oficial)",
+    "exportacoes": "Eletrônicos, maquinário, têxteis, veículos elétricos, painéis solares",
+    "importacoes": "Petróleo, minério de ferro, soja, semicondutores",
+    "parceiros": ["EUA", "União Europeia", "ASEAN", "Japão", "Brasil"],
+    "produtos": ["Eletrônicos", "Manufaturados", "Veículos elétricos", "Aço", "Têxteis"]
+  },
+  "relacoes": {
+    "brasil": "Maior parceiro comercial do Brasil desde 2009, com forte fluxo de commodities e investimentos crescentes em infraestrutura e energia.",
+    "eua": "Rivalidade estratégica central do século XXI, envolvendo guerra comercial, disputas tecnológicas (semicondutores) e tensões geopolíticas em torno de Taiwan e do Mar do Sul da China.",
+    "ue": "Parceiro comercial relevante, mas com atritos crescentes sobre subsídios industriais, veículos elétricos chineses e direitos humanos.",
+    "regional": "Potência dominante na Ásia-Pacífico, promove a Iniciativa Cinturão e Rota (Nova Rota da Seda) e integra mecanismos como o RCEP e a Organização para Cooperação de Xangai."
+  },
+  "organizacoes": [
+    { "sigla": "ONU", "nome": "Membro permanente do Conselho de Segurança" },
+    { "sigla": "OMC", "nome": "Organização Mundial do Comércio" },
+    { "sigla": "BRICS", "nome": "Brasil, Rússia, Índia, China e África do Sul" },
+    { "sigla": "G20", "nome": "Grupo dos 20" },
+    { "sigla": "RCEP", "nome": "Parceria Econômica Regional Abrangente" },
+    { "sigla": "OCX", "nome": "Organização para Cooperação de Xangai" },
+    { "sigla": "APEC", "nome": "Cooperação Econômica Ásia-Pacífico" }
+  ],
+  "geografia": {
+    "clima": "Muito diverso: subtropical úmido no sul, continental no norte, árido a oeste (deserto de Gobi) e alpino no Tibete.",
+    "relevo": "Planalto do Tibete (o mais alto do mundo) a oeste, planícies férteis a leste.",
+    "paisesVizinhos": ["Rússia", "Mongólia", "Cazaquistão", "Índia", "Vietnã", "Coreia do Norte", "Myanmar", "Laos", "Butão", "Nepal", "Paquistão", "Afeganistão", "Quirguistão", "Tajiquistão"],
+    "rios": ["Yangtzé", "Rio Amarelo (Huang He)"],
+    "principaisCidades": ["Xangai", "Pequim", "Shenzhen", "Guangzhou", "Chongqing"]
+  },
+  "historia": [
+    { "ano": "1949", "evento": "Proclamação da República Popular da China por Mao Tsé-Tung." },
+    { "ano": "1978", "evento": "Início das reformas econômicas de Deng Xiaoping ('abertura e reforma')." },
+    { "ano": "1997", "evento": "Retorno de Hong Kong ao controle chinês." },
+    { "ano": "2001", "evento": "Ingresso na Organização Mundial do Comércio." },
+    { "ano": "2013", "evento": "Lançamento da Iniciativa Cinturão e Rota." }
+  ],
+  "curiosidades": [
+    "Foi o país mais populoso do mundo até ser superado pela Índia em 2023.",
+    "Possui a maior muralha já construída, a Grande Muralha da China.",
+    "É o maior exportador mundial de mercadorias."
+  ],
+  "flashcardsExtras": [
+    { "pergunta": "Quem lançou as reformas econômicas de 1978 na China?", "resposta": "Deng Xiaoping" }
+  ],
+  "atualidades": [],
+  "questoesCACD": []
+}
