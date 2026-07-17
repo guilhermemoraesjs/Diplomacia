@@ -2,6 +2,13 @@
    paises.js — módulo "Países": fichas geopolíticas (capital, população,
    moeda, organizações internacionais) em grade de cards + mapa-múndi
    interativo por coordenadas. Dados estáticos, sem dependência de API.
+
+   Atualização: bandeiras agora usam imagens reais (flagcdn.com) em vez de
+   emoji de bandeira (que em muitos sistemas — sobretudo Windows — não
+   renderiza e cai no fallback de duas letras, ex.: "DE", "AR"). O
+   mapa-múndi agora desenha os continentes de verdade (via d3-geo +
+   topojson, dados públicos do world-atlas), em vez de uma grade abstrata
+   com pontos soltos. Nenhuma outra lógica, rota ou dado foi alterado.
    ========================================================================== */
 
 /* Paleta por continente — usada na barra inferior do card e nos marcadores
@@ -17,10 +24,21 @@ const CONTINENTE_COR = {
 };
 function continenteCor(c) { return CONTINENTE_COR[c] || 'var(--brass)'; }
 
+/* Mantido por compatibilidade (não é mais usado nos cards/modal/mapa,
+   que agora usam flagImgHtml), caso algo externo ainda dependa dele. */
 function flagEmoji(code) {
   if (!code) return '🏳️';
   return code.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
 }
+
+/* Bandeira real via flagcdn.com (SVG/PNG por código ISO 3166-1 alpha-2).
+   Muito mais confiável entre navegadores/SO do que emoji de bandeira. */
+function flagImgHtml(code, cls) {
+  if (!code) return '';
+  const c = code.toLowerCase();
+  return `<img class="flag-img ${cls || ''}" src="https://flagcdn.com/w80/${c}.png" srcset="https://flagcdn.com/w160/${c}.png 2x" alt="Bandeira: ${code}" loading="lazy">`;
+}
+
 function fmtPopulacao(n) {
   if (n >= 1000000000) return (n / 1000000000).toFixed(n % 1000000000 === 0 ? 0 : 1) + ' bi';
   if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + ' mi';
@@ -79,7 +97,7 @@ function paisCardHtml(p) {
   return `
     <div class="card pais-card" style="--accent:${continenteCor(p.continente)}" onclick="abrirPaisModal('${p.id}')">
       <div class="pc-top">
-        <span class="pc-flag">${flagEmoji(p.code)}</span>
+        <span class="pc-flag">${flagImgHtml(p.code)}</span>
         <div class="pc-name-wrap">
           <div class="pc-name">${p.nome}</div>
           <div class="pc-continent">${p.continente}</div>
@@ -122,7 +140,7 @@ function abrirPaisModal(id) {
   const orgs = p.organizacoes || [];
   document.getElementById('paisModalBody').innerHTML = `
     <div class="pm-hero" style="--accent:${continenteCor(p.continente)}">
-      <span class="pm-flag">${flagEmoji(p.code)}</span>
+      <span class="pm-flag">${flagImgHtml(p.code)}</span>
       <div>
         <h3 style="margin-bottom:2px;">${p.nome}</h3>
         <div class="pm-sub mono">${p.nomeOficial || p.nome} · ${p.continente}</div>
@@ -147,28 +165,81 @@ function abrirPaisModal(id) {
 function closePaisModal(e) { if (e.target.classList.contains('modal-overlay')) closePaisModalDirect(); }
 function closePaisModalDirect() { document.getElementById('paisModal').classList.remove('show'); }
 
-/* ---- Mapa-múndi — marcadores por lat/lng em projeção equiretangular ---- */
+/* ==========================================================================
+   Mapa-múndi — agora com continentes reais (d3-geo + topojson, dados
+   públicos do world-atlas em resolução 110m) por baixo dos marcadores.
+   A matemática dos marcadores (lat/lng → % da tela) continua a mesma de
+   antes: é uma projeção equiretangular, exatamente igual à usada para
+   desenhar os continentes — por isso os pinos continuam batendo
+   certinho em cima do mapa.
+   ========================================================================== */
 function latLngToPct(lat, lng) {
   return { x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
 }
-function renderPaisesMapa() {
-  const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
-  const q = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
 
-  const pins = paises.map(p => {
+const MAPA_MUNDI_W = 1000;
+const MAPA_MUNDI_H = 500;
+let mapaMundiSvgCache = null;      // guarda o SVG dos continentes já pronto (evita recalcular a cada busca)
+let mapaMundiFeaturesPromise = null; // guarda a promise dos dados geográficos (evita baixar de novo)
+
+function getMapaMundiFeatures() {
+  if (!mapaMundiFeaturesPromise) {
+    mapaMundiFeaturesPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+      .then(r => r.json())
+      .then(topo => topojson.feature(topo, topo.objects.countries).features)
+      .catch(e => { console.error('Falha ao carregar dados do mapa-múndi:', e); return []; });
+  }
+  return mapaMundiFeaturesPromise;
+}
+
+async function construirMapaMundiSvg() {
+  if (mapaMundiSvgCache) return mapaMundiSvgCache;
+  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') return null; // libs indisponíveis (offline) — mantém a grade
+  const features = await getMapaMundiFeatures();
+  if (!features.length) return null;
+  const projection = d3.geoEquirectangular().fitSize([MAPA_MUNDI_W, MAPA_MUNDI_H], { type: 'Sphere' });
+  const pathGen = d3.geoPath(projection);
+  const paths = features.map(f => `<path d="${pathGen(f)}" class="mapa-country"></path>`).join('');
+  mapaMundiSvgCache = `<svg class="mapa-mundi-svg" viewBox="0 0 ${MAPA_MUNDI_W} ${MAPA_MUNDI_H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+  return mapaMundiSvgCache;
+}
+
+function mapaMundiPinsHtml(q) {
+  return paises.map(p => {
     const pos = latLngToPct(p.lat, p.lng);
     const match = q && (p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q));
     return `<button type="button" class="map-pin ${match ? 'match' : ''}" style="left:${pos.x}%; top:${pos.y}%; --accent:${continenteCor(p.continente)}" onclick="abrirPaisModal('${p.id}')" title="${p.nome}">
         <span class="map-pin-dot"></span>
-        <span class="map-pin-label">${flagEmoji(p.code)} ${p.nome}</span>
+        <span class="map-pin-label">${flagImgHtml(p.code, 'map-pin-flag')}${p.nome}</span>
       </button>`;
   }).join('');
+}
 
+async function renderPaisesMapa() {
+  const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
+  const q = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
+  const pins = mapaMundiPinsHtml(q);
+
+  // Mostra na hora o que já tivermos (mapa em cache, ou a grade como placeholder)
   wrap.innerHTML = `
-    <div class="map-grid-lines"></div>
+    ${mapaMundiSvgCache || '<div class="map-grid-lines"></div>'}
     <div class="map-vignette"></div>
     ${pins}
   `;
+
+  if (!mapaMundiSvgCache) {
+    const svg = await construirMapaMundiSvg();
+    if (!svg) return; // sem internet/lib: fica na grade mesmo
+    // Evita sobrescrever se o usuário já saiu da aba/mudou a busca nesse meio-tempo
+    const wrapAinda = document.getElementById('paisesMapaSvgWrap');
+    if (!wrapAinda) return;
+    const qAgora = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
+    wrapAinda.innerHTML = `
+      ${svg}
+      <div class="map-vignette"></div>
+      ${mapaMundiPinsHtml(qAgora)}
+    `;
+  }
 }
 
 function renderPaisesModule() {
