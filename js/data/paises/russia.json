@@ -1,0 +1,73 @@
+{
+  "id": "russia",
+  "nomeOficial": "Federação Russa",
+  "nomeCurto": "Rússia",
+  "bandeira": "🇷🇺",
+  "capital": "Moscou",
+  "populacao": "≈ 144 milhões de habitantes (2024)",
+  "area": "≈ 17.098.000 km² — maior país do mundo em área",
+  "idiomas": ["Russo"],
+  "moeda": "Rublo russo (RUB)",
+  "continente": "Europa/Ásia (país transcontinental)",
+  "regiao": "Europa Oriental e Ásia Setentrional",
+  "fusoHorario": "UTC+2 a UTC+12 (11 fusos horários)",
+  "dominio": ".ru",
+  "codigoTelefonico": "+7",
+  "governo": {
+    "sistema": "República semipresidencialista federativa, com forte concentração de poder no Executivo",
+    "chefeEstado": "Presidente da Federação Russa",
+    "chefeGoverno": "Primeiro-Ministro (Presidente do Governo)",
+    "constituicao": "Constituição de 1993, emendada em 2020"
+  },
+  "economia": {
+    "pib": "≈ US$ 2,1 a 2,2 trilhões (nominal)",
+    "pibPPC": "≈ US$ 6 trilhões (PPC)",
+    "pibPerCapita": "≈ US$ 15.000",
+    "crescimento": "Variável; impactado por sanções ocidentais desde 2022",
+    "inflacao": "Elevada, frequentemente acima de 7 a 8% ao ano",
+    "desemprego": "Historicamente baixo, ≈ 3%",
+    "exportacoes": "Petróleo, gás natural, metais, trigo, armamentos",
+    "importacoes": "Maquinário, eletrônicos, produtos químicos, produtos farmacêuticos",
+    "parceiros": ["China", "Índia", "Turquia", "Bielorrússia", "Cazaquistão"],
+    "produtos": ["Petróleo e gás natural", "Metais e minerais", "Trigo", "Armamentos", "Fertilizantes"]
+  },
+  "relacoes": {
+    "brasil": "Parceria no âmbito do BRICS, com comércio relevante em fertilizantes e cooperação técnica, embora com volume bilateral menor que com China ou EUA.",
+    "eua": "Relação historicamente rival desde a Guerra Fria, hoje marcada por forte deterioração desde a invasão da Ucrânia em 2022, com extensas sanções ocidentais e ruptura de diversos canais diplomáticos.",
+    "ue": "Relação profundamente deteriorada após 2022, com sanções amplas, corte de dependência energética europeia do gás russo e suspensão de diversos mecanismos de diálogo.",
+    "regional": "Mantém influência sobre parte do espaço pós-soviético através da União Econômica Eurasiática e da Organização do Tratado de Segurança Coletiva, além de aprofundar laços com a China."
+  },
+  "organizacoes": [
+    { "sigla": "ONU", "nome": "Membro permanente do Conselho de Segurança" },
+    { "sigla": "BRICS", "nome": "Brasil, Rússia, Índia, China e África do Sul" },
+    { "sigla": "OTSC", "nome": "Organização do Tratado de Segurança Coletiva" },
+    { "sigla": "UEE", "nome": "União Econômica Eurasiática" },
+    { "sigla": "G20", "nome": "Grupo dos 20" },
+    { "sigla": "OCX", "nome": "Organização para Cooperação de Xangai" }
+  ],
+  "geografia": {
+    "clima": "Predominantemente continental e subártico, com invernos rigorosos na Sibéria; clima subtropical no extremo sul.",
+    "relevo": "Vasta Planície Russa a oeste, Montes Urais dividindo Europa e Ásia, planaltos siberianos a leste.",
+    "paisesVizinhos": ["Noruega", "Finlândia", "Estônia", "Letônia", "Lituânia", "Polônia", "Bielorrússia", "Ucrânia", "Geórgia", "Azerbaijão", "Cazaquistão", "China", "Mongólia", "Coreia do Norte"],
+    "rios": ["Volga", "Obi", "Lena", "Ienissei"],
+    "principaisCidades": ["Moscou", "São Petersburgo", "Novosibirsk", "Ecaterimburgo"]
+  },
+  "historia": [
+    { "ano": "1917", "evento": "Revolução Russa e ascensão bolchevique." },
+    { "ano": "1922", "evento": "Formação da União Soviética (URSS)." },
+    { "ano": "1945", "evento": "Papel decisivo na vitória aliada na Segunda Guerra Mundial." },
+    { "ano": "1991", "evento": "Dissolução da URSS e formação da Federação Russa." },
+    { "ano": "2014", "evento": "Anexação da Crimeia." },
+    { "ano": "2022", "evento": "Invasão em grande escala da Ucrânia, com amplas consequências geopolíticas e sanções internacionais." }
+  ],
+  "curiosidades": [
+    "É o maior país do mundo em área, cobrindo 11 fusos horários.",
+    "Compartilha fronteira terrestre com mais países do que qualquer outra nação (14 vizinhos).",
+    "É membro fundador permanente do Conselho de Segurança da ONU, herdando o assento da URSS."
+  ],
+  "flashcardsExtras": [
+    { "pergunta": "Em que ano a URSS se dissolveu?", "resposta": "1991" }
+  ],
+  "atualidades": [],
+  "questoesCACD": []
+}
