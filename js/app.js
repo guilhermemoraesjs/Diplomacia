@@ -9,6 +9,7 @@ function reloadStateFromLocalStorage() {
   document.body.setAttribute('data-theme', t);
   renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao();
   renderDiscursivas(); renderAtualidades(); renderNotas();
+  renderPaisesModule();
   renderBiblioTree(); renderBiblioDocList(); renderBiblioReviewBar();
   refreshStats();
 }
