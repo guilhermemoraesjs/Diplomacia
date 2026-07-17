@@ -555,3 +555,46 @@ body.editor-fullscreen-active{ overflow:hidden; }
 @keyframes pinPulse{ 0%,100%{ box-shadow:0 0 0 3px color-mix(in srgb, var(--accent, var(--brass)) 35%, transparent);} 50%{ box-shadow:0 0 0 8px color-mix(in srgb, var(--accent, var(--brass)) 12%, transparent);} }
 
 .mapa-hint{ font-size:11px; color:var(--text-muted); text-align:center; margin-top:10px; font-style:italic; font-family:'Fraunces', serif; }
+
+/* ==========================================================================
+   ADIÇÕES ao css/style.css — cole este bloco no final do arquivo (ou logo
+   após a seção "Módulo Países" já existente). Ele só ADICIONA regras novas
+   para as bandeiras (imagem real, via flagcdn) e para o mapa-múndi real
+   (svg dos continentes, via d3-geo). Nada do CSS antigo precisa ser
+   removido — as classes .pc-flag, .pm-flag, .map-pin-label, .map-pin-dot
+   etc. continuam existindo, só ganham um complemento aqui.
+   ========================================================================== */
+
+/* ---- Bandeiras reais (substituem o emoji, que falha em vários SO) ---- */
+.flag-img{
+  display:block; width:100%; height:100%; object-fit:cover;
+}
+
+.pc-flag{ overflow:hidden; } /* já existia width/height/border-radius/background */
+.pc-flag .flag-img{ border-radius:9px; }
+
+.pm-flag{ overflow:hidden; } /* já existia width/height/border-radius/background */
+.pm-flag .flag-img{ border-radius:12px; }
+
+.map-pin-label{
+  display:inline-flex; align-items:center; gap:5px;
+}
+.map-pin-flag{
+  width:16px; height:11px; object-fit:cover; border-radius:2px; flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18);
+}
+
+/* ---- Mapa-múndi real (continentes desenhados via d3-geo + topojson) ---- */
+.mapa-mundi-svg{
+  position:absolute; inset:0; width:100%; height:100%; display:block;
+}
+.mapa-country{
+  fill: color-mix(in srgb, var(--ub-azul) 34%, var(--ink-3));
+  stroke: color-mix(in srgb, var(--azul-light) 55%, transparent);
+  stroke-width:0.7;
+  vector-effect: non-scaling-stroke;
+  transition: fill .3s ease;
+}
+.mapa-mundi:hover .mapa-country{
+  fill: color-mix(in srgb, var(--ub-azul) 42%, var(--ink-3));
+}
