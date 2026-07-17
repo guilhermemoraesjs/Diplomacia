@@ -7,6 +7,12 @@
    save() (em utils.js) passam a viajar entre dispositivos através do
    documento "chancelaria_users/{uid}" no Firestore.
    ========================================================================== */
+function syncKeyToCloud(key, value) {
+  if (!currentUid || !CLOUD_KEYS.includes(key)) return;
+  firebase.firestore().collection('chancelaria_users').doc(currentUid)
+    .set({ [key]: value }, { merge: true })
+    .catch(e => console.error('Falha ao sincronizar', key, 'para a nuvem:', e));
+}
 
 function toggleTheme() {
   const currentTheme = document.body.getAttribute('data-theme');
