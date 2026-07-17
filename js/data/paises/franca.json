@@ -1,0 +1,74 @@
+{
+  "id": "franca",
+  "nomeOficial": "República Francesa",
+  "nomeCurto": "França",
+  "bandeira": "🇫🇷",
+  "capital": "Paris",
+  "populacao": "≈ 68 milhões de habitantes (2024)",
+  "area": "≈ 551.000 km² (metropolitana); ≈ 640.000 km² com territórios ultramarinos",
+  "idiomas": ["Francês"],
+  "moeda": "Euro (EUR)",
+  "continente": "Europa",
+  "regiao": "Europa Ocidental",
+  "fusoHorario": "UTC+1 (metropolitana); múltiplos fusos nos territórios ultramarinos",
+  "dominio": ".fr",
+  "codigoTelefonico": "+33",
+  "governo": {
+    "sistema": "República semipresidencialista",
+    "chefeEstado": "Presidente da República",
+    "chefeGoverno": "Primeiro-Ministro",
+    "constituicao": "Constituição da V República, de 1958"
+  },
+  "economia": {
+    "pib": "≈ US$ 3,1 trilhões (nominal) — uma das maiores economias da Europa",
+    "pibPPC": "≈ US$ 4 trilhões (PPC)",
+    "pibPerCapita": "≈ US$ 46.000",
+    "crescimento": "≈ 1% ao ano (crescimento moderado)",
+    "inflacao": "≈ 2 a 3% ao ano",
+    "desemprego": "≈ 7 a 8%",
+    "exportacoes": "Aeronaves, produtos químicos, vinhos e bebidas, produtos farmacêuticos, energia nuclear",
+    "importacoes": "Petróleo, gás natural, veículos, eletrônicos",
+    "parceiros": ["Alemanha", "EUA", "Itália", "Espanha", "China"],
+    "produtos": ["Aeronáutica (Airbus)", "Vinhos", "Produtos de luxo", "Produtos farmacêuticos", "Energia nuclear"]
+  },
+  "relacoes": {
+    "brasil": "Parceria estratégica desde 2006, com cooperação em defesa (submarinos), meio ambiente (Amazônia) e presença francesa vizinha ao Brasil via a Guiana Francesa.",
+    "eua": "Aliados históricos na OTAN, com relação por vezes marcada por divergências sobre autonomia estratégica europeia e política externa.",
+    "china": "Relação comercial relevante, com a França buscando equilíbrio entre engajamento econômico e cautela geopolítica, em linha com a posição da União Europeia.",
+    "ue": "Um dos dois motores históricos da integração europeia (ao lado da Alemanha), com papel central na formulação de políticas comuns e na defesa da autonomia estratégica europeia."
+  },
+  "organizacoes": [
+    { "sigla": "ONU", "nome": "Membro permanente do Conselho de Segurança" },
+    { "sigla": "OTAN", "nome": "Organização do Tratado do Atlântico Norte" },
+    { "sigla": "UE", "nome": "União Europeia" },
+    { "sigla": "G7", "nome": "Grupo dos 7" },
+    { "sigla": "G20", "nome": "Grupo dos 20" },
+    { "sigla": "OCDE", "nome": "Organização para a Cooperação e Desenvolvimento Econômico" },
+    { "sigla": "Zona do Euro", "nome": "União Monetária Europeia" }
+  ],
+  "geografia": {
+    "clima": "Oceânico a oeste, continental no interior/leste, mediterrâneo no sul.",
+    "relevo": "Planícies no norte e oeste; Alpes e Pirineus como principais cadeias montanhosas.",
+    "paisesVizinhos": ["Bélgica", "Luxemburgo", "Alemanha", "Suíça", "Itália", "Mônaco", "Espanha", "Andorra"],
+    "rios": ["Sena", "Loire", "Ródano", "Garonne"],
+    "principaisCidades": ["Paris", "Marselha", "Lyon", "Toulouse", "Nice"]
+  },
+  "historia": [
+    { "ano": "1789", "evento": "Revolução Francesa." },
+    { "ano": "1804", "evento": "Napoleão Bonaparte se torna Imperador." },
+    { "ano": "1944–45", "evento": "Libertação da ocupação nazista na Segunda Guerra Mundial." },
+    { "ano": "1958", "evento": "Fundação da V República por Charles de Gaulle." },
+    { "ano": "1957/1992", "evento": "Papel fundador na integração europeia (Tratado de Roma / Tratado de Maastricht)." },
+    { "ano": "2003", "evento": "França se opõe à invasão do Iraque no Conselho de Segurança da ONU." }
+  ],
+  "curiosidades": [
+    "É o país mais visitado do mundo por turistas estrangeiros.",
+    "Possui o maior número de fusos horários de qualquer país, por conta de seus territórios ultramarinos.",
+    "É um dos cinco membros permanentes do Conselho de Segurança da ONU."
+  ],
+  "flashcardsExtras": [
+    { "pergunta": "Qual constituição rege a atual República Francesa?", "resposta": "A Constituição da V República, de 1958" }
+  ],
+  "atualidades": [],
+  "questoesCACD": []
+}
