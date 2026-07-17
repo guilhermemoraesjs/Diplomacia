@@ -1,4 +1,3 @@
-cat > /home/claude/chancelaria/js/theme-auth.js << 'EOF'
 /* ==========================================================================
    theme-auth.js — alternância de tema claro/escuro, autenticação Firebase
    e sincronização dos dados do usuário com o Firestore (nuvem).
@@ -87,5 +86,3 @@ firebase.auth().onAuthStateChanged(user => {
     showLoginGate();
   }
 });
-EOF
-node --check /home/claude/chancelaria/js/theme-auth.js && node --check /home/claude/chancelaria/js/utils.js && echo "sintaxe ok"
