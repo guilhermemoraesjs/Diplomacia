@@ -305,13 +305,14 @@
     </div>
 
     <div class="subview active" id="sub-paisesLista">
-      <div class="paises-toolbar">
-        <input type="text" id="paisesSearch" placeholder="Buscar país ou capital..." oninput="renderPaises()">
-        <div class="filters" id="paisesFiltroContinente"></div>
-        <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
-      </div>
-      <div class="paises-grid" id="paisesGrid"></div>
+  <div id="paisesListaWrap">
+    <div class="paises-toolbar">
+      ...
     </div>
+    <div class="paises-grid" id="paisesGrid"></div>
+  </div>
+  <div id="paisesDetalheWrap" style="display:none;"></div>
+</div>
 
     <div class="subview" id="sub-paisesMapaView">
       <div class="paises-toolbar" style="margin-bottom:10px;">
