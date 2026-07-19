@@ -27,7 +27,7 @@
    dado inventado.
    ========================================================================== */
 
-let paisesCache = load('paises_cache_v1', null);       // { fetchedAt, list }
+let paisesCache = null; // populado em memória a cada carregamento a partir de data/paises/index.json (arquivo local, não precisa de cache persistente)
 let paisesFavoritos = load('paises_favoritos', []);
 let paisesDadosExtra = load('paises_dados_extra', {});
 let paisesApenasFavoritos = false;
@@ -97,11 +97,36 @@ function savePaisField(field, value) {
   paisSaveTimer = setTimeout(() => save('paises_dados_extra', paisesDadosExtra), 700);
 }
 
-/* ---- Carregamento inicial (cache local de até 7 dias, senão busca na API) ---- */
+/* ---- Carregamento inicial ----
+   Fonte: data/paises/index.json (local, sem dependência externa).
+   A REST Countries API passou a exigir autenticação/plano pago e bloqueia
+   chamadas anônimas via CORS — por isso trocamos para o manifesto local.
+   adaptarPaisManifest() traduz cada entrada do manifesto para o mesmo
+   formato usado por todo o restante deste arquivo (name.common, flags.svg,
+   languages{}, currencies{}, etc.), então nenhuma outra função precisou
+   mudar. Para cadastrar mais países, basta adicionar entradas no JSON —
+   não é necessário tocar em código. */
+function adaptarPaisManifest(m) {
+  return {
+    cca2: m.cca2, cca3: m.cca3,
+    name: { common: m.nomeCurto, official: m.nomeOficial },
+    capital: [m.capital],
+    region: m.continente, subregion: m.regiao,
+    population: m.populacao, area: m.area,
+    flags: { svg: `https://flagcdn.com/${(m.cca2 || '').toLowerCase()}.svg`, png: `https://flagcdn.com/w320/${(m.cca2 || '').toLowerCase()}.png` },
+    languages: Object.fromEntries((m.idiomas || []).map((l, i) => [`l${i}`, l])),
+    currencies: m.moeda ? { [m.moeda.codigo]: { name: m.moeda.nome, symbol: m.moeda.simbolo } } : {},
+    tld: m.tld || [],
+    maps: { googleMaps: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.nomeOficial || m.nomeCurto)}` },
+    borders: [],
+    timezones: [], idd: null,
+    _organizacoesManifest: m.organizacoes || []
+  };
+}
+
 async function initPaises() {
   const status = document.getElementById('paisesStatus'); if (!status) return;
-  const cacheAge = paisesCache ? (Date.now() - paisesCache.fetchedAt) : Infinity;
-  if (paisesCache && cacheAge < 7 * 24 * 60 * 60 * 1000) {
+  if (paisesCache && paisesCache.list && paisesCache.list.length) {
     renderPaisesFiltros(); renderPaisesGrid();
     status.textContent = `${paisesCache.list.length} países carregados`;
     aplicarRotaInicialPaises();
@@ -109,21 +134,16 @@ async function initPaises() {
   }
   status.textContent = 'Carregando dados dos países...';
   try {
-    const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,capital,region,subregion,population,area,flags,languages,currencies,timezones,maps,borders,idd,tld');
+    const resp = await fetch('data/paises/index.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
+    const manifest = await resp.json();
+    const data = manifest.map(adaptarPaisManifest);
     paisesCache = { fetchedAt: Date.now(), list: data };
-    save('paises_cache_v1', paisesCache);
     renderPaisesFiltros(); renderPaisesGrid();
     status.textContent = `${data.length} países carregados`;
   } catch (e) {
     console.error('Falha ao carregar países:', e);
-    if (paisesCache) {
-      renderPaisesFiltros(); renderPaisesGrid();
-      status.textContent = `${paisesCache.list.length} países (cache offline — falha ao atualizar)`;
-    } else {
-      status.textContent = 'Não foi possível carregar a lista de países. Verifique sua conexão e recarregue a página.';
-    }
+    status.textContent = 'Não foi possível carregar a lista de países. Verifique sua conexão e recarregue a página.';
   }
   aplicarRotaInicialPaises();
 }
