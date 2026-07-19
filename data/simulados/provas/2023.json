@@ -1,0 +1,87 @@
+[
+  {
+    "id": "2023-q1", "ano": 2023, "fase": 1, "disciplina": "Direito Internacional", "tema": "Direito do Mar", "subtema": "Mar do Sul da China", "dificuldade": "dificil",
+    "enunciado": "Segundo a Convenção das Nações Unidas sobre o Direito do Mar (CNUDM/1982), a Zona Econômica Exclusiva (ZEE) se estende, a partir da linha de base, até:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "12 milhas náuticas" },
+      { "letra": "B", "texto": "24 milhas náuticas" },
+      { "letra": "C", "texto": "200 milhas náuticas" },
+      { "letra": "D", "texto": "350 milhas náuticas" },
+      { "letra": "E", "texto": "Não há limite definido" }
+    ],
+    "respostaCorreta": "C",
+    "explicacao": "A ZEE se estende por até 200 milhas náuticas da linha de base, dando ao Estado costeiro direitos soberanos sobre recursos naturais. A disputa no Mar do Sul da China envolve justamente sobreposição de reivindicações de ZEE entre China, Vietnã, Filipinas e outros.",
+    "paisesRelacionados": ["china"], "organizacoesRelacionadas": [], "tratadosRelacionados": ["CNUDM (Convenção de Montego Bay, 1982)"],
+    "palavrasChave": ["Direito do Mar", "ZEE", "Mar do Sul da China"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2023-q2", "ano": 2023, "fase": 1, "disciplina": "Economia", "tema": "Organizações econômicas", "subtema": "FMI", "dificuldade": "media",
+    "enunciado": "O Fundo Monetário Internacional (FMI) tem como uma de suas principais funções:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Financiar exclusivamente projetos de infraestrutura em países desenvolvidos" },
+      { "letra": "B", "texto": "Prover assistência financeira e supervisão macroeconômica a países-membros com desequilíbrios no balanço de pagamentos" },
+      { "letra": "C", "texto": "Regular o comércio internacional de bens e serviços" },
+      { "letra": "D", "texto": "Substituir os bancos centrais nacionais" },
+      { "letra": "E", "texto": "Emitir moeda de uso exclusivo de seus países-membros" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "O FMI atua principalmente na supervisão macroeconômica e na concessão de assistência financeira a países com dificuldades no balanço de pagamentos, geralmente condicionada a reformas econômicas.",
+    "paisesRelacionados": [], "organizacoesRelacionadas": ["FMI"], "tratadosRelacionados": [],
+    "palavrasChave": ["FMI", "Balanço de pagamentos"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2023-q3", "ano": 2023, "fase": 1, "disciplina": "Política Internacional", "tema": "BRICS", "subtema": "Ampliação do grupo", "dificuldade": "facil",
+    "enunciado": "O grupo BRICS foi formado originalmente por Brasil, Rússia, Índia e China, tendo a África do Sul aderido em:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "2001" },
+      { "letra": "B", "texto": "2006" },
+      { "letra": "C", "texto": "2011" },
+      { "letra": "D", "texto": "2015" },
+      { "letra": "E", "texto": "2019" }
+    ],
+    "respostaCorreta": "C",
+    "explicacao": "O termo BRIC foi cunhado em 2001, os encontros formais começaram em 2006, e a África do Sul foi convidada a integrar o grupo em 2010, participando pela primeira vez da cúpula em 2011 — quando o grupo passou a se chamar BRICS.",
+    "paisesRelacionados": ["brasil", "russia", "china"], "organizacoesRelacionadas": ["BRICS"], "tratadosRelacionados": [],
+    "palavrasChave": ["BRICS", "África do Sul"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2023-q4", "ano": 2023, "fase": 1, "disciplina": "Geografia", "tema": "Amazônia", "subtema": "Amazônia Legal", "dificuldade": "media",
+    "enunciado": "A Amazônia Legal brasileira, recorte político-administrativo, abrange território de nove estados brasileiros. Já o bioma Amazônia, em termos internacionais, é compartilhado pelo Brasil com:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Apenas Peru e Colômbia" },
+      { "letra": "B", "texto": "Mais oito países sul-americanos, incluindo Peru, Colômbia, Venezuela e Bolívia" },
+      { "letra": "C", "texto": "Argentina, Chile e Uruguai" },
+      { "letra": "D", "texto": "Nenhum outro país — é território exclusivamente brasileiro" },
+      { "letra": "E", "texto": "Estados Unidos e Canadá" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "O bioma amazônico se estende por Brasil, Peru, Colômbia, Venezuela, Equador, Bolívia, Guiana, Suriname e Guiana Francesa, o que torna sua governança ambiental uma questão de cooperação internacional (ex.: OTCA — Organização do Tratado de Cooperação Amazônica).",
+    "paisesRelacionados": ["brasil"], "organizacoesRelacionadas": [], "tratadosRelacionados": ["Tratado de Cooperação Amazônica"],
+    "palavrasChave": ["Amazônia", "Governança ambiental"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2023-q5", "ano": 2023, "fase": 1, "disciplina": "Direito Internacional", "tema": "Tratados", "subtema": "Convenção de Viena", "dificuldade": "media",
+    "enunciado": "Segundo a Convenção de Viena sobre o Direito dos Tratados (1969), um tratado internacional pode ser definido como:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Qualquer acordo verbal entre chefes de Estado" },
+      { "letra": "B", "texto": "Um acordo internacional celebrado por escrito entre Estados e regido pelo Direito Internacional" },
+      { "letra": "C", "texto": "Uma resolução da Assembleia Geral da ONU" },
+      { "letra": "D", "texto": "Um contrato comercial entre empresas multinacionais" },
+      { "letra": "E", "texto": "Uma declaração unilateral de um Estado" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "A Convenção de Viena define tratado como um acordo internacional concluído por escrito entre Estados e regido pelo Direito Internacional, qualquer que seja sua denominação específica (tratado, convenção, pacto, etc.).",
+    "paisesRelacionados": [], "organizacoesRelacionadas": [], "tratadosRelacionados": ["Convenção de Viena sobre o Direito dos Tratados (1969)"],
+    "palavrasChave": ["Tratados", "Convenção de Viena"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  }
+]
