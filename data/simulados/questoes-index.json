@@ -1,0 +1,12 @@
+[
+  { "id": "2019-q1", "provaId": "2019", "ano": 2019, "disciplina": "História", "tema": "Era Vargas", "dificuldade": "media" },
+  { "id": "2019-q2", "provaId": "2019", "ano": 2019, "disciplina": "Geografia", "tema": "Geopolítica energética", "dificuldade": "facil" },
+  { "id": "2019-q3", "provaId": "2019", "ano": 2019, "disciplina": "Política Internacional", "tema": "ONU", "dificuldade": "facil" },
+  { "id": "2019-q4", "provaId": "2019", "ano": 2019, "disciplina": "Economia", "tema": "Integração regional", "dificuldade": "media" },
+  { "id": "2019-q5", "provaId": "2019", "ano": 2019, "disciplina": "Política Internacional", "tema": "Guerra Fria", "dificuldade": "media" },
+  { "id": "2023-q1", "provaId": "2023", "ano": 2023, "disciplina": "Direito Internacional", "tema": "Direito do Mar", "dificuldade": "dificil" },
+  { "id": "2023-q2", "provaId": "2023", "ano": 2023, "disciplina": "Economia", "tema": "Organizações econômicas", "dificuldade": "media" },
+  { "id": "2023-q3", "provaId": "2023", "ano": 2023, "disciplina": "Política Internacional", "tema": "BRICS", "dificuldade": "facil" },
+  { "id": "2023-q4", "provaId": "2023", "ano": 2023, "disciplina": "Geografia", "tema": "Amazônia", "dificuldade": "media" },
+  { "id": "2023-q5", "provaId": "2023", "ano": 2023, "disciplina": "Direito Internacional", "tema": "Tratados", "dificuldade": "media" }
+]
