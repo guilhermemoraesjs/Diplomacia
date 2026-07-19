@@ -542,3 +542,7 @@ function renderComparacao() {
     else if (!m && paisAtual) { fecharPaisDetalhe(); }
   });
 })();
+
+function initPaisesTab() {
+  renderPaisesModule();
+}
