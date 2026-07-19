@@ -1,568 +1,618 @@
 /* ==========================================================================
-   paises.js — módulo "Países": Dossiê Diplomático.
+   paises.js — módulo "Países".
 
-   Cada país tem uma página própria (não modal) com:
-   - Hero panorâmico (fundo com a bandeira desfocada + gradiente), favoritar
-     e compartilhar (link direto via #pais/{cca3}).
-   - Navegação por abas, fixa durante a navegação: Geral, Economia, Política,
-     Geografia, História, Relações Internacionais, Organizações.
-     (Atualidades, Questões e Flashcards ficam de fora por enquanto — os
-     campos de dados já existem em paisesDadosExtra, só falta a UI, quando
-     os módulos que alimentam essas abas existirem.)
-   - "Centro de Estudos": coluna lateral fixa com favoritar, contadores
-     (questões, flashcards, organizações, tratados, atualidades) e
-     progresso de estudo — tudo lido dos dados reais já cadastrados,
-     nunca inventado.
+   ARQUITETURA (Etapa 1 — refatoração estrutural, sem mudança de visual ou
+   de conteúdo):
 
-   Fonte dos dados objetivos (bandeira, capital, população, área, idiomas,
-   moedas, fronteiras, DDI, domínio): API pública REST Countries, buscada
-   uma vez e cacheada em localStorage por 7 dias (chave não sincronizada
-   com a nuvem — é só um cache regenerável).
-
-   Dados que nenhuma API gratuita cobre (economia, política, geografia
-   textual, história, relações internacionais, organizações) são
-   editáveis pelo usuário e ficam em 'paises_dados_extra', sincronizado
-   com a nuvem como o resto do app. Quando o campo ainda não foi
-   preenchido, a interface mostra um estado vazio elegante — nunca um
-   dado inventado.
+   1) SEM MODAL. Cada país abre em uma PÁGINA (dentro da subview
+      "paisesLista", substituindo a lista), nunca mais num modal.
+   2) ROTEAMENTO POR URL. Abrir um país empurra `#/paises/{id}` para a URL
+      via History API. Isso dá: refresh mantém a página aberta, voltar/
+      avançar do navegador funciona, e o link é compartilhável. Não existe
+      backend/roteador — é tudo resolvido no cliente com hash + popstate.
+   3) PÁGINA ÚNICA E REUTILIZÁVEL. Não existe "página do Brasil", "página
+      da França" etc. Existe UMA função de render (`renderPaisDetalhe`)
+      que recebe dados normalizados de QUALQUER país.
+   4) NORMALIZAÇÃO DE DADOS. `normalizarPais(basico, completo)` é o único
+      lugar do código que decide "de onde vem cada campo, e o que mostrar
+      se não existir". Todo o resto do módulo trabalha sempre com o mesmo
+      formato de objeto — isso é o que permite adicionar muito mais
+      informação no futuro (novos campos, novos países) sem tocar na
+      estrutura de renderização.
+   5) COMPONENTES REUTILIZÁVEIS. Pedaços de HTML que se repetiam (grade de
+      informações, lista de badges, card genérico, estado vazio) viraram
+      pequenas funções `ui*`. As abas da página são um REGISTRO
+      (`PAIS_TAB_RENDERERS`), não um switch gigante — adicionar uma aba
+      nova é 1 função + 1 entrada em `PAIS_DETALHE_ABAS`.
    ========================================================================== */
 
-let paisesCache = null; // populado em memória a cada carregamento a partir de data/paises/index.json (arquivo local, não precisa de cache persistente)
-let paisesFavoritos = load('paises_favoritos', []);
-let paisesDadosExtra = load('paises_dados_extra', {});
-let paisesApenasFavoritos = false;
-let paisesFiltroContinenteAtual = 'todos';
-
-let paisAtual = null;
-let paisAtualTab = 'geral';
-let paisSaveTimer = null;
-
-const ORG_LABELS = {
-  onu: 'ONU', omc: 'OMC', fmi: 'FMI', bancoMundial: 'Banco Mundial',
-  g20: 'G20', brics: 'BRICS', mercosul: 'Mercosul', otan: 'OTAN',
-  ocde: 'OCDE', unesco: 'UNESCO', ue: 'União Europeia',
-  uniaoAfricana: 'União Africana', ligaArabe: 'Liga Árabe', commonwealth: 'Commonwealth'
+/* Paleta por continente — usada na barra inferior do card e nos marcadores
+   do mapa, para reforçar a hierarquia visual sem poluir a interface. */
+const CONTINENTE_COR = {
+  'Europa': 'var(--ub-azul)',
+  'América do Sul': 'var(--ub-verde)',
+  'América do Norte': 'var(--brass-light)',
+  'Ásia': 'var(--seal-glow)',
+  'Oceania': '#59D6C7',
+  'África': 'var(--brass)',
+  'Europa/Ásia': 'var(--azul-light)'
 };
+function continenteCor(c) { return CONTINENTE_COR[c] || 'var(--brass)'; }
 
-/* Abas visíveis agora. Atualidades/Questões/Flashcards ainda não têm aba —
-   os campos de dados (questoes[], flashcards[], atualidades[], tratados[])
-   já existem em paisesDadosExtra e alimentam os contadores do Centro de
-   Estudos, prontos para quando a UI dessas abas for construída. */
-const PAIS_TABS = [
-  ['geral', 'Geral'], ['economia', 'Economia'], ['politica', 'Política'],
-  ['geografia', 'Geografia'], ['historia', 'História'],
-  ['relacoes', 'Relações Internacionais'], ['organizacoes', 'Organizações']
+/* Bandeira real via flagcdn.com (SVG/PNG por código ISO 3166-1 alpha-2). */
+function flagImgHtml(code, cls) {
+  if (!code) return '';
+  const c = code.toLowerCase();
+  return `<img class="flag-img ${cls || ''}" src="https://flagcdn.com/w80/${c}.png" srcset="https://flagcdn.com/w160/${c}.png 2x" alt="Bandeira: ${code}" loading="lazy">`;
+}
+
+function fmtPopulacao(n) {
+  if (n >= 1000000000) return (n / 1000000000).toFixed(n % 1000000000 === 0 ? 0 : 1) + ' bi';
+  if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + ' mi';
+  return n.toLocaleString('pt-BR');
+}
+
+/* ==========================================================================
+   FONTE DE DADOS — camada "básica" (sempre disponível, usada na grade/mapa)
+   ========================================================================== */
+function paisesDefault() {
+  return [
+    { id: 'de', code: 'DE', nome: 'Alemanha', continente: 'Europa', capital: 'Berlim', populacao: 84000000, moeda: 'Euro (EUR)', idioma: 'Alemão', governo: 'República Federal Parlamentarista', lat: 52.52, lng: 13.40, organizacoes: ['UE', 'OTAN', 'G7', 'ONU'] },
+    { id: 'ar', code: 'AR', nome: 'Argentina', continente: 'América do Sul', capital: 'Buenos Aires', populacao: 46000000, moeda: 'Peso argentino (ARS)', idioma: 'Espanhol', governo: 'República Presidencialista', lat: -34.60, lng: -58.38, organizacoes: ['Mercosul', 'G20', 'ONU'] },
+    { id: 'au', code: 'AU', nome: 'Austrália', continente: 'Oceania', capital: 'Camberra', populacao: 26000000, moeda: 'Dólar australiano (AUD)', idioma: 'Inglês', governo: 'Monarquia Parlamentarista', lat: -35.28, lng: 149.13, organizacoes: ['G20', 'APEC', 'ONU'] },
+    { id: 'br', code: 'BR', nome: 'Brasil', continente: 'América do Sul', capital: 'Brasília', populacao: 213000000, moeda: 'Real (BRL)', idioma: 'Português', governo: 'República Federativa Presidencialista', lat: -15.79, lng: -47.88, organizacoes: ['Mercosul', 'BRICS', 'G20', 'ONU', 'OMC'] },
+    { id: 'ca', code: 'CA', nome: 'Canadá', continente: 'América do Norte', capital: 'Ottawa', populacao: 39000000, moeda: 'Dólar canadense (CAD)', idioma: 'Inglês / Francês', governo: 'Monarquia Parlamentarista', lat: 45.42, lng: -75.70, organizacoes: ['G7', 'OTAN', 'ONU'] },
+    { id: 'cn', code: 'CN', nome: 'China', continente: 'Ásia', capital: 'Pequim', populacao: 1412000000, moeda: 'Yuan (CNY)', idioma: 'Mandarim', governo: 'República Popular Socialista', lat: 39.90, lng: 116.41, organizacoes: ['BRICS', 'G20', 'ONU (P5)', 'OMC'] },
+    { id: 'es', code: 'ES', nome: 'Espanha', continente: 'Europa', capital: 'Madri', populacao: 47000000, moeda: 'Euro (EUR)', idioma: 'Espanhol', governo: 'Monarquia Parlamentarista', lat: 40.42, lng: -3.70, organizacoes: ['UE', 'OTAN', 'ONU'] },
+    { id: 'us', code: 'US', nome: 'Estados Unidos', continente: 'América do Norte', capital: 'Washington, D.C.', populacao: 335000000, moeda: 'Dólar americano (USD)', idioma: 'Inglês', governo: 'República Federativa Presidencialista', lat: 38.90, lng: -77.04, organizacoes: ['G7', 'G20', 'OTAN', 'ONU (P5)'] },
+    { id: 'fr', code: 'FR', nome: 'França', continente: 'Europa', capital: 'Paris', populacao: 68400000, area: '643.801 km²', moeda: 'Euro (EUR)', idioma: 'Francês', governo: 'República semipresidencialista', nomeOficial: 'República Francesa', regiao: 'Europa Ocidental',
+      curiosidade: 'A França é o país mais visitado do mundo, recebendo mais de 90 milhões de turistas por ano.',
+      lat: 48.86, lng: 2.35, organizacoes: ['ONU (P5)', 'UE', 'OTAN', 'OCDE', 'G7', 'G20', 'UNESCO'] },
+    { id: 'in', code: 'IN', nome: 'Índia', continente: 'Ásia', capital: 'Nova Délhi', populacao: 1428000000, moeda: 'Rupia indiana (INR)', idioma: 'Hindi / Inglês', governo: 'República Federativa Parlamentarista', lat: 28.61, lng: 77.21, organizacoes: ['BRICS', 'G20', 'ONU'] },
+    { id: 'il', code: 'IL', nome: 'Israel', continente: 'Ásia', capital: 'Jerusalém', populacao: 9800000, moeda: 'Novo shekel (ILS)', idioma: 'Hebraico / Árabe', governo: 'República Parlamentarista', lat: 31.77, lng: 35.21, organizacoes: ['ONU', 'OCDE'] },
+    { id: 'it', code: 'IT', nome: 'Itália', continente: 'Europa', capital: 'Roma', populacao: 59000000, moeda: 'Euro (EUR)', idioma: 'Italiano', governo: 'República Parlamentarista', lat: 41.90, lng: 12.50, organizacoes: ['UE', 'OTAN', 'G7', 'ONU'] },
+    { id: 'jp', code: 'JP', nome: 'Japão', continente: 'Ásia', capital: 'Tóquio', populacao: 124000000, moeda: 'Iene (JPY)', idioma: 'Japonês', governo: 'Monarquia Parlamentarista', lat: 35.68, lng: 139.65, organizacoes: ['G7', 'G20', 'ONU', 'OCDE'] },
+    { id: 'mx', code: 'MX', nome: 'México', continente: 'América do Norte', capital: 'Cidade do México', populacao: 128000000, moeda: 'Peso mexicano (MXN)', idioma: 'Espanhol', governo: 'República Federativa Presidencialista', lat: 19.43, lng: -99.13, organizacoes: ['G20', 'OCDE', 'ONU'] },
+    { id: 'pt', code: 'PT', nome: 'Portugal', continente: 'Europa', capital: 'Lisboa', populacao: 10300000, moeda: 'Euro (EUR)', idioma: 'Português', governo: 'República Semipresidencialista', lat: 38.72, lng: -9.14, organizacoes: ['UE', 'OTAN', 'ONU'] },
+    { id: 'gb', code: 'GB', nome: 'Reino Unido', continente: 'Europa', capital: 'Londres', populacao: 67700000, moeda: 'Libra esterlina (GBP)', idioma: 'Inglês', governo: 'Monarquia Parlamentarista', lat: 51.51, lng: -0.13, organizacoes: ['ONU (P5)', 'OTAN', 'G7', 'G20'] },
+    { id: 'ru', code: 'RU', nome: 'Rússia', continente: 'Europa/Ásia', capital: 'Moscou', populacao: 144000000, moeda: 'Rublo (RUB)', idioma: 'Russo', governo: 'República Federativa Semipresidencialista', lat: 55.75, lng: 37.62, organizacoes: ['BRICS', 'ONU (P5)', 'G20'] },
+    { id: 'tr', code: 'TR', nome: 'Turquia', continente: 'Europa/Ásia', capital: 'Ancara', populacao: 85300000, moeda: 'Lira turca (TRY)', idioma: 'Turco', governo: 'República Presidencialista', lat: 39.93, lng: 32.86, organizacoes: ['OTAN', 'G20', 'ONU'] },
+    { id: 'za', code: 'ZA', nome: 'África do Sul', continente: 'África', capital: 'Pretória', populacao: 60600000, moeda: 'Rand (ZAR)', idioma: 'Zulu / Inglês (+9)', governo: 'República Parlamentarista', lat: -25.75, lng: 28.19, organizacoes: ['BRICS', 'G20', 'ONU'] },
+    { id: 'kr', code: 'KR', nome: 'Coreia do Sul', continente: 'Ásia', capital: 'Seul', populacao: 51700000, moeda: 'Won (KRW)', idioma: 'Coreano', governo: 'República Presidencialista', lat: 37.57, lng: 126.98, organizacoes: ['G20', 'OCDE', 'ONU'] }
+  ];
+}
+let paises = load('diplo_paises', null) || paisesDefault();
+let paisesFiltroContinente = 'todos';
+let paisesFiltros = {
+  idioma: 'todos', organizacao: 'todos', moeda: 'todos', governo: 'todos',
+  g20: 'todos', brics: 'todos', ue: 'todos', ordenarPor: 'nome-az'
+};
+const GOVERNO_CATEGORIAS = ['Presidencialista', 'Semipresidencialista', 'Parlamentarista', 'Monarquia', 'Socialista'];
+
+const ISO_NUMERICO_POR_PAIS = {
+  de: 276, ar: 32, au: 36, br: 76, ca: 124, cn: 156, es: 724, us: 840,
+  fr: 250, in: 356, il: 376, it: 380, jp: 392, mx: 484, pt: 620, gb: 826,
+  ru: 643, tr: 792, za: 710, kr: 410
+};
+const PAIS_POR_ISO_NUMERICO = Object.fromEntries(
+  Object.entries(ISO_NUMERICO_POR_PAIS).map(([id, iso]) => [iso, id])
+);
+
+/* Arquivo em data/paises/ com a ficha completa (quando existir). */
+const PAIS_ARQUIVO_DETALHADO = { br: 'brasil', us: 'eua', cn: 'china', fr: 'franca', ru: 'russia' };
+
+function idiomasDoPais(p) {
+  return (p.idioma || '').split('/').map(s => s.replace(/\(.*?\)/g, '').trim()).filter(Boolean);
+}
+function organizacoesBaseDoPais(p) {
+  return (p.organizacoes || []).map(o => o.replace(/\(.*?\)/g, '').trim());
+}
+function listaIdiomasUnicos() {
+  const set = new Set(); paises.forEach(p => idiomasDoPais(p).forEach(i => set.add(i)));
+  return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+function listaOrganizacoesUnicas() {
+  const set = new Set(); paises.forEach(p => organizacoesBaseDoPais(p).forEach(o => set.add(o)));
+  return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+function listaMoedasUnicas() {
+  return [...new Set(paises.map(p => p.moeda))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+function listaContinentes() { return [...new Set(paises.map(p => p.continente))].sort(); }
+
+/* ==========================================================================
+   GRADE + FILTROS (view "lista")
+   ========================================================================== */
+function renderPaisesFiltros() {
+  const el = document.getElementById('paisesFiltroContinente'); if (!el) return;
+  const conts = ['todos', ...listaContinentes()];
+  el.innerHTML = conts.map(c => `<button class="chip ${paisesFiltroContinente === c ? 'active' : ''}" onclick="setPaisesFiltroContinente('${c}')">${c === 'todos' ? 'Todos' : c}</button>`).join('');
+}
+function setPaisesFiltroContinente(c) { paisesFiltroContinente = c; renderPaisesFiltros(); renderPaises(); }
+
+function togglePaisesOrdem() {
+  paisesFiltros.ordenarPor = paisesFiltros.ordenarPor === 'nome-za' ? 'nome-az' : 'nome-za';
+  atualizarLabelOrdenacao(); renderPaisesFiltrosAvancados(); renderPaises();
+}
+function atualizarLabelOrdenacao() {
+  const btn = document.getElementById('paisesOrdemBtn'); if (!btn) return;
+  const labels = { 'nome-az': 'A → Z', 'nome-za': 'Z → A', 'pop-desc': 'Pop. ↓', 'pop-asc': 'Pop. ↑' };
+  btn.textContent = labels[paisesFiltros.ordenarPor] || 'Ordenar';
+}
+
+function togglePaisesFiltrosAvancados() {
+  const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
+  const abrindo = el.style.display === 'none' || !el.style.display;
+  el.style.display = abrindo ? 'block' : 'none';
+  const btn = document.getElementById('paisesFiltrosAvancadosBtn');
+  if (btn) btn.textContent = abrindo ? '⚙ Ocultar filtros' : '⚙ Mais filtros';
+}
+function renderPaisesFiltrosAvancados() {
+  const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
+  const opcoes = (atual, valores) => ['<option value="todos">Todos</option>']
+    .concat(valores.map(v => `<option value="${v}" ${atual === v ? 'selected' : ''}>${v}</option>`)).join('');
+  const opcoesSimNao = (atual) => `
+    <option value="todos" ${atual === 'todos' ? 'selected' : ''}>Todos</option>
+    <option value="sim" ${atual === 'sim' ? 'selected' : ''}>Sim</option>
+    <option value="nao" ${atual === 'nao' ? 'selected' : ''}>Não</option>`;
+
+  el.innerHTML = `
+    <div class="pf-grid">
+      <div><label class="field-label">Idioma oficial</label><select onchange="setPaisesFiltro('idioma', this.value)">${opcoes(paisesFiltros.idioma, listaIdiomasUnicos())}</select></div>
+      <div><label class="field-label">Organização internacional</label><select onchange="setPaisesFiltro('organizacao', this.value)">${opcoes(paisesFiltros.organizacao, listaOrganizacoesUnicas())}</select></div>
+      <div><label class="field-label">Moeda</label><select onchange="setPaisesFiltro('moeda', this.value)">${opcoes(paisesFiltros.moeda, listaMoedasUnicas())}</select></div>
+      <div><label class="field-label">Forma de governo</label><select onchange="setPaisesFiltro('governo', this.value)">${opcoes(paisesFiltros.governo, GOVERNO_CATEGORIAS)}</select></div>
+      <div><label class="field-label">Membro do G20</label><select onchange="setPaisesFiltro('g20', this.value)">${opcoesSimNao(paisesFiltros.g20)}</select></div>
+      <div><label class="field-label">Membro do BRICS</label><select onchange="setPaisesFiltro('brics', this.value)">${opcoesSimNao(paisesFiltros.brics)}</select></div>
+      <div><label class="field-label">Membro da União Europeia</label><select onchange="setPaisesFiltro('ue', this.value)">${opcoesSimNao(paisesFiltros.ue)}</select></div>
+      <div><label class="field-label">Ordenar por</label>
+        <select onchange="setPaisesFiltro('ordenarPor', this.value)">
+          <option value="nome-az" ${paisesFiltros.ordenarPor === 'nome-az' ? 'selected' : ''}>Nome (A → Z)</option>
+          <option value="nome-za" ${paisesFiltros.ordenarPor === 'nome-za' ? 'selected' : ''}>Nome (Z → A)</option>
+          <option value="pop-desc" ${paisesFiltros.ordenarPor === 'pop-desc' ? 'selected' : ''}>População (maior → menor)</option>
+          <option value="pop-asc" ${paisesFiltros.ordenarPor === 'pop-asc' ? 'selected' : ''}>População (menor → maior)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn ghost small" style="margin-top:12px;" onclick="limparPaisesFiltrosAvancados()">Limpar filtros avançados</button>
+  `;
+}
+function setPaisesFiltro(campo, valor) {
+  paisesFiltros[campo] = valor;
+  if (campo === 'ordenarPor') atualizarLabelOrdenacao();
+  renderPaises();
+}
+function limparPaisesFiltrosAvancados() {
+  paisesFiltros = { idioma: 'todos', organizacao: 'todos', moeda: 'todos', governo: 'todos', g20: 'todos', brics: 'todos', ue: 'todos', ordenarPor: 'nome-az' };
+  atualizarLabelOrdenacao(); renderPaisesFiltrosAvancados(); renderPaises();
+}
+
+function paisCardHtml(p) {
+  const orgs = p.organizacoes || [];
+  return `
+    <div class="card pais-card" style="--accent:${continenteCor(p.continente)}" onclick="abrirPaisDetalhe('${p.id}')">
+      <div class="pc-top">
+        <span class="pc-flag">${flagImgHtml(p.code)}</span>
+        <div class="pc-name-wrap">
+          <div class="pc-name">${p.nome}</div>
+          <div class="pc-continent">${p.continente}</div>
+        </div>
+      </div>
+      <div class="pc-stats">
+        <div class="pc-stat"><span class="pc-stat-ic">🏛️</span><div><span class="pc-stat-label">Capital</span><span class="pc-stat-val">${p.capital}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">👥</span><div><span class="pc-stat-label">População</span><span class="pc-stat-val">${fmtPopulacao(p.populacao)}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">💰</span><div><span class="pc-stat-label">Moeda</span><span class="pc-stat-val">${p.moeda}</span></div></div>
+      </div>
+      ${orgs.length ? `<div class="pc-orgs">${orgs.slice(0, 3).map(o => `<span class="org-badge">${o}</span>`).join('')}${orgs.length > 3 ? `<span class="org-badge more">+${orgs.length - 3}</span>` : ''}</div>` : ''}
+      <div class="pc-bar"></div>
+    </div>`;
+}
+
+function renderPaises() {
+  const el = document.getElementById('paisesGrid'); if (!el) return;
+  const q = (document.getElementById('paisesSearch')?.value || '').trim().toLowerCase();
+
+  let list = paises.filter(p => {
+    const matchQ = !q || p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q));
+    const matchC = paisesFiltroContinente === 'todos' || p.continente === paisesFiltroContinente;
+    const matchIdioma = paisesFiltros.idioma === 'todos' || idiomasDoPais(p).includes(paisesFiltros.idioma);
+    const matchOrg = paisesFiltros.organizacao === 'todos' || organizacoesBaseDoPais(p).includes(paisesFiltros.organizacao);
+    const matchMoeda = paisesFiltros.moeda === 'todos' || p.moeda === paisesFiltros.moeda;
+    const matchGoverno = paisesFiltros.governo === 'todos' || (p.governo || '').includes(paisesFiltros.governo);
+    const orgsBase = organizacoesBaseDoPais(p);
+    const matchG20 = paisesFiltros.g20 === 'todos' || (paisesFiltros.g20 === 'sim') === orgsBase.includes('G20');
+    const matchBrics = paisesFiltros.brics === 'todos' || (paisesFiltros.brics === 'sim') === orgsBase.includes('BRICS');
+    const matchUe = paisesFiltros.ue === 'todos' || (paisesFiltros.ue === 'sim') === orgsBase.includes('UE');
+    return matchQ && matchC && matchIdioma && matchOrg && matchMoeda && matchGoverno && matchG20 && matchBrics && matchUe;
+  });
+
+  list.sort((a, b) => {
+    switch (paisesFiltros.ordenarPor) {
+      case 'nome-za': return b.nome.localeCompare(a.nome, 'pt-BR');
+      case 'pop-desc': return b.populacao - a.populacao;
+      case 'pop-asc': return a.populacao - b.populacao;
+      default: return a.nome.localeCompare(b.nome, 'pt-BR');
+    }
+  });
+
+  el.innerHTML = list.length ? list.map(paisCardHtml).join('') : '<div class="empty" style="padding:20px 0; color:var(--text-muted);">Nenhum país encontrado para esses filtros.</div>';
+  el.classList.remove('filtering'); void el.offsetWidth; el.classList.add('filtering');
+
+  const lbl = document.getElementById('paisesCountLabel');
+  if (lbl) {
+    lbl.textContent = list.length === paises.length
+      ? paises.length + ' país' + (paises.length === 1 ? '' : 'es') + ' catalogado' + (paises.length === 1 ? '' : 's')
+      : list.length + ' de ' + paises.length + ' países (filtrados)';
+  }
+}
+
+/* ==========================================================================
+   CAMADA DE DADOS DA PÁGINA DE PAÍS — busca + normalização
+   ========================================================================== */
+let paisFichaCache = {}; // arquivo (ex.: "brasil") -> JSON já carregado
+async function carregarFichaCompletaPais(paisId) {
+  const arquivo = PAIS_ARQUIVO_DETALHADO[paisId];
+  if (!arquivo) return null;
+  if (paisFichaCache[arquivo]) return paisFichaCache[arquivo];
+  try {
+    const res = await fetch(`data/paises/${arquivo}.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const dados = await res.json();
+    paisFichaCache[arquivo] = dados;
+    return dados;
+  } catch (e) {
+    console.error(`Falha ao carregar ficha completa de "${paisId}" (data/paises/${arquivo}.json):`, e);
+    return null;
+  }
+}
+
+/* Único lugar do código que decide "de onde vem cada campo, e o que
+   mostrar se não existir". A página de detalhe (e suas abas) trabalham
+   sempre com o formato normalizado abaixo — nunca com `basico`/`completo`
+   crus. Isso é o que permite acrescentar mais dados no futuro (novos
+   campos, novos países com ou sem ficha completa) sem tocar em nada da
+   renderização. */
+function normalizarPais(basico, completo) {
+  const p = basico, c = completo;
+  return {
+    id: p.id,
+    code: p.code,
+    nome: p.nome,
+    nomeOficial: (c && c.nomeOficial) || p.nomeOficial || p.nome,
+    continente: p.continente,
+    regiao: (c && c.regiao) || p.regiao || p.continente,
+    capital: (c && c.capital) || p.capital,
+    populacao: (c && c.populacao) || fmtPopulacao(p.populacao),
+    area: (c && c.area) || p.area || '—',
+    idiomas: (c && c.idiomas) || idiomasDoPais(p),
+    moeda: (c && c.moeda) || p.moeda,
+    fusoHorario: (c && c.fusoHorario) || '—',
+    dominio: (c && c.dominio) || '—',
+    codigoTelefonico: (c && c.codigoTelefonico) || '—',
+    governo: (c && c.governo) || { sistema: p.governo || '—', chefeEstado: '—', chefeGoverno: '—', constituicao: '—' },
+    economia: (c && c.economia) || null,
+    relacoes: (c && c.relacoes) || null,
+    organizacoes: (c && c.organizacoes) || (p.organizacoes || []).map(sigla => ({ sigla, nome: sigla })),
+    geografia: (c && c.geografia) || null,
+    historia: (c && c.historia) || [],
+    curiosidades: (c && c.curiosidades) || (p.curiosidade ? [p.curiosidade] : []),
+    flashcardsExtras: (c && c.flashcardsExtras) || [],
+    atualidades: (c && c.atualidades) || [],
+    questoesCACD: (c && c.questoesCACD) || [],
+    temFichaCompleta: !!c
+  };
+}
+
+/* ==========================================================================
+   COMPONENTES REUTILIZÁVEIS (blocos de HTML que se repetiam nas abas)
+   ========================================================================== */
+function uiInfoItem(label, valor) {
+  return `<div class="pm-item"><span class="field-label">${label}</span>${valor || '—'}</div>`;
+}
+function uiInfoGrid(pares) {
+  return `<div class="pm-grid">${pares.map(([l, v]) => uiInfoItem(l, v)).join('')}</div>`;
+}
+function uiBadgeList(itens) {
+  if (!itens || !itens.length) return '';
+  return `<div class="pc-orgs" style="margin-top:6px;">${itens.map(x => `<span class="org-badge">${x}</span>`).join('')}</div>`;
+}
+function uiEmpty(msg) { return `<div class="biblio-empty">${msg}</div>`; }
+function uiCardItem(topo, corpoHtml, estiloExtra) {
+  return `<div class="card" style="margin:0; padding:12px 14px;${estiloExtra || ''}">${topo ? `<div class="mono" style="font-size:11px; color:var(--brass-light);">${topo}</div>` : ''}<div style="font-size:13.5px; margin-top:${topo ? '2px' : '0'}; line-height:1.55;">${corpoHtml}</div></div>`;
+}
+function uiCarregando() { return '<div class="empty" style="padding:60px 0; text-align:center; color:var(--text-muted);">Carregando ficha completa…</div>'; }
+function uiPaisHero(n) {
+  return `
+    <div class="pd-hero" style="--accent:${continenteCor(n.continente)}">
+      <span class="pd-flag">${flagImgHtml(n.code)}</span>
+      <div>
+        <h2 style="margin-bottom:3px;">${n.nome}</h2>
+        <div class="pd-sub mono">${n.nomeOficial} · ${n.continente}${n.regiao && n.regiao !== n.continente ? ' · ' + n.regiao : ''}</div>
+        ${!n.temFichaCompleta ? '<span class="pd-badge-basico">Ficha básica — dados completos ainda não cadastrados</span>' : ''}
+      </div>
+    </div>`;
+}
+function uiPaisTabs(abas, atual) {
+  return `<div class="subtabs" style="margin:16px 20px 0;">${abas.map(a =>
+    `<button class="subtab-btn ${atual === a.id ? 'active' : ''}" onclick="irParaAbaPaisDetalhe('${a.id}')">${a.label}</button>`
+  ).join('')}</div>`;
+}
+
+/* ==========================================================================
+   REGISTRO DE ABAS — cada aba é uma entrada (id, label) + uma função pura
+   (n) => html. Adicionar uma aba nova = 1 função + 1 linha aqui embaixo.
+   ========================================================================== */
+const RELACAO_NOME_AMIGAVEL = { brasil: 'Brasil', eua: 'Estados Unidos', china: 'China', ue: 'União Europeia', regional: 'Relações regionais' };
+
+const PAIS_DETALHE_ABAS = [
+  { id: 'geral', label: 'Geral' },
+  { id: 'governo', label: 'Governo e Política' },
+  { id: 'economia', label: 'Economia' },
+  { id: 'relacoes', label: 'Relações Internacionais' },
+  { id: 'organizacoes', label: 'Organizações' },
+  { id: 'geografia', label: 'Geografia' },
+  { id: 'historia', label: 'História' },
+  { id: 'curiosidades', label: 'Curiosidades' },
+  { id: 'flashcards', label: 'Flashcards' },
+  { id: 'atualidades', label: 'Atualidades' },
+  { id: 'questoes', label: 'Questões CACD' }
 ];
 
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
-function getPais(cca3) { return paisesCache ? paisesCache.list.find(p => p.cca3 === cca3) : null; }
-function getPaisExtra(cca3) { return paisesDadosExtra[cca3] || {}; }
-function fmtNum(n) { return (n || n === 0) ? Number(n).toLocaleString('pt-BR') : null; }
+const PAIS_TAB_RENDERERS = {
+  geral(n) {
+    return uiInfoGrid([
+      ['Nome oficial', n.nomeOficial], ['Capital', n.capital], ['População', n.populacao],
+      ['Área', n.area], ['Idiomas', (n.idiomas || []).join(', ')], ['Moeda', n.moeda],
+      ['Região', n.regiao], ['Fuso horário', n.fusoHorario], ['Domínio', n.dominio], ['Código telefônico', n.codigoTelefonico]
+    ]) + (n.curiosidades[0] ? `<div class="pm-curiosidade" style="margin-top:16px;"><span class="field-label">Em destaque</span>${n.curiosidades[0]}</div>` : '');
+  },
+  governo(n) {
+    const g = n.governo;
+    return uiInfoGrid([['Sistema', g.sistema], ['Chefe de Estado', g.chefeEstado], ['Chefe de Governo', g.chefeGoverno], ['Constituição', g.constituicao]]);
+  },
+  economia(n) {
+    if (!n.economia) return uiEmpty('Nenhum dado econômico cadastrado ainda para este país.');
+    const e = n.economia;
+    return uiInfoGrid([['PIB (nominal)', e.pib], ['PIB (PPC)', e.pibPPC], ['PIB per capita', e.pibPerCapita], ['Crescimento', e.crescimento], ['Inflação', e.inflacao], ['Desemprego', e.desemprego]])
+      + `<div style="margin-top:14px;"><span class="field-label">Exportações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.exportacoes || '—'}</p></div>`
+      + `<div style="margin-top:10px;"><span class="field-label">Importações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.importacoes || '—'}</p></div>`
+      + (e.parceiros && e.parceiros.length ? `<div style="margin-top:10px;"><span class="field-label">Principais parceiros</span>${uiBadgeList(e.parceiros)}</div>` : '')
+      + (e.produtos && e.produtos.length ? `<div style="margin-top:10px;"><span class="field-label">Principais produtos</span>${uiBadgeList(e.produtos)}</div>` : '');
+  },
+  relacoes(n) {
+    if (!n.relacoes || !Object.keys(n.relacoes).length) return uiEmpty('Sem informações de relações internacionais cadastradas.');
+    return Object.entries(n.relacoes).map(([k, v]) => `
+      <div style="margin-bottom:14px;"><span class="field-label">${RELACAO_NOME_AMIGAVEL[k] || k}</span><p style="font-size:13.5px; line-height:1.6; margin:4px 0 0;">${v}</p></div>
+    `).join('');
+  },
+  organizacoes(n) {
+    if (!n.organizacoes.length) return uiEmpty('Nenhuma organização cadastrada.');
+    return `<div style="display:grid; gap:10px;">${n.organizacoes.map(o => uiCardItem(o.sigla, o.nome)).join('')}</div>`;
+  },
+  geografia(n) {
+    if (!n.geografia) return uiEmpty('Nenhum dado geográfico cadastrado ainda para este país.');
+    const g = n.geografia;
+    return `<div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Clima</span>${g.clima || '—'}</div>
+      <div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Relevo</span>${g.relevo || '—'}</div>`
+      + uiInfoGrid([
+        ['Países vizinhos', (g.paisesVizinhos || []).join(', ')],
+        ['Principais rios', (g.rios || []).join(', ')],
+        ['Principais cidades', (g.principaisCidades || []).join(', ')]
+      ]);
+  },
+  historia(n) {
+    if (!n.historia.length) return uiEmpty('Nenhum evento histórico cadastrado.');
+    return `<div style="display:flex; flex-direction:column; gap:10px;">${n.historia.map(item => uiCardItem(item.ano, item.evento, ' border-left:3px solid var(--brass);')).join('')}</div>`;
+  },
+  curiosidades(n) {
+    if (!n.curiosidades.length) return uiEmpty('Nenhuma curiosidade cadastrada.');
+    return `<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px;">${n.curiosidades.map(x => `<li style="font-size:13.5px; line-height:1.6;">${x}</li>`).join('')}</ul>`;
+  },
+  flashcards(n) {
+    if (!n.flashcardsExtras.length) return uiEmpty('Nenhum flashcard cadastrado para este país.');
+    return `<div style="display:grid; gap:10px;">${n.flashcardsExtras.map(f => `
+      <div class="card pd-flash" onclick="this.classList.toggle('flipped')">
+        <span class="field-label">Pergunta <span class="pd-flash-hint">(clique para ver a resposta)</span></span>
+        <div style="font-size:13.5px; margin:4px 0 0;">${f.pergunta}</div>
+        <div class="pd-flash-resposta"><span class="field-label">Resposta</span><div style="font-size:13.5px; margin-top:4px; color:var(--brass-light);">${f.resposta}</div></div>
+      </div>`).join('')}</div>`;
+  },
+  atualidades(n) {
+    if (!n.atualidades.length) return uiEmpty('Nenhuma atualidade cadastrada ainda para este país.');
+    return n.atualidades.map(a => uiCardItem(null, `<h4 style="margin-bottom:4px;">${a.titulo}</h4><p>${a.resumo}</p>`, ' margin-bottom:10px;')).join('');
+  },
+  questoes(n) {
+    if (!n.questoesCACD.length) return uiEmpty('Nenhuma questão CACD cadastrada ainda para este país.');
+    return n.questoesCACD.map(item => uiCardItem(null, item.texto || JSON.stringify(item), ' margin-bottom:10px;')).join('');
+  }
+};
 
 /* ==========================================================================
-   COMPONENTES REUTILIZÁVEIS
+   PÁGINA DE DETALHE — abrir/fechar/renderizar (uma página só, para
+   qualquer país). Requer no index.html:
+     <div id="paisesListaWrap"> ...toolbar + #paisesGrid... </div>
+     <div id="paisesDetalheWrap" style="display:none;"></div>
    ========================================================================== */
-function uiEmptyState(msg) {
-  return `<div class="pais-empty-state">
-    <span class="pais-empty-ic">◌</span>
-    <span>${escapeHtml(msg || 'Informação ainda não cadastrada')}</span>
-  </div>`;
-}
-function uiInfoCard(label, value) {
-  return `<div class="pais-info-card">
-    <span class="field-label">${escapeHtml(label)}</span>
-    ${value ? `<div class="pais-info-value">${value}</div>` : uiEmptyState()}
-  </div>`;
-}
-function uiInfoGrid(pares) { return `<div class="pais-grid-info">${pares.map(([l, v]) => uiInfoCard(l, v)).join('')}</div>`; }
-function uiSectionCard(title, bodyHtml) {
-  return `<div class="card pais-section-card">${title ? `<h4 class="pais-section-title">${escapeHtml(title)}</h4>` : ''}${bodyHtml}</div>`;
-}
-/* Campo de texto editável (uma linha), salvo em paisesDadosExtra[cca3][field] */
-function uiEditableField(label, field, value, placeholder) {
-  return `<div class="pais-info-card">
-    <span class="field-label">${escapeHtml(label)}</span>
-    <input type="text" class="pais-inline-input" value="${value ? escapeHtml(value) : ''}" placeholder="${escapeHtml(placeholder || 'Informação ainda não cadastrada — clique para adicionar')}" oninput="savePaisField('${field}', this.value)">
-  </div>`;
-}
-function uiEditableTextarea(field, value, placeholder) {
-  return `<textarea id="paisField_${field}" placeholder="${escapeHtml(placeholder)}" style="min-height:110px;" oninput="savePaisField('${field}', this.value)">${value ? escapeHtml(value) : ''}</textarea>
-  <div class="mono" style="font-size:10px; color:var(--text-muted); margin-top:6px;">Salvo automaticamente e sincronizado com sua conta.</div>`;
-}
-function savePaisField(field, value) {
-  if (!paisAtual) return;
-  if (!paisesDadosExtra[paisAtual]) paisesDadosExtra[paisAtual] = {};
-  paisesDadosExtra[paisAtual][field] = value;
-  clearTimeout(paisSaveTimer);
-  paisSaveTimer = setTimeout(() => save('paises_dados_extra', paisesDadosExtra), 700);
-}
+let paisDetalheAtual = null; // objeto NORMALIZADO do país aberto agora (ou null)
+let paisDetalheAbaAtual = 'geral';
 
-/* ---- Carregamento inicial ----
-   Fonte: data/paises/index.json (local, sem dependência externa).
-   A REST Countries API passou a exigir autenticação/plano pago e bloqueia
-   chamadas anônimas via CORS — por isso trocamos para o manifesto local.
-   adaptarPaisManifest() traduz cada entrada do manifesto para o mesmo
-   formato usado por todo o restante deste arquivo (name.common, flags.svg,
-   languages{}, currencies{}, etc.), então nenhuma outra função precisou
-   mudar. Para cadastrar mais países, basta adicionar entradas no JSON —
-   não é necessário tocar em código. */
-function adaptarPaisManifest(m) {
-  return {
-    cca2: m.cca2, cca3: m.cca3,
-    name: { common: m.nomeCurto, official: m.nomeOficial },
-    capital: [m.capital],
-    region: m.continente, subregion: m.regiao,
-    population: m.populacao, area: m.area,
-    flags: { svg: `https://flagcdn.com/${(m.cca2 || '').toLowerCase()}.svg`, png: `https://flagcdn.com/w320/${(m.cca2 || '').toLowerCase()}.png` },
-    languages: Object.fromEntries((m.idiomas || []).map((l, i) => [`l${i}`, l])),
-    currencies: m.moeda ? { [m.moeda.codigo]: { name: m.moeda.nome, symbol: m.moeda.simbolo } } : {},
-    tld: m.tld || [],
-    maps: { googleMaps: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.nomeOficial || m.nomeCurto)}` },
-    borders: [],
-    timezones: [], idd: null,
-    _organizacoesManifest: m.organizacoes || []
-  };
-}
+async function abrirPaisDetalhe(id, opts = {}) {
+  const atualizarUrl = opts.atualizarUrl !== false;
+  const p = paises.find(x => x.id === id); if (!p) return;
 
-async function initPaises() {
-  const status = document.getElementById('paisesStatus'); if (!status) return;
-  if (paisesCache && paisesCache.list && paisesCache.list.length) {
-    renderPaisesFiltros(); renderPaisesGrid();
-    status.textContent = `${paisesCache.list.length} países carregados`;
-    aplicarRotaInicialPaises();
-    return;
-  }
-  status.textContent = 'Carregando dados dos países...';
-  try {
-    const resp = await fetch('data/paises/index.json');
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const manifest = await resp.json();
-    const data = manifest.map(adaptarPaisManifest);
-    paisesCache = { fetchedAt: Date.now(), list: data };
-    renderPaisesFiltros(); renderPaisesGrid();
-    status.textContent = `${data.length} países carregados`;
-  } catch (e) {
-    console.error('Falha ao carregar países:', e);
-    status.textContent = 'Não foi possível carregar a lista de países. Verifique sua conexão e recarregue a página.';
-  }
-  aplicarRotaInicialPaises();
-}
-/* Permite abrir um país direto por link compartilhado (#pais/BRA). */
-function aplicarRotaInicialPaises() {
-  const m = location.hash.match(/^#pais\/([A-Z]{3})$/);
-  if (m && getPais(m[1])) abrirPais(m[1], false);
-}
+  const listaWrap = document.getElementById('paisesListaWrap');
+  const detalheWrap = document.getElementById('paisesDetalheWrap');
+  if (!detalheWrap) return; // index.html precisa da estrutura descrita acima
 
-/* ---- Filtros e grid da lista ---- */
-function renderPaisesFiltros() {
-  if (!paisesCache) return;
-  const continentes = [...new Set(paisesCache.list.map(p => p.region).filter(Boolean))].sort();
-  const elC = document.getElementById('paisesFiltroContinente');
-  if (elC) elC.innerHTML = ['todos', ...continentes].map(c =>
-    `<button class="chip ${paisesFiltroContinenteAtual === c ? 'active' : ''}" onclick="setPaisesFiltroContinente('${c}')">${c === 'todos' ? 'Todos os continentes' : c}</button>`
-  ).join('');
-
-  const idiomas = new Set(); paisesCache.list.forEach(p => Object.values(p.languages || {}).forEach(l => idiomas.add(l)));
-  const selI = document.getElementById('paisesFiltroIdioma');
-  if (selI) { const cur = selI.value; selI.innerHTML = '<option value="">Idioma — todos</option>' + [...idiomas].sort().map(l => `<option value="${l}">${l}</option>`).join(''); selI.value = cur; }
-
-  const moedas = new Map(); paisesCache.list.forEach(p => Object.entries(p.currencies || {}).forEach(([code, c]) => moedas.set(code, code + ' — ' + c.name)));
-  const selM = document.getElementById('paisesFiltroMoeda');
-  if (selM) { const cur = selM.value; selM.innerHTML = '<option value="">Moeda — todas</option>' + [...moedas.entries()].sort((a, b) => a[1].localeCompare(b[1])).map(([code, label]) => `<option value="${code}">${label}</option>`).join(''); selM.value = cur; }
-
-  const selO = document.getElementById('paisesFiltroOrganizacao');
-  if (selO) { const cur = selO.value; selO.innerHTML = '<option value="">Organização — todas</option>' + Object.entries(ORG_LABELS).map(([k, l]) => `<option value="${k}">${l}</option>`).join(''); selO.value = cur; }
-
-  const sistemas = new Set(Object.values(paisesDadosExtra).map(d => d.sistemaPolitico).filter(Boolean));
-  const selS = document.getElementById('paisesFiltroSistema');
-  if (selS) { const cur = selS.value; selS.innerHTML = '<option value="">Sistema político — todos</option>' + [...sistemas].sort().map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(''); selS.value = cur; }
-}
-function setPaisesFiltroContinente(c) { paisesFiltroContinenteAtual = c; renderPaisesFiltros(); renderPaisesGrid(); }
-function togglePaisesSoFavoritos() {
-  paisesApenasFavoritos = !paisesApenasFavoritos;
-  const btn = document.getElementById('paisesFavBtn'); if (btn) btn.classList.toggle('active', paisesApenasFavoritos);
-  renderPaisesGrid();
-}
-
-function renderPaisesGrid() {
-  const el = document.getElementById('paisesGrid'); if (!el || !paisesCache) return;
-  const q = (document.getElementById('paisesSearch').value || '').trim().toLowerCase();
-  const idiomaF = document.getElementById('paisesFiltroIdioma').value;
-  const moedaF = document.getElementById('paisesFiltroMoeda').value;
-  const orgF = document.getElementById('paisesFiltroOrganizacao').value;
-  const sisF = document.getElementById('paisesFiltroSistema').value;
-
-  let list = paisesCache.list.filter(p => {
-    if (paisesFiltroContinenteAtual !== 'todos' && p.region !== paisesFiltroContinenteAtual) return false;
-    if (idiomaF && !Object.values(p.languages || {}).includes(idiomaF)) return false;
-    if (moedaF && !Object.keys(p.currencies || {}).includes(moedaF)) return false;
-    const extra = getPaisExtra(p.cca3);
-    if (orgF && !(extra.organizacoes && extra.organizacoes[orgF])) return false;
-    if (sisF && extra.sistemaPolitico !== sisF) return false;
-    if (paisesApenasFavoritos && !paisesFavoritos.includes(p.cca3)) return false;
-    if (q) {
-      const hay = [
-        p.name.common, p.name.official, ...(p.capital || []),
-        ...Object.values(p.languages || {}),
-        ...Object.entries(p.currencies || {}).map(([code, c]) => code + ' ' + c.name),
-        p.region, p.subregion
-      ].join(' ').toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  }).sort((a, b) => a.name.common.localeCompare(b.name.common));
-
-  if (!list.length) { el.innerHTML = '<div class="biblio-empty">Nenhum país encontrado para esse filtro.</div>'; return; }
-
-  el.innerHTML = list.map(p => `
-    <div class="pais-card" onclick="abrirPais('${p.cca3}')">
-      <button class="pais-fav-btn ${paisesFavoritos.includes(p.cca3) ? 'active' : ''}" onclick="event.stopPropagation(); togglePaisFavorito('${p.cca3}')" title="Favoritar">★</button>
-      <img class="pais-flag-thumb" src="${(p.flags && (p.flags.svg || p.flags.png)) || ''}" alt="Bandeira de ${escapeHtml(p.name.common)}" loading="lazy">
-      <div class="pais-card-body">
-        <div class="pais-card-nome">${escapeHtml(p.name.common)}</div>
-        <div class="pais-card-meta">${(p.capital && p.capital[0]) || '—'} · ${p.region || '—'}</div>
-      </div>
-    </div>
-  `).join('');
-}
-function togglePaisFavorito(cca3) {
-  if (paisesFavoritos.includes(cca3)) paisesFavoritos = paisesFavoritos.filter(x => x !== cca3);
-  else paisesFavoritos.push(cca3);
-  save('paises_favoritos', paisesFavoritos);
-  renderPaisesGrid();
-  if (paisAtual === cca3) { renderPaisHero(); renderPaisStudySidebar(); }
-}
-
-/* ==========================================================================
-   PÁGINA DO PAÍS — Dossiê Diplomático
-   ========================================================================== */
-function abrirPais(cca3, atualizarHash) {
-  paisAtual = cca3; paisAtualTab = 'geral';
-  document.getElementById('paisesListShell').style.display = 'none';
-  document.getElementById('paisesCompareShell').style.display = 'none';
-  document.getElementById('paisesDetailShell').style.display = 'block';
+  if (listaWrap) listaWrap.style.display = 'none';
+  detalheWrap.style.display = 'block';
+  detalheWrap.innerHTML = uiCarregando();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (atualizarHash !== false) location.hash = 'pais/' + cca3;
-  renderPaisHero(); renderPaisTabs(); renderPaisTabContent(); renderPaisStudySidebar();
-}
-function fecharPaisDetalhe() {
-  paisAtual = null;
-  document.getElementById('paisesDetailShell').style.display = 'none';
-  document.getElementById('paisesListShell').style.display = 'block';
-  if (location.hash.startsWith('#pais/')) history.pushState('', document.title, location.pathname + location.search);
+
+  const completo = await carregarFichaCompletaPais(id);
+  paisDetalheAtual = normalizarPais(p, completo);
+  paisDetalheAbaAtual = 'geral';
+  renderPaisDetalhe();
+  if (atualizarUrl) atualizarUrlPais(id);
 }
 
-/* ---- Hero panorâmico ---- */
-function renderPaisHero() {
-  const p = getPais(paisAtual); const el = document.getElementById('paisHero'); if (!el || !p) return;
-  const isFav = paisesFavoritos.includes(p.cca3);
-  const bandeira = (p.flags && (p.flags.svg || p.flags.png)) || '';
-  const idiomaPrincipal = Object.values(p.languages || {})[0] || '—';
-  const moedaPrincipal = Object.values(p.currencies || {})[0];
-  el.innerHTML = `
-    <div class="pais-hero-bg" style="background-image:url('${bandeira}')"></div>
-    <div class="pais-hero-gradient"></div>
-    <div class="pais-hero-content">
-      <img class="pais-hero-flag" src="${bandeira}" alt="Bandeira de ${escapeHtml(p.name.common)}">
-      <div class="pais-hero-info">
-        <div class="pais-hero-top">
-          <div>
-            <h2>${escapeHtml(p.name.common)}</h2>
-            <div class="pais-hero-oficial">${escapeHtml(p.name.official)}</div>
-          </div>
-          <div class="pais-hero-actions">
-            <button class="btn ${isFav ? 'secondary' : 'ghost'} small" onclick="togglePaisFavorito('${p.cca3}')">${isFav ? '★ Favorito' : '☆ Favoritar'}</button>
-            <button class="btn ghost small" onclick="compartilharPais('${p.cca3}')">⤴ Compartilhar</button>
-          </div>
-        </div>
-        <div class="pais-hero-tags">
-          <span class="tag-chip">Capital: ${(p.capital && p.capital[0]) || '—'}</span>
-          <span class="tag-chip">${p.region || '—'}${p.subregion ? ' · ' + p.subregion : ''}</span>
-          <span class="tag-chip">Idioma: ${idiomaPrincipal}</span>
-          <span class="tag-chip">Moeda: ${moedaPrincipal ? moedaPrincipal.name : '—'}</span>
-        </div>
-      </div>
-    </div>`;
-}
-function compartilharPais(cca3) {
-  const p = getPais(cca3); if (!p) return;
-  const url = location.origin + location.pathname + '#pais/' + cca3;
-  const texto = `${p.name.common} — Dossiê Diplomático (Chancelaria)`;
-  if (navigator.share) {
-    navigator.share({ title: texto, url }).catch(() => {});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => alert('Link copiado: ' + url)).catch(() => prompt('Copie o link:', url));
-  } else {
-    prompt('Copie o link:', url);
-  }
+function fecharPaisDetalhe(opts = {}) {
+  const atualizarUrl = opts.atualizarUrl !== false;
+  const listaWrap = document.getElementById('paisesListaWrap');
+  const detalheWrap = document.getElementById('paisesDetalheWrap');
+  if (detalheWrap) { detalheWrap.style.display = 'none'; detalheWrap.innerHTML = ''; }
+  if (listaWrap) listaWrap.style.display = 'block';
+  paisDetalheAtual = null;
+  if (atualizarUrl) limparUrlPais();
 }
 
-/* ---- Navegação por abas (fixa durante a navegação) ---- */
-function renderPaisTabs() {
-  const el = document.getElementById('paisTabs'); if (!el) return;
-  el.innerHTML = PAIS_TABS.map(([k, label]) => `<button class="subtab-btn ${paisAtualTab === k ? 'active' : ''}" onclick="goPaisTab('${k}')">${label}</button>`).join('');
-}
-function goPaisTab(tab) { paisAtualTab = tab; renderPaisTabs(); renderPaisTabContent(); }
-function renderPaisTabContent() {
-  const p = getPais(paisAtual); const el = document.getElementById('paisTabContent'); if (!el || !p) return;
-  const extra = getPaisExtra(paisAtual);
-  const renderers = {
-    geral: tabGeral, economia: tabEconomia, politica: tabPolitica,
-    geografia: tabGeografia, historia: tabHistoria, relacoes: tabRelacoes,
-    organizacoes: tabOrganizacoes
-  };
-  el.innerHTML = (renderers[paisAtualTab] || tabGeral)(p, extra);
+function irParaAbaPaisDetalhe(aba) {
+  paisDetalheAbaAtual = aba;
+  renderPaisDetalhe();
 }
 
-/* ---- Aba: Geral ---- */
-function tabGeral(p, extra) {
-  const idiomas = Object.values(p.languages || {}).join(', ') || null;
-  const moedas = Object.entries(p.currencies || {}).map(([c, v]) => `${v.name} (${v.symbol || c})`).join(', ') || null;
-  const fusos = (p.timezones || []).join(', ') || null;
-  const densidade = (p.population && p.area) ? `${Math.round(p.population / p.area).toLocaleString('pt-BR')} hab./km²` : null;
-  const ddi = (p.idd && p.idd.root) ? (p.idd.root + (p.idd.suffixes && p.idd.suffixes.length === 1 ? p.idd.suffixes[0] : '')) : null;
-  const dominio = (p.tld || []).join(', ') || null;
-  return uiInfoGrid([
-    ['Nome oficial', escapeHtml(p.name.official)],
-    ['Capital', (p.capital && p.capital[0]) || null],
-    ['População', fmtNum(p.population)],
-    ['Área', p.area ? fmtNum(p.area) + ' km²' : null],
-    ['Densidade demográfica', densidade],
-    ['Idiomas', idiomas],
-    ['Moeda', moedas],
-    ['Fuso horário', fusos],
-    ['Código telefônico', ddi],
-    ['Domínio da internet', dominio],
-  ]) + (p.maps && p.maps.googleMaps ? `<div style="margin-top:14px;"><a class="btn ghost small" href="${p.maps.googleMaps}" target="_blank" rel="noopener">Ver no mapa ↗</a></div>` : '');
-}
+function renderPaisDetalhe() {
+  const wrap = document.getElementById('paisesDetalheWrap'); if (!wrap || !paisDetalheAtual) return;
+  const n = paisDetalheAtual;
+  if (!PAIS_DETALHE_ABAS.some(a => a.id === paisDetalheAbaAtual)) paisDetalheAbaAtual = 'geral';
+  const renderTab = PAIS_TAB_RENDERERS[paisDetalheAbaAtual] || (() => '');
 
-/* ---- Aba: Economia ---- */
-function tabEconomia(p, extra) {
-  const e = extra.economia || {};
-  const field = (campo, label, placeholder) => `<div class="pais-info-card">
-    <span class="field-label">${escapeHtml(label)}</span>
-    <input type="text" class="pais-inline-input" value="${e[campo] ? escapeHtml(e[campo]) : ''}" placeholder="${escapeHtml(placeholder)}" oninput="savePaisEconomia('${campo}', this.value)">
-  </div>`;
-  return `<div class="pais-grid-info">
-      ${field('pib', 'PIB', 'Ex.: US$ 2,1 trilhões (2024)')}
-      ${field('pibPerCapita', 'PIB per capita', 'Ex.: US$ 8.900')}
-      ${field('crescimento', 'Crescimento', 'Ex.: 2,9% ao ano')}
-      ${field('inflacao', 'Inflação', 'Ex.: 4,5% ao ano')}
-    </div>`
-    + uiSectionCard('Exportações', uiEditableTextarea('economiaExportacoes', extra.economiaExportacoes, 'Principais produtos e destinos de exportação...'))
-    + uiSectionCard('Importações', uiEditableTextarea('economiaImportacoes', extra.economiaImportacoes, 'Principais produtos e origens de importação...'))
-    + uiSectionCard('Parceiros comerciais e setores econômicos', uiEditableTextarea('economiaParceiros', extra.economiaParceiros, 'Principais parceiros comerciais e setores de destaque...'));
-}
-function savePaisEconomia(campo, value) {
-  if (!paisAtual) return;
-  if (!paisesDadosExtra[paisAtual]) paisesDadosExtra[paisAtual] = {};
-  if (!paisesDadosExtra[paisAtual].economia) paisesDadosExtra[paisAtual].economia = {};
-  paisesDadosExtra[paisAtual].economia[campo] = value;
-  clearTimeout(paisSaveTimer);
-  paisSaveTimer = setTimeout(() => save('paises_dados_extra', paisesDadosExtra), 700);
-}
-
-/* ---- Aba: Política ---- */
-function tabPolitica(p, extra) {
-  return `<div class="pais-grid-info">
-    ${uiEditableField('Forma de governo', 'formaGoverno', extra.formaGoverno)}
-    ${uiEditableField('Sistema político', 'sistemaPolitico', extra.sistemaPolitico)}
-    ${uiEditableField('Chefe de Estado', 'chefeEstado', extra.chefeEstado)}
-    ${uiEditableField('Chefe de Governo', 'chefeGoverno', extra.chefeGoverno)}
-    ${uiEditableField('Constituição', 'constituicao', extra.constituicao)}
-  </div>`;
-}
-
-/* ---- Aba: Geografia ---- */
-function tabGeografia(p, extra) {
-  const fronteiras = (p.borders || []).map(b => { const bp = getPais(b); return bp ? bp.name.common : b; });
-  return uiSectionCard('Dados geográficos', uiInfoGrid([
-    ['Região', p.region || null], ['Sub-região', p.subregion || null],
-    ['Área', p.area ? fmtNum(p.area) + ' km²' : null],
-    ['Países vizinhos', fronteiras.length ? fronteiras.map(f => `<span class="tag-chip" style="margin:2px 4px 2px 0;">${escapeHtml(f)}</span>`).join('') : null],
-  ]))
-    + uiSectionCard('Complementos de estudo', `<div class="pais-grid-info">
-      ${uiEditableField('Clima', 'clima', extra.clima)}
-      ${uiEditableField('Relevo', 'relevo', extra.relevo)}
-      ${uiEditableField('Hidrografia', 'hidrografia', extra.hidrografia)}
-      ${uiEditableField('Recursos naturais', 'recursosNaturais', extra.recursosNaturais)}
-      ${uiEditableField('Principais cidades', 'principaisCidades', extra.principaisCidades)}
-    </div>`);
-}
-
-/* ---- Aba: História (linha do tempo vertical) ---- */
-function tabHistoria(p, extra) {
-  const eventos = (extra.historiaEventos || []).slice().sort((a, b) => (a.ano || '').localeCompare(b.ano || ''));
-  const timeline = eventos.length
-    ? `<div class="pais-timeline">${eventos.map(ev => `
-        <div class="pais-timeline-item">
-          <div class="pais-timeline-dot"></div>
-          <div class="pais-timeline-body">
-            <div class="pais-timeline-ano mono">${escapeHtml(ev.ano || '—')}</div>
-            <div class="pais-timeline-evento">${escapeHtml(ev.evento)}</div>
-            <button class="rdel" onclick="delPaisEventoHistoria('${ev.id}')">Remover</button>
-          </div>
-        </div>`).join('')}</div>`
-    : uiEmptyState('Nenhum evento histórico cadastrado ainda.');
-
-  return uiSectionCard('Adicionar evento à linha do tempo', `
-      <div class="row2">
-        <div><label class="field-label">Ano / período</label><input type="text" id="paisHistAno" placeholder="Ex.: 1822"></div>
-        <div><label class="field-label">Evento</label><input type="text" id="paisHistEvento" placeholder="Ex.: Independência"></div>
-      </div>
-      <button class="btn small secondary" onclick="addPaisEventoHistoria()" style="margin-top:12px;">Adicionar à linha do tempo</button>
-    `) + timeline;
-}
-function addPaisEventoHistoria() {
-  const ano = document.getElementById('paisHistAno').value.trim();
-  const evento = document.getElementById('paisHistEvento').value.trim();
-  if (!evento) return;
-  if (!paisesDadosExtra[paisAtual]) paisesDadosExtra[paisAtual] = {};
-  if (!paisesDadosExtra[paisAtual].historiaEventos) paisesDadosExtra[paisAtual].historiaEventos = [];
-  paisesDadosExtra[paisAtual].historiaEventos.push({ id: uid(), ano, evento });
-  save('paises_dados_extra', paisesDadosExtra);
-  renderPaisTabContent(); renderPaisStudySidebar();
-}
-function delPaisEventoHistoria(id) {
-  paisesDadosExtra[paisAtual].historiaEventos = paisesDadosExtra[paisAtual].historiaEventos.filter(e => e.id !== id);
-  save('paises_dados_extra', paisesDadosExtra);
-  renderPaisTabContent(); renderPaisStudySidebar();
-}
-
-/* ---- Aba: Relações Internacionais ---- */
-function tabRelacoes(p, extra) {
-  const bloco = (campo, label, placeholder) => uiSectionCard(label, uiEditableTextarea('relacoes_' + campo, extra['relacoes_' + campo], placeholder));
-  return bloco('brasil', 'Relação com o Brasil', 'Histórico diplomático, comércio, acordos relevantes...')
-    + bloco('eua', 'Relação com os Estados Unidos', 'Histórico diplomático, comércio, acordos relevantes...')
-    + bloco('china', 'Relação com a China', 'Histórico diplomático, comércio, acordos relevantes...')
-    + bloco('ue', 'Relação com a União Europeia', 'Histórico diplomático, comércio, acordos relevantes...')
-    + bloco('vizinhos', 'Relação com países vizinhos', 'Conflitos, integrações regionais, tratados de fronteira...');
-}
-
-/* ---- Aba: Organizações ---- */
-function tabOrganizacoes(p, extra) {
-  const org = extra.organizacoes || {};
-  return uiSectionCard('Organizações das quais o país é membro', `
-    <div class="filters">
-      ${Object.entries(ORG_LABELS).map(([k, l]) => `<button class="chip ${org[k] ? 'active' : ''}" onclick="togglePaisOrg('${k}')">${l}</button>`).join('')}
+  wrap.innerHTML = `
+    <button class="btn ghost small" onclick="fecharPaisDetalhe()" style="margin-bottom:14px;">← Voltar à lista</button>
+    <div class="card" style="padding:0; overflow:hidden;">
+      ${uiPaisHero(n)}
+      ${uiPaisTabs(PAIS_DETALHE_ABAS, paisDetalheAbaAtual)}
+      <div class="pd-tab-content">${renderTab(n)}</div>
     </div>
-  `) + uiSectionCard('Observações', uiEditableTextarea('organizacoesObs', extra.organizacoesObs, 'Outras organizações, blocos regionais, acordos relevantes...'));
-}
-function togglePaisOrg(key) {
-  if (!paisAtual) return;
-  if (!paisesDadosExtra[paisAtual]) paisesDadosExtra[paisAtual] = {};
-  if (!paisesDadosExtra[paisAtual].organizacoes) paisesDadosExtra[paisAtual].organizacoes = {};
-  paisesDadosExtra[paisAtual].organizacoes[key] = !paisesDadosExtra[paisAtual].organizacoes[key];
-  save('paises_dados_extra', paisesDadosExtra);
-  renderPaisTabContent(); renderPaisesFiltros(); renderPaisStudySidebar();
+  `;
 }
 
 /* ==========================================================================
-   CENTRO DE ESTUDOS — coluna lateral fixa, sempre visível na página do país
+   ROTEAMENTO — cada país tem sua própria URL (#/paises/{id}), sem backend.
    ========================================================================== */
-function paisCompletude(extra) {
-  const campos = [
-    extra.formaGoverno, extra.sistemaPolitico, extra.chefeEstado, extra.chefeGoverno, extra.constituicao,
-    extra.clima, extra.relevo, extra.hidrografia, extra.recursosNaturais, extra.principaisCidades,
-    extra.relacoes_brasil, extra.relacoes_eua, extra.relacoes_china, extra.relacoes_ue, extra.relacoes_vizinhos,
-    (extra.economia && extra.economia.pib), (extra.economia && extra.economia.pibPerCapita)
-  ];
-  const preenchidos = campos.filter(Boolean).length;
-  const temHistoria = extra.historiaEventos && extra.historiaEventos.length ? 1 : 0;
-  const total = campos.length + 1;
-  return Math.round(100 * (preenchidos + temHistoria) / total);
+function atualizarUrlPais(id) {
+  history.pushState({ pais: id }, '', `${location.pathname}${location.search}#/paises/${id}`);
 }
-function renderPaisStudySidebar() {
-  const el = document.getElementById('paisStudySidebar'); if (!el) return;
-  const p = getPais(paisAtual); if (!p) return;
-  const extra = getPaisExtra(paisAtual);
-  const isFav = paisesFavoritos.includes(p.cca3);
-  const qtdOrg = extra.organizacoes ? Object.values(extra.organizacoes).filter(Boolean).length : 0;
-  const qtdQuestoes = (extra.questoes || []).length;
-  const qtdFlash = (extra.flashcards || []).length;
-  const qtdAtualidades = (extra.atualidades || []).length;
-  const qtdTratados = (extra.tratados || []).length;
-  const pct = paisCompletude(extra);
+function limparUrlPais() {
+  history.pushState({ pais: null }, '', `${location.pathname}${location.search}#/paises`);
+}
+function aplicarRotaPaisAtual() {
+  const m = location.hash.match(/^#\/paises\/([a-z]{2,3})$/i);
+  if (m) {
+    const id = m[1].toLowerCase();
+    if (paises.some(p => p.id === id)) {
+      goTab('paises');
+      goSub('paisesLista');
+      abrirPaisDetalhe(id, { atualizarUrl: false });
+      return;
+    }
+  }
+  if (paisDetalheAtual) fecharPaisDetalhe({ atualizarUrl: false });
+}
+window.addEventListener('popstate', aplicarRotaPaisAtual);
+if (document.readyState !== 'loading') aplicarRotaPaisAtual();
+else window.addEventListener('DOMContentLoaded', aplicarRotaPaisAtual);
 
-  const item = (icone, label, valor, onclick) => `
-    <div class="pais-study-item" ${onclick ? `onclick="${onclick}" style="cursor:pointer;"` : ''}>
-      <span class="pais-study-ic">${icone}</span>
-      <span class="pais-study-label">${label}</span>
-      <span class="pais-study-value">${valor}</span>
-    </div>`;
-
-  el.innerHTML = `
-    <div class="card pais-study-card">
-      <h4 class="pais-section-title">Centro de Estudos</h4>
-      <button class="btn ${isFav ? 'secondary' : 'ghost'} small" style="width:100%; margin-bottom:12px;" onclick="togglePaisFavorito('${p.cca3}')">${isFav ? '★ Favoritado' : '☆ Favoritar país'}</button>
-      ${item('📝', 'Minhas anotações', 'em breve')}
-      ${item('❓', 'Questões relacionadas', qtdQuestoes)}
-      ${item('🧠', 'Flashcards', qtdFlash)}
-      ${item('🏛️', 'Organizações', qtdOrg, "goPaisTab('organizacoes')")}
-      ${item('📜', 'Tratados relacionados', qtdTratados)}
-      ${item('📰', 'Atualidades', qtdAtualidades)}
-      <div class="pais-study-progress">
-        <div class="pais-study-progress-head"><span>Progresso de estudo</span><span class="mono">${pct}%</span></div>
-        <div class="bar"><span style="width:${pct}%;"></span></div>
-      </div>
-    </div>`;
+/* ==========================================================================
+   MAPA-MÚNDI — continentes reais (d3-geo + topojson), arquivos locais do
+   projeto (vendor/ e data/), com destaque do território ao selecionar.
+   Clicar num pino ou no território de um país abre a MESMA página de
+   detalhe usada pela grade (nenhum modal envolvido).
+   ========================================================================== */
+function latLngToPct(lat, lng) {
+  return { x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
 }
 
-/* ---- Comparador de países ---- */
-function abrirComparador() {
-  document.getElementById('paisesListShell').style.display = 'none';
-  document.getElementById('paisesDetailShell').style.display = 'none';
-  document.getElementById('paisesCompareShell').style.display = 'block';
-  populateCompareSelects();
-  renderComparacao();
-}
-function fecharComparador() {
-  document.getElementById('paisesCompareShell').style.display = 'none';
-  document.getElementById('paisesListShell').style.display = 'block';
-}
-function populateCompareSelects() {
-  if (!paisesCache) return;
-  const opts = paisesCache.list.slice().sort((a, b) => a.name.common.localeCompare(b.name.common))
-    .map(p => `<option value="${p.cca3}">${escapeHtml(p.name.common)}</option>`).join('');
-  const a = document.getElementById('compararPaisA'), b = document.getElementById('compararPaisB');
-  if (a && !a.dataset.filled) { a.innerHTML = opts; a.dataset.filled = '1'; }
-  if (b && !b.dataset.filled) { b.innerHTML = opts; b.dataset.filled = '1'; if (paisesCache.list[1]) b.value = paisesCache.list[1].cca3; }
-}
-function renderComparacao() {
-  const elResult = document.getElementById('comparacaoResult'); if (!elResult || !paisesCache) return;
-  const a = getPais(document.getElementById('compararPaisA').value);
-  const b = getPais(document.getElementById('compararPaisB').value);
-  if (!a || !b) { elResult.innerHTML = ''; return; }
-  const ea = getPaisExtra(a.cca3), eb = getPaisExtra(b.cca3);
-  const rows = [
-    ['Bandeira', `<img class="pais-flag-thumb" src="${(a.flags && a.flags.svg) || ''}">`, `<img class="pais-flag-thumb" src="${(b.flags && b.flags.svg) || ''}">`],
-    ['Nome oficial', escapeHtml(a.name.official), escapeHtml(b.name.official)],
-    ['Capital', (a.capital && a.capital[0]) || '—', (b.capital && b.capital[0]) || '—'],
-    ['Continente', a.region || '—', b.region || '—'],
-    ['População', fmtNum(a.population) || '—', fmtNum(b.population) || '—'],
-    ['Área', (fmtNum(a.area) || '—') + ' km²', (fmtNum(b.area) || '—') + ' km²'],
-    ['Idiomas', Object.values(a.languages || {}).join(', ') || '—', Object.values(b.languages || {}).join(', ') || '—'],
-    ['Moeda', Object.values(a.currencies || {}).map(c => c.name).join(', ') || '—', Object.values(b.currencies || {}).map(c => c.name).join(', ') || '—'],
-    ['Sistema político', ea.sistemaPolitico ? escapeHtml(ea.sistemaPolitico) : '—', eb.sistemaPolitico ? escapeHtml(eb.sistemaPolitico) : '—'],
-  ];
-  elResult.innerHTML = `<div class="card" style="overflow-x:auto;">
-    <table class="doc-table" style="width:100%;">
-      <thead><tr><th></th><th>${escapeHtml(a.name.common)}</th><th>${escapeHtml(b.name.common)}</th></tr></thead>
-      <tbody>${rows.map(r => `<tr><td class="mono" style="color:var(--text-muted); font-size:11px; white-space:nowrap;">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>
-    </table>
-  </div>`;
+const MAPA_MUNDI_W = 1000;
+const MAPA_MUNDI_H = 500;
+const MAPA_MUNDI_DATA_URL = 'data/world-atlas-countries-110m.json';
+
+let mapaMundiSvgCache = null;
+let mapaMundiFeaturesPromise = null;
+let paisesMapaSelecionado = null;
+
+function getMapaMundiFeatures() {
+  if (!mapaMundiFeaturesPromise) {
+    mapaMundiFeaturesPromise = fetch(MAPA_MUNDI_DATA_URL)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(topo => topojson.feature(topo, topo.objects.countries).features)
+      .catch(e => { console.error('Falha ao carregar dados do mapa-múndi (' + MAPA_MUNDI_DATA_URL + '):', e); return []; });
+  }
+  return mapaMundiFeaturesPromise;
 }
 
-/* ---- Boot ---- */
-(function bootPaises() {
-  if (document.getElementById('paisesGrid')) initPaises();
-  window.addEventListener('hashchange', () => {
-    const m = location.hash.match(/^#pais\/([A-Z]{3})$/);
-    if (m && paisesCache && getPais(m[1])) { abrirPais(m[1], false); }
-    else if (!m && paisAtual) { fecharPaisDetalhe(); }
-  });
-})();
+async function construirMapaMundiSvg() {
+  if (mapaMundiSvgCache) return mapaMundiSvgCache;
+  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
+    console.error('d3/topojson não carregados — confira as tags <script> de vendor/d3.min.js e vendor/topojson-client.min.js no index.html.');
+    return null;
+  }
+  const features = await getMapaMundiFeatures();
+  if (!features.length) return null;
+  const projection = d3.geoEquirectangular().fitSize([MAPA_MUNDI_W, MAPA_MUNDI_H], { type: 'Sphere' });
+  const pathGen = d3.geoPath(projection);
+  const paths = features.map(f => {
+    const iso = Number(f.id);
+    const paisId = PAIS_POR_ISO_NUMERICO[iso];
+    const cls = paisId ? 'mapa-country selectable' : 'mapa-country';
+    const onclick = paisId ? ` onclick="selecionarPaisNoMapa('${paisId}')"` : '';
+    return `<path d="${pathGen(f)}" class="${cls}" data-iso="${iso}"${onclick}></path>`;
+  }).join('');
+  mapaMundiSvgCache = `<svg class="mapa-mundi-svg" viewBox="0 0 ${MAPA_MUNDI_W} ${MAPA_MUNDI_H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+  return mapaMundiSvgCache;
+}
 
-function initPaisesTab() {
-  renderPaisesModule();
+function mapaMundiPinsHtml(q) {
+  return paises.map(p => {
+    const pos = latLngToPct(p.lat, p.lng);
+    const match = q && (p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q));
+    return `<button type="button" class="map-pin ${match ? 'match' : ''}" style="left:${pos.x}%; top:${pos.y}%; --accent:${continenteCor(p.continente)}" onclick="selecionarPaisNoMapa('${p.id}')" title="${p.nome}">
+        <span class="map-pin-dot"></span>
+        <span class="map-pin-label">${flagImgHtml(p.code, 'map-pin-flag')}${p.nome}</span>
+      </button>`;
+  }).join('');
+}
+
+function aplicarSelecaoMapa() {
+  const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
+  wrap.querySelectorAll('.mapa-country.selected').forEach(el => el.classList.remove('selected'));
+  if (!paisesMapaSelecionado) return;
+  const iso = ISO_NUMERICO_POR_PAIS[paisesMapaSelecionado];
+  if (!iso) return;
+  const el = wrap.querySelector(`.mapa-country[data-iso="${iso}"]`);
+  if (el) { el.classList.add('selected'); el.parentNode.appendChild(el); }
+}
+
+function selecionarPaisNoMapa(id) {
+  paisesMapaSelecionado = id;
+  aplicarSelecaoMapa();
+  goSub('paisesLista');
+  abrirPaisDetalhe(id);
+}
+
+async function renderPaisesMapa() {
+  const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
+  const q = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
+  const pins = mapaMundiPinsHtml(q);
+
+  wrap.innerHTML = `${mapaMundiSvgCache || '<div class="map-grid-lines"></div>'}<div class="map-vignette"></div>${pins}`;
+  aplicarSelecaoMapa();
+
+  if (!mapaMundiSvgCache) {
+    const svg = await construirMapaMundiSvg();
+    if (!svg) return;
+    const wrapAinda = document.getElementById('paisesMapaSvgWrap');
+    if (!wrapAinda) return;
+    const qAgora = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
+    wrapAinda.innerHTML = `${svg}<div class="map-vignette"></div>${mapaMundiPinsHtml(qAgora)}`;
+    aplicarSelecaoMapa();
+  }
+}
+
+function renderPaisesModule() {
+  renderPaisesFiltros();
+  renderPaisesFiltrosAvancados();
+  atualizarLabelOrdenacao();
+  renderPaises();
+  renderPaisesMapa();
 }
