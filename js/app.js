@@ -7,6 +7,7 @@
 function reloadStateFromLocalStorage() {
   const t = localStorage.getItem('chancelaria_theme') || 'dark';
   document.body.setAttribute('data-theme', t);
+  renderSidebar();
   renderMaterias(); renderMateriaOptions(); renderCronograma(); renderRevisao();
   renderDiscursivas(); renderAtualidades(); renderNotas();
   renderPaisesModule();
