@@ -13,6 +13,7 @@ function goTab(tab) {
   });
   if (tab === 'palavras') connectHub();
   if (tab === 'paises') initPaisesTab();
+  if (tab === 'simulados') initSimuladosTab();
 }
 
 function goSub(sub) {
