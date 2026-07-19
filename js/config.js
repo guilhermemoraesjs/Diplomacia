@@ -19,7 +19,7 @@ const CLOUD_KEYS = [
   'diplo_materias', 'diplo_cronograma', 'diplo_revisao', 'diplo_questoes',
   'diplo_discursivas', 'diplo_atualidades', 'diplo_notas',
   'biblio_docs', 'biblio_pastas', 'biblio_expanded_folders',
-  'chancelaria_theme'
+  'chancelaria_theme', 'diplo_paises', 'paises_favoritos', 'simulados_progresso'
 ];
 let currentUid = null;
 
