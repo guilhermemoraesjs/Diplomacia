@@ -74,6 +74,13 @@
   </div>
 </div>
 
+  <div id="globalSearchOverlay" class="gsearch-overlay" onclick="if(event.target===this) fecharBuscaGlobal()">
+  <div class="gsearch-box" onclick="event.stopPropagation()">
+    <input type="text" id="globalSearchInput" placeholder="Buscar questões, temas, países..." oninput="executarBuscaGlobal(this.value)">
+    <div class="gsearch-results" id="globalSearchResults"></div>
+  </div>
+</div>
+
 <div class="letterhead">
   <div class="brand">
     <div class="wax crest">GA</div>
@@ -81,6 +88,7 @@
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
   <div class="top-right-cabinet">
+    <button class="global-search-trigger" onclick="abrirBuscaGlobal()">🔎 Buscar questões, temas, países... <kbd>⌘K</kbd></button>
     <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Alternar Tema</button>
     <div class="protocolo mono">
       <div id="protocoloData">—</div>
@@ -359,13 +367,75 @@
     </div>
   </section>
 
+  <section class="view" id="view-organizacoes">
+    <h3 class="section-title">Organizações Internacionais</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: ONU, OMC, BRICS, OTAN e outras, com fichas completas e questões relacionadas.</div></div>
+  </section>
+
+  <section class="view" id="view-tratados">
+    <h3 class="section-title">Tratados</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: tratados internacionais relevantes para o CACD, ligados às questões dos Simulados.</div></div>
+  </section>
+
+  <section class="view" id="view-flashcards">
+    <h3 class="section-title">Flashcards</h3>
+    <div class="card"><div class="biblio-empty">Central de flashcards em construção. Por enquanto, os flashcards automáticos de cada país já estão disponíveis dentro da ficha de cada país, em Países.</div></div>
+  </section>
+
+  <section class="view" id="view-configuracoes">
+    <h3 class="section-title">Configurações</h3>
+    <div class="card">
+      <label class="field-label">Tema</label>
+      <button class="btn secondary small" onclick="toggleTheme()">🌓 Alternar tema claro/escuro</button>
+      <label class="field-label" style="margin-top:16px;">Conta</label>
+      <div id="authBoxConfig"></div>
+    </div>
+  </section>
+
   <section class="view" id="view-simulados">
     <h3 class="section-title">Simulados</h3>
     <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
 
     <div id="simuladosPanelHome">
-      <div class="stats-row" id="simuladosStats"></div>
-      <div class="sim-modos-grid" id="simuladosModos" style="margin-top:20px;"></div>
+      <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
+
+      <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
+      <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:start;">
+        <div class="sim-modos-grid" id="simuladosModos"></div>
+        <div>
+          <div class="card dash-side-panel">
+            <h4 style="font-size:13px; margin-bottom:10px;">Desempenho por disciplina</h4>
+            <div id="simuladosDesempenhoDisciplina"></div>
+          </div>
+          <div class="card dash-side-panel">
+            <h4 style="font-size:13px; margin-bottom:10px;">Atividade recente</h4>
+            <div id="simuladosAtividadeRecente"></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:24px;">Provas disponíveis</h3>
+      <div class="dash-provas-grid" id="simuladosProvasDisponiveis"></div>
+
+      <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
+          <div id="simuladosGraficoEvolucao"></div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px;">Sequência de estudos</h4>
+          <div class="dash-streak-days" id="simuladosStreakDias"></div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px; text-align:center;">Meta mensal</h4>
+          <div id="simuladosMetaMensal"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h4 style="font-size:13px; margin-bottom:10px;">Temas mais cobrados</h4>
+        <div id="simuladosTemasCobrados"></div>
+      </div>
     </div>
 
     <div id="simuladosPanelConfig" style="display:none;">
@@ -586,12 +656,24 @@
 </main>
 
 <div class="tabbar">
-  <button class="active" data-tab="inicio" onclick="goTab('inicio')">Início</button>
-  <button data-tab="palavras" onclick="goTab('palavras')">Palavras</button>
-  <button data-tab="diplomacia" onclick="goTab('diplomacia')">Diplomacia</button>
-  <button data-tab="paises" onclick="goTab('paises')">Países</button>
-  <button data-tab="biblioteca" onclick="goTab('biblioteca')">Biblioteca</button>
-  <button data-tab="simulados" onclick="goTab('simulados')">Simulados</button>
+  <button class="active" data-tab="inicio" onclick="goTab('inicio')">🏠 Início</button>
+  <button data-tab="paises" onclick="goTab('paises')">🌍 Países</button>
+  <button data-tab="organizacoes" onclick="goTab('organizacoes')">🏛️ Organizações</button>
+  <button data-tab="tratados" onclick="goTab('tratados')">📜 Tratados</button>
+  <button data-tab="atualidades" onclick="goTab('atualidades')">📰 Atualidades</button>
+  <button data-tab="biblioteca" onclick="goTab('biblioteca')">📚 Biblioteca</button>
+  <button data-tab="flashcards" onclick="goTab('flashcards')">🧠 Flashcards</button>
+  <button data-tab="simulados" onclick="goTab('simulados')">📝 Simulados</button>
+  <button data-tab="questoes" onclick="goTab('questoes')">❓ Questões</button>
+  <button data-tab="notas" onclick="goTab('notas')">🗒️ Notas</button>
+  <button data-tab="cronograma" onclick="goTab('cronograma')">📅 Cronograma</button>
+  <button data-tab="palavras" onclick="goTab('palavras')">✒️ Palavras</button>
+  <button data-tab="discursivas" onclick="goTab('discursivas')">✍️ Discursivas</button>
+  <button data-tab="configuracoes" onclick="goTab('configuracoes')">⚙️ Configurações</button>
+  <div class="sidebar-footer">
+    <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
+    <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
+  </div>
 </div>
 
 <!-- ==========================================================================
@@ -613,6 +695,7 @@
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
 <script src="js/paises.js"></script>
+<script src="js/dashboard.js"></script>
 <script src="js/simulados.js"></script>
 <script src="js/biblioteca-pastas.js"></script>
 <script src="js/biblioteca-documentos.js"></script>
