@@ -96,29 +96,32 @@ function fmtSeg(s) { const m = Math.floor(s / 60); const r = s % 60; return `${m
 
 function renderSimuladosHome() {
   const st = simuladosCalcularStats();
+  const streak = typeof calcularStreakAtual === 'function' ? calcularStreakAtual() : 0;
+  const melhorStreak = typeof calcularMelhorStreak === 'function' ? calcularMelhorStreak() : 0;
+
   const statsEl = document.getElementById('simuladosStats');
   if (statsEl) statsEl.innerHTML = `
-    <div class="card stat-card"><div class="n">${simuladosProvasIndex.length}</div><div class="l">provas</div></div>
-    <div class="card stat-card"><div class="n">${st.total}</div><div class="l">questões</div></div>
-    <div class="card stat-card"><div class="n">${st.respondidas}</div><div class="l">resolvidas</div></div>
-    <div class="card stat-card"><div class="n">${st.pendentes}</div><div class="l">pendentes</div></div>
-    <div class="card stat-card"><div class="n">${fmtSeg(st.tempoMedio)}</div><div class="l">tempo médio</div></div>
-    <div class="card stat-card"><div class="n">${st.pctAcerto}%</div><div class="l">acertos</div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">📄</span><div><div class="dash-stat-label">Provas cadastradas</div><div class="dash-stat-n">${simuladosProvasIndex.length}</div><div class="dash-stat-sub">${simuladosProvasIndex.map(p => p.ano).sort()[0] || '—'} - ${simuladosProvasIndex.map(p => p.ano).sort().slice(-1)[0] || '—'}</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">🧩</span><div><div class="dash-stat-label">Questões disponíveis</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">Todas as disciplinas</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">✅</span><div><div class="dash-stat-label">Questões respondidas</div><div class="dash-stat-n">${st.respondidas}</div><div class="dash-stat-sub">${st.total ? Math.round((st.respondidas / st.total) * 100) : 0}% do total</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">🎯</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">Média geral</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">⏱️</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${fmtSeg(st.tempoMedio)}</div><div class="dash-stat-sub">Por questão</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#C24B4B;">📈</span><div><div class="dash-stat-label">Simulados realizados</div><div class="dash-stat-n">${dashAtividade.filter(a => a.tipo === 'simulado').length}</div><div class="dash-stat-sub">Últimos 90 dias</div></div></div>
   `;
 
   const erradasCount = Object.entries(simuladosProgresso.respondidas).filter(([, r]) => !r.correta).length;
   const modos = [
-    { id: 'provaCompleta', icone: '📄', titulo: 'Prova Completa', desc: 'Resolva exatamente como foi aplicada.', badge: simuladosProvasIndex.length + ' provas' },
-    { id: 'disciplina', icone: '📚', titulo: 'Por Disciplina', desc: 'Escolha uma ou mais disciplinas para praticar.', badge: null },
-    { id: 'ano', icone: '📅', titulo: 'Por Ano', desc: 'Filtre questões por ano da prova.', badge: null },
-    { id: 'personalizado', icone: '🎯', titulo: 'Simulado Personalizado', desc: 'Escolha disciplinas, anos, quantidade e dificuldade.', badge: null },
-    { id: 'favoritas', icone: '⭐', titulo: 'Favoritas', desc: 'Só as questões que você marcou.', badge: simuladosProgresso.favoritas.length + ' questões' },
-    { id: 'erradas', icone: '❌', titulo: 'Questões Erradas', desc: 'Revise o que você errou.', badge: erradasCount + ' questões' },
-    { id: 'revisao', icone: '🔄', titulo: 'Revisão', desc: 'Questões marcadas para revisar depois.', badge: simuladosProgresso.revisao.length + ' questões' },
-    { id: 'novas', icone: '🆕', titulo: 'Novas', desc: 'Questões que você nunca respondeu.', badge: (st.total - st.respondidas) + ' questões' }
+    { id: 'provaCompleta', icone: '📄', titulo: 'Prova Completa', desc: 'Resolva exatamente como foi aplicada no CACD.', badge: simuladosProvasIndex.length + ' provas' },
+    { id: 'disciplina', icone: '📚', titulo: 'Por Disciplina', desc: 'Selecione uma disciplina e resolva questões de todos os anos.', badge: null },
+    { id: 'ano', icone: '📅', titulo: 'Por Ano', desc: 'Escolha um ano e resolva questões de todas as disciplinas.', badge: null },
+    { id: 'personalizado', icone: '🎯', titulo: 'Simulado Personalizado', desc: 'Monte seu simulado escolhendo disciplinas, anos, temas e dificuldade.', badge: null },
+    { id: 'favoritas', icone: '⭐', titulo: 'Questões Favoritas', desc: 'Revise suas questões marcadas como favoritas.', badge: simuladosProgresso.favoritas.length + ' questões' },
+    { id: 'erradas', icone: '❌', titulo: 'Questões Erradas', desc: 'Reveja questões que você respondeu incorretamente.', badge: erradasCount + ' questões' },
+    { id: 'revisao', icone: '🔄', titulo: 'Revisão', desc: 'Questões que você marcou para revisar depois.', badge: simuladosProgresso.revisao.length + ' questões' },
+    { id: 'novas', icone: '🆕', titulo: 'Não Respondidas', desc: 'Questões que você ainda não respondeu.', badge: (st.total - st.respondidas) + ' questões' }
   ];
-  const el = document.getElementById('simuladosModos'); if (!el) return;
-  el.innerHTML = modos.map(m => `
+  const modosEl = document.getElementById('simuladosModos');
+  if (modosEl) modosEl.innerHTML = modos.map(m => `
     <div class="card sim-modo-card" onclick="iniciarFluxoModo('${m.id}')">
       <div class="sim-modo-icone">${m.icone}</div>
       <div class="sim-modo-titulo">${m.titulo}</div>
@@ -126,6 +129,73 @@ function renderSimuladosHome() {
       ${m.badge ? `<div class="sim-modo-badge mono">${m.badge}</div>` : ''}
     </div>
   `).join('');
+
+  /* Provas disponíveis com barra de progresso real */
+  const provasEl = document.getElementById('simuladosProvasDisponiveis');
+  if (provasEl) provasEl.innerHTML = simuladosProvasIndex.map(p => {
+    const idsDaProva = simuladosQuestoesIndex.filter(q => q.provaId === p.id).map(q => q.id);
+    const respondidasDaProva = idsDaProva.filter(id => simuladosProgresso.respondidas[id]).length;
+    const pct = idsDaProva.length ? Math.round((respondidasDaProva / idsDaProva.length) * 100) : 0;
+    return `
+      <div class="card dash-prova-card" onclick="iniciarSessaoComIds(${JSON.stringify(idsDaProva)}, 'estudo', true, '${p.titulo}')">
+        <div class="dash-prova-ano">${p.ano}</div>
+        <div class="dash-prova-meta">${p.totalQuestoes} questões</div>
+        <div class="bar"><span style="width:${pct}%;"></span></div>
+        <div class="dash-prova-pct mono">${pct}% resolvida</div>
+      </div>`;
+  }).join('');
+
+  /* Desempenho por disciplina (coluna direita) */
+  const porDisc = {};
+  simuladosQuestoesIndex.forEach(q => { if (!porDisc[q.disciplina]) porDisc[q.disciplina] = { total: 0, corretas: 0, respondidas: 0 }; porDisc[q.disciplina].total++;
+    const r = simuladosProgresso.respondidas[q.id]; if (r) { porDisc[q.disciplina].respondidas++; if (r.correta) porDisc[q.disciplina].corretas++; } });
+  const discEl = document.getElementById('simuladosDesempenhoDisciplina');
+  if (discEl) discEl.innerHTML = Object.entries(porDisc).map(([d, v]) => {
+    const pct = v.respondidas ? Math.round((v.corretas / v.respondidas) * 100) : 0;
+    return `<div class="dash-disc-row"><span>${d}</span><div class="bar" style="flex:1; margin:0 8px;"><span style="width:${pct}%;"></span></div><span class="mono" style="width:64px; text-align:right;">${pct}% · ${v.total}q</span></div>`;
+  }).join('') || '<div class="biblio-empty">Nenhuma questão cadastrada ainda.</div>';
+
+  /* Atividade recente */
+  const atEl = document.getElementById('simuladosAtividadeRecente');
+  if (atEl) atEl.innerHTML = dashAtividade.slice(0, 6).map(a => `
+    <div class="dash-activity-row">
+      <span class="dash-activity-ic ${a.tipo}">${a.tipo === 'acerto' ? '✓' : a.tipo === 'erro' ? '✕' : '🔁'}</span>
+      <div><div class="dash-activity-txt">${a.texto}</div><div class="dash-activity-time">${tempoRelativo(a.data)}</div></div>
+    </div>`).join('') || '<div class="biblio-empty">Nenhuma atividade ainda — comece a resolver questões.</div>';
+
+  /* Temas mais cobrados */
+  const temasCount = {};
+  simuladosQuestoesIndex.forEach(q => { temasCount[q.tema] = (temasCount[q.tema] || 0) + 1; });
+  const temasEl = document.getElementById('simuladosTemasCobrados');
+  if (temasEl) temasEl.innerHTML = Object.entries(temasCount).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([t, n], i) => `<div class="dash-tema-row"><span>${i + 1}</span><span style="flex:1;">${t}</span><span class="mono">${n} questões</span></div>`).join('') || '<div class="biblio-empty">Sem dados ainda.</div>';
+
+  /* Gráfico de evolução (acerto acumulado por dia) */
+  const porDia = {};
+  Object.values(simuladosProgresso.respondidas).forEach(r => {
+    const dia = r.data.slice(0, 10);
+    if (!porDia[dia]) porDia[dia] = { total: 0, corretas: 0 };
+    porDia[dia].total++; if (r.correta) porDia[dia].corretas++;
+  });
+  const pontosGrafico = Object.keys(porDia).sort().map(dia => ({ label: dia, valor: Math.round((porDia[dia].corretas / porDia[dia].total) * 100) }));
+  if (typeof renderLineChart === 'function') renderLineChart('simuladosGraficoEvolucao', pontosGrafico);
+
+  /* Sequência de estudos */
+  const streakEl = document.getElementById('simuladosStreakInfo');
+  if (streakEl) streakEl.innerHTML = `<div class="dash-streak-n">🔥 ${streak} dias</div><div class="dash-streak-sub">Melhor sequência: ${melhorStreak} dias</div>`;
+  const streakDaysEl = document.getElementById('simuladosStreakDias');
+  if (streakDaysEl && typeof ultimosSeteDias === 'function') streakDaysEl.innerHTML = ultimosSeteDias().map(d =>
+    `<div class="dash-streak-day"><span>${d.label}</span><span class="dash-streak-dot ${dashStreakDias.includes(d.iso) ? 'active' : ''}">${dashStreakDias.includes(d.iso) ? '✓' : ''}</span></div>`).join('');
+
+  /* Meta mensal */
+  const mesAtual = todayISO().slice(0, 7);
+  const respondidasMes = Object.values(simuladosProgresso.respondidas).filter(r => r.data.slice(0, 7) === mesAtual).length;
+  const pctMeta = Math.min(100, Math.round((respondidasMes / dashMetas.mensal) * 100));
+  const metaEl = document.getElementById('simuladosMetaMensal');
+  if (metaEl) metaEl.innerHTML = `
+    <div class="ring" style="--pct:${pctMeta}; margin:0 auto;"><div class="hole">${pctMeta}%</div></div>
+    <div style="text-align:center; margin-top:10px;"><div style="font-family:'Fraunces',serif; font-size:15px;">${dashMetas.mensal} questões</div><div class="mono" style="font-size:11px; color:var(--text-muted);">${respondidasMes} / ${dashMetas.mensal} · continue assim!</div></div>
+  `;
 }
 
 /* ---- Roteamento dos modos ---- */
@@ -336,6 +406,8 @@ function responderQuestao(letra) {
   const tempoSeg = Math.round((Date.now() - s.questaoInicioMs) / 1000);
   simuladosProgresso.respondidas[q.id] = { escolha: letra, correta, tempoSeg, data: new Date().toISOString() };
   salvarProgresso();
+  if (typeof trackStudyDay === 'function') trackStudyDay();
+  if (typeof trackActivity === 'function') trackActivity(correta ? 'acerto' : 'erro', `Questão de ${q.disciplina} · ${q.tema}`);
   renderSimuladoProva();
 }
 function navegarQuestao(delta) {
@@ -364,6 +436,7 @@ function abrirFlashcardsDoPais(paisId) {
 function finalizarSimulado() {
   clearInterval(simuladoTimerInterval);
   const s = simuladoSessao;
+  if (typeof trackActivity === 'function') trackActivity('simulado', `Simulado "${s.titulo}" concluído · ${s.questoes.length} questões`);
   const tempoTotalSeg = Math.round((Date.now() - s.inicioMs) / 1000);
   const respostas = s.questoes.map(q => simuladosProgresso.respondidas[q.id]).filter(Boolean);
   const corretas = respostas.filter(r => r.correta).length;
