@@ -1,0 +1,87 @@
+[
+  {
+    "id": "2019-q1", "ano": 2019, "fase": 1, "disciplina": "História", "tema": "Era Vargas", "subtema": "Estado Novo", "dificuldade": "media",
+    "enunciado": "O Estado Novo, instaurado por Getúlio Vargas em 1937, caracterizou-se por:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Ampla liberdade de imprensa e pluripartidarismo" },
+      { "letra": "B", "texto": "Centralização do poder no Executivo e fechamento do Congresso Nacional" },
+      { "letra": "C", "texto": "Adoção do parlamentarismo como sistema de governo" },
+      { "letra": "D", "texto": "Transferência da capital federal para Brasília" },
+      { "letra": "E", "texto": "Realização de eleições diretas para presidente a cada quatro anos" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "O Estado Novo (1937-1945) foi um regime ditatorial marcado pela outorga de uma nova Constituição, fechamento do Congresso Nacional e forte centralização do poder no Executivo, sob justificativa de combater o comunismo e o integralismo.",
+    "paisesRelacionados": ["brasil"], "organizacoesRelacionadas": [], "tratadosRelacionados": [],
+    "palavrasChave": ["Era Vargas", "Estado Novo", "Ditadura"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2019-q2", "ano": 2019, "fase": 1, "disciplina": "Geografia", "tema": "Geopolítica energética", "subtema": "Matriz elétrica brasileira", "dificuldade": "facil",
+    "enunciado": "Sobre a matriz elétrica brasileira, é correto afirmar que:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "O Brasil depende quase exclusivamente do carvão mineral para geração de eletricidade" },
+      { "letra": "B", "texto": "A energia hidrelétrica responde historicamente pela maior parcela da geração elétrica no país" },
+      { "letra": "C", "texto": "O Brasil não possui potencial para energia eólica" },
+      { "letra": "D", "texto": "A energia nuclear é a principal fonte de eletricidade do país" },
+      { "letra": "E", "texto": "O país importa a totalidade do petróleo que consome" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "Historicamente, a energia hidrelétrica é a principal fonte da matriz elétrica brasileira, embora sua participação venha diversificando com o crescimento de eólica e solar.",
+    "paisesRelacionados": ["brasil"], "organizacoesRelacionadas": [], "tratadosRelacionados": [],
+    "palavrasChave": ["Matriz energética", "Hidrelétricas"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2019-q3", "ano": 2019, "fase": 1, "disciplina": "Política Internacional", "tema": "ONU", "subtema": "Conselho de Segurança", "dificuldade": "facil",
+    "enunciado": "O Conselho de Segurança da ONU é composto por:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Apenas os cinco membros permanentes" },
+      { "letra": "B", "texto": "Quinze membros, sendo cinco permanentes com poder de veto e dez não permanentes eleitos" },
+      { "letra": "C", "texto": "Cinquenta e quatro membros eleitos pela Assembleia Geral" },
+      { "letra": "D", "texto": "Todos os 193 Estados-membros da ONU" },
+      { "letra": "E", "texto": "Dez membros permanentes e cinco rotativos" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "O Conselho de Segurança tem 15 membros: os 5 permanentes (China, EUA, França, Reino Unido e Rússia), com poder de veto, e 10 não permanentes eleitos pela Assembleia Geral por mandatos de dois anos.",
+    "paisesRelacionados": ["china", "eua", "franca", "russia"], "organizacoesRelacionadas": ["ONU"], "tratadosRelacionados": [],
+    "palavrasChave": ["ONU", "Conselho de Segurança", "Veto"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2019-q4", "ano": 2019, "fase": 1, "disciplina": "Economia", "tema": "Integração regional", "subtema": "Mercosul", "dificuldade": "media",
+    "enunciado": "O Mercosul, criado pelo Tratado de Assunção em 1991, tem como membros plenos atualmente:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Brasil, Argentina, Paraguai e Uruguai" },
+      { "letra": "B", "texto": "Brasil, México, Chile e Peru" },
+      { "letra": "C", "texto": "Brasil, Argentina, Bolívia e Colômbia" },
+      { "letra": "D", "texto": "Apenas Brasil e Argentina" },
+      { "letra": "E", "texto": "Todos os países da América do Sul" }
+    ],
+    "respostaCorreta": "A",
+    "explicacao": "Brasil, Argentina, Paraguai e Uruguai são os membros plenos fundadores do Mercosul; a Venezuela foi suspensa e a Bolívia está em processo de adesão plena.",
+    "paisesRelacionados": ["brasil"], "organizacoesRelacionadas": ["Mercosul"], "tratadosRelacionados": ["Tratado de Assunção"],
+    "palavrasChave": ["Mercosul", "Integração regional"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  },
+  {
+    "id": "2019-q5", "ano": 2019, "fase": 1, "disciplina": "Política Internacional", "tema": "Guerra Fria", "subtema": "Doutrina Truman", "dificuldade": "media",
+    "enunciado": "A Doutrina Truman (1947) tinha como principal objetivo:",
+    "tipo": "multipla",
+    "alternativas": [
+      { "letra": "A", "texto": "Promover a reconstrução econômica da Europa Ocidental" },
+      { "letra": "B", "texto": "Conter a expansão do comunismo soviético" },
+      { "letra": "C", "texto": "Estabelecer o padrão-ouro internacional" },
+      { "letra": "D", "texto": "Criar a Organização das Nações Unidas" },
+      { "letra": "E", "texto": "Formalizar a divisão da Alemanha" }
+    ],
+    "respostaCorreta": "B",
+    "explicacao": "A Doutrina Truman inaugurou a política de contenção (containment) ao comunismo soviético, marcando o início formal da Guerra Fria. O Plano Marshall, anunciado no mesmo ano, tratou da reconstrução econômica europeia.",
+    "paisesRelacionados": ["eua", "russia"], "organizacoesRelacionadas": [], "tratadosRelacionados": [],
+    "palavrasChave": ["Guerra Fria", "Doutrina Truman", "Containment"],
+    "fonte": "Exemplo elaborado para validação da plataforma — não é uma questão oficial do CACD."
+  }
+]
