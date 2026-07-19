@@ -139,6 +139,17 @@
             <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
           </div>
         </div>
+
+        <div class="dossie" style="--accent:var(--seal-glow);" onclick="goTab('simulados')">
+          <div class="stamp">banco de questões</div>
+          <div class="tag">Dossiê V</div>
+          <h2>Simulados</h2>
+          <p>Resolva provas do CACD direto na plataforma, sem PDFs — por disciplina, ano ou simulado personalizado.</p>
+          <div class="foot">
+            <span class="progress-label">10 questões cadastradas</span>
+            <div class="ring" style="--pct:100;"><div class="hole">📝</div></div>
+          </div>
+        </div>
       </div>
 
       <div class="daily-brief-container">
@@ -302,17 +313,30 @@
     <div class="subtabs">
       <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')">📇 Lista</button>
       <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')">🗺️ Mapa-múndi</button>
+      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();">⚖️ Comparar</button>
     </div>
 
     <div class="subview active" id="sub-paisesLista">
-  <div id="paisesListaWrap">
-    <div class="paises-toolbar">
-      ...
+      <div id="paisesListaWrap">
+        <div class="paises-toolbar">
+          <input type="text" id="paisesSearch" placeholder="Buscar por país, capital, idioma, moeda ou organização..." oninput="renderPaises()">
+          <div class="filters" id="paisesFiltroContinente"></div>
+          <div class="paises-filtros-avancados">
+            <select id="paisesFiltroIdioma" onchange="setPaisesFiltroIdioma(this.value)"></select>
+            <select id="paisesFiltroMoeda" onchange="setPaisesFiltroMoeda(this.value)"></select>
+            <select id="paisesFiltroGoverno" onchange="setPaisesFiltroGoverno(this.value)"></select>
+            <select id="paisesFiltroOrganizacaoSelect" onchange="setPaisesFiltroOrganizacao(this.value)"></select>
+          </div>
+          <div class="filters">
+            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()">★ Favoritos</button>
+            <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
+            <span class="mono" id="paisesCountLabel" style="font-size:11px; color:var(--text-muted); align-self:center; margin-left:auto;"></span>
+          </div>
+        </div>
+        <div class="paises-grid" id="paisesGrid"></div>
+      </div>
+      <div id="paisesDetalheWrap" style="display:none;"></div>
     </div>
-    <div class="paises-grid" id="paisesGrid"></div>
-  </div>
-  <div id="paisesDetalheWrap" style="display:none;"></div>
-</div>
 
     <div class="subview" id="sub-paisesMapaView">
       <div class="paises-toolbar" style="margin-bottom:10px;">
@@ -322,6 +346,38 @@
         <div class="mapa-mundi" id="paisesMapaSvgWrap"></div>
       </div>
       <p class="mapa-hint">Clique em um marcador para abrir a ficha completa do país.</p>
+    </div>
+
+    <div class="subview" id="sub-paisesComparar">
+      <div class="card">
+        <label class="field-label">País A</label>
+        <select id="compararSelectA" onchange="setCompararPais('a', this.value)"></select>
+        <label class="field-label" style="margin-top:12px;">País B</label>
+        <select id="compararSelectB" onchange="setCompararPais('b', this.value)"></select>
+      </div>
+      <div class="card" id="compararResultado"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-simulados">
+    <h3 class="section-title">Simulados</h3>
+    <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
+
+    <div id="simuladosPanelHome">
+      <div class="stats-row" id="simuladosStats"></div>
+      <div class="sim-modos-grid" id="simuladosModos" style="margin-top:20px;"></div>
+    </div>
+
+    <div id="simuladosPanelConfig" style="display:none;">
+      <div id="simuladosConfigWrap"></div>
+    </div>
+
+    <div id="simuladosPanelProva" style="display:none;">
+      <div id="simuladosProvaWrap"></div>
+    </div>
+
+    <div id="simuladosPanelResultado" style="display:none;">
+      <div id="simuladosResultadoWrap"></div>
     </div>
   </section>
 
@@ -535,6 +591,7 @@
   <button data-tab="diplomacia" onclick="goTab('diplomacia')">Diplomacia</button>
   <button data-tab="paises" onclick="goTab('paises')">Países</button>
   <button data-tab="biblioteca" onclick="goTab('biblioteca')">Biblioteca</button>
+  <button data-tab="simulados" onclick="goTab('simulados')">Simulados</button>
 </div>
 
 <!-- ==========================================================================
@@ -554,8 +611,9 @@
 <script src="js/atualidades.js"></script>
 <script src="js/notas.js"></script>
 <script src="vendor/d3.min.js"></script>
-<script src="vendor/topojson-client.min.js"></script> 
+<script src="vendor/topojson-client.min.js"></script>
 <script src="js/paises.js"></script>
+<script src="js/simulados.js"></script>
 <script src="js/biblioteca-pastas.js"></script>
 <script src="js/biblioteca-documentos.js"></script>
 <script src="js/biblioteca-editor.js"></script>
