@@ -390,6 +390,11 @@
       <label class="field-label" style="margin-top:16px;">Conta</label>
       <div id="authBoxConfig"></div>
     </div>
+    <div class="card">
+      <label class="field-label">Ordem do menu lateral</label>
+      <p class="intro-line" style="margin:4px 0 12px;">Use as setas para reorganizar a ordem das páginas na barra lateral.</p>
+      <div id="configNavOrderList"></div>
+    </div>
   </section>
 
   <section class="view" id="view-simulados">
@@ -656,20 +661,7 @@
 </main>
 
 <div class="tabbar">
-  <button class="active" data-tab="inicio" onclick="goTab('inicio')">🏠 Início</button>
-  <button data-tab="paises" onclick="goTab('paises')">🌍 Países</button>
-  <button data-tab="organizacoes" onclick="goTab('organizacoes')">🏛️ Organizações</button>
-  <button data-tab="tratados" onclick="goTab('tratados')">📜 Tratados</button>
-  <button data-tab="atualidades" onclick="goTab('atualidades')">📰 Atualidades</button>
-  <button data-tab="biblioteca" onclick="goTab('biblioteca')">📚 Biblioteca</button>
-  <button data-tab="flashcards" onclick="goTab('flashcards')">🧠 Flashcards</button>
-  <button data-tab="simulados" onclick="goTab('simulados')">📝 Simulados</button>
-  <button data-tab="questoes" onclick="goTab('questoes')">❓ Questões</button>
-  <button data-tab="notas" onclick="goTab('notas')">🗒️ Notas</button>
-  <button data-tab="cronograma" onclick="goTab('cronograma')">📅 Cronograma</button>
-  <button data-tab="palavras" onclick="goTab('palavras')">✒️ Palavras</button>
-  <button data-tab="discursivas" onclick="goTab('discursivas')">✍️ Discursivas</button>
-  <button data-tab="configuracoes" onclick="goTab('configuracoes')">⚙️ Configurações</button>
+  <div class="sidebar-nav-scroll" id="sidebarNavScroll"></div>
   <div class="sidebar-footer">
     <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
     <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
