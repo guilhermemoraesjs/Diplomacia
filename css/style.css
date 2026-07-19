@@ -680,3 +680,33 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .pd-flash-hint{ font-weight:400; text-transform:none; letter-spacing:0; color:var(--text-muted); font-size:10px; }
 .pd-flash-resposta{ display:none; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:10px; }
 .pd-flash.flipped .pd-flash-resposta{ display:block; }
+
+/* ==========================================================================
+   ADIÇÕES — módulo Simulados.
+   ========================================================================== */
+.sim-modos-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+.sim-modo-card{ cursor:pointer; text-align:center; padding:22px 16px; transition:var(--transition); }
+.sim-modo-card:hover{ transform:translateY(-3px); border-color:rgba(180,145,75,.35); }
+.sim-modo-icone{ font-size:30px; margin-bottom:8px; }
+.sim-modo-titulo{ font-family:'Fraunces', serif; font-size:15px; color:var(--text-main); margin-bottom:4px; }
+.sim-modo-desc{ font-size:11.5px; color:var(--text-muted); line-height:1.5; }
+.sim-modo-badge{ margin-top:10px; font-size:10px; color:var(--brass-light); }
+
+.sim-topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; font-size:12.5px; color:var(--text-muted); }
+.sim-nav-grid{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.sim-nav-item{ width:30px; height:30px; border-radius:8px; border:1px solid var(--border-color); background:var(--ink-3); color:var(--text-muted); font-family:'IBM Plex Mono'; font-size:11px; cursor:pointer; }
+.sim-nav-item.respondida{ background:rgba(92,122,79,.25); border-color:var(--ok); color:var(--ok-glow); }
+.sim-nav-item.marcada{ background:rgba(227,196,129,.2); border-color:var(--brass-light); color:var(--brass-light); }
+.sim-nav-item.atual{ border-color:var(--ub-azul); box-shadow:0 0 0 2px rgba(0,122,255,.3); color:var(--text-main); }
+
+.sim-q-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.sim-icon-btn{ background:none; border:1px solid var(--border-color); border-radius:8px; color:var(--text-muted); font-size:14px; padding:5px 9px; cursor:pointer; }
+.sim-icon-btn.active{ color:var(--brass-light); border-color:var(--brass-light); }
+.sim-enunciado{ font-size:14.5px; line-height:1.65; color:var(--text-main); margin-bottom:16px; }
+.sim-alternativas{ display:flex; flex-direction:column; gap:8px; }
+.sim-alt{ text-align:left; background:var(--ink-3); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:11px 14px; font-size:13px; color:var(--text-light); cursor:pointer; transition:var(--transition); }
+.sim-alt:hover{ border-color:var(--ub-azul); }
+.sim-alt.selecionada{ border-color:var(--ub-azul); background:rgba(0,122,255,.08); }
+.sim-alt.correta{ border-color:var(--ok); background:rgba(92,122,79,.18); color:var(--ok-glow); }
+.sim-alt.incorreta{ border-color:var(--bad); background:rgba(194,75,75,.14); color:var(--bad); }
+.sim-explicacao{ margin-top:16px; padding:12px 14px; background:rgba(180,145,75,.08); border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:13px; line-height:1.6; color:var(--text-light); }
