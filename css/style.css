@@ -710,3 +710,63 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .sim-alt.correta{ border-color:var(--ok); background:rgba(92,122,79,.18); color:var(--ok-glow); }
 .sim-alt.incorreta{ border-color:var(--bad); background:rgba(194,75,75,.14); color:var(--bad); }
 .sim-explicacao{ margin-top:16px; padding:12px 14px; background:rgba(180,145,75,.08); border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:13px; line-height:1.6; color:var(--text-light); }
+/* ==========================================================================
+   ADIÇÕES — nova casca "dashboard" (sidebar, busca global, stat cards,
+   atividade, streak, metas). Reaproveita a sidebar responsiva já existente
+   em .tabbar (desktop ≥860px) em vez de criar um layout paralelo.
+   ========================================================================== */
+
+/* Sidebar: cabeçalho de seção e rodapé com perfil/streak/meta */
+.sidebar-footer{ margin-top:auto; padding-top:16px; border-top:1px solid var(--border-color); display:flex; flex-direction:column; gap:10px; }
+.sidebar-mini-card{ background:var(--ink-3); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 12px; font-size:11.5px; color:var(--text-muted); }
+.sidebar-mini-card b{ color:var(--brass-light); }
+
+/* Barra de busca global no letterhead */
+.global-search-trigger{ display:flex; align-items:center; gap:8px; background:var(--ink-3); border:1px solid var(--border-color); border-radius:20px; padding:8px 14px; color:var(--text-muted); font-size:12.5px; cursor:pointer; min-width:220px; }
+.global-search-trigger kbd{ margin-left:auto; font-family:'IBM Plex Mono'; font-size:10px; background:rgba(255,255,255,.06); padding:2px 6px; border-radius:5px; }
+
+.gsearch-overlay{ position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); display:flex; align-items:flex-start; justify-content:center; padding:80px 16px; opacity:0; pointer-events:none; transition:var(--transition); }
+.gsearch-overlay.show{ opacity:1; pointer-events:auto; }
+.gsearch-box{ width:100%; max-width:560px; background:var(--ink-2); border:1px solid var(--border-color); border-radius:var(--radius-ui); box-shadow:var(--shadow-lg); overflow:hidden; }
+.gsearch-box input{ border:none; border-radius:0; border-bottom:1px solid var(--border-color); font-size:15px; padding:16px; }
+.gsearch-results{ max-height:50vh; overflow-y:auto; }
+.gsearch-item{ display:flex; align-items:center; gap:12px; padding:11px 16px; cursor:pointer; }
+.gsearch-item:hover{ background:var(--card-hover-bg); }
+.gsearch-tipo{ font-size:9.5px; text-transform:uppercase; color:var(--brass-light); font-family:'IBM Plex Mono'; border:1px solid var(--border-color); border-radius:6px; padding:2px 6px; flex-shrink:0; }
+.gsearch-label{ font-size:13px; color:var(--text-main); }
+.gsearch-sub{ font-size:10.5px; color:var(--text-muted); }
+
+/* Stat cards com ícone colorido (topo de Simulados) */
+.dash-stat{ display:flex; align-items:center; gap:12px; background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:14px 16px; }
+.dash-stat-ic{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.dash-stat-label{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); }
+.dash-stat-n{ font-family:'Fraunces', serif; font-size:19px; color:var(--text-main); }
+.dash-stat-sub{ font-size:10px; color:var(--text-muted); }
+
+/* Provas disponíveis */
+.dash-provas-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
+.dash-prova-card{ cursor:pointer; }
+.dash-prova-ano{ font-family:'Fraunces', serif; font-size:18px; color:var(--text-main); }
+.dash-prova-meta{ font-size:10.5px; color:var(--text-muted); margin-bottom:8px; }
+.dash-prova-pct{ font-size:10px; color:var(--text-muted); margin-top:4px; }
+
+/* Painel lateral: desempenho / atividade / temas */
+.dash-side-panel{ margin-bottom:16px; }
+.dash-disc-row{ display:flex; align-items:center; font-size:12px; padding:6px 0; }
+.dash-activity-row{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.dash-activity-ic{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.dash-activity-ic.acerto{ background:rgba(92,122,79,.25); color:var(--ok-glow); }
+.dash-activity-ic.erro{ background:rgba(194,75,75,.2); color:var(--bad); }
+.dash-activity-ic.simulado{ background:rgba(0,122,255,.2); color:var(--ub-azul); }
+.dash-activity-txt{ font-size:12px; color:var(--text-light); }
+.dash-activity-time{ font-size:10px; color:var(--text-muted); }
+.dash-tema-row{ display:flex; align-items:center; gap:8px; font-size:12px; padding:5px 0; color:var(--text-light); }
+.dash-tema-row span:first-child{ color:var(--brass-light); font-family:'IBM Plex Mono'; width:14px; }
+
+/* Streak */
+.dash-streak-n{ font-family:'Fraunces', serif; font-size:20px; color:var(--brass-light); }
+.dash-streak-sub{ font-size:11px; color:var(--text-muted); margin-bottom:10px; }
+.dash-streak-days{ display:flex; justify-content:space-between; gap:4px; }
+.dash-streak-day{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; color:var(--text-muted); }
+.dash-streak-dot{ width:24px; height:24px; border-radius:50%; background:var(--ink-3); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:11px; }
+.dash-streak-dot.active{ background:rgba(46,196,182,.25); border-color:var(--ub-verde); color:var(--ub-verde); }
