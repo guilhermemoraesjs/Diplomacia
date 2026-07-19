@@ -1,21 +1,29 @@
 /* ==========================================================================
-   paises.js — módulo "Países": fichas geopolíticas (capital, população,
-   moeda, organizações internacionais) em grade de cards + mapa-múndi
-   interativo por coordenadas + página detalhada com abas.
+   paises.js — módulo "Países".
 
-   Histórico de atualizações:
-   1) Bandeiras reais (flagcdn.com) em vez de emoji de bandeira.
-   2) Mapa-múndi com continentes reais (d3-geo + topojson), servidos como
-      arquivos locais do projeto (vendor/ e data/), sem depender de CDN.
-   3) Destaque do território do país selecionado no mapa.
-   4) NOVO — página de detalhe com abas (Geral, Governo, Economia,
-      Relações Internacionais, Organizações, Geografia, História,
-      Curiosidades, Flashcards, Atualidades, Questões CACD), usando os
-      arquivos ricos data/paises/{brasil,eua,china,franca,russia}.json
-      que já existiam no projeto mas não eram usados em lugar nenhum.
-      Para países sem arquivo completo, mostra os dados básicos que já
-      existiam e avisa que a ficha completa ainda não foi cadastrada
-      (sem inventar informação).
+   ARQUITETURA (Etapa 1 — refatoração estrutural, sem mudança de visual ou
+   de conteúdo):
+
+   1) SEM MODAL. Cada país abre em uma PÁGINA (dentro da subview
+      "paisesLista", substituindo a lista), nunca mais num modal.
+   2) ROTEAMENTO POR URL. Abrir um país empurra `#/paises/{id}` para a URL
+      via History API. Isso dá: refresh mantém a página aberta, voltar/
+      avançar do navegador funciona, e o link é compartilhável. Não existe
+      backend/roteador — é tudo resolvido no cliente com hash + popstate.
+   3) PÁGINA ÚNICA E REUTILIZÁVEL. Não existe "página do Brasil", "página
+      da França" etc. Existe UMA função de render (`renderPaisDetalhe`)
+      que recebe dados normalizados de QUALQUER país.
+   4) NORMALIZAÇÃO DE DADOS. `normalizarPais(basico, completo)` é o único
+      lugar do código que decide "de onde vem cada campo, e o que mostrar
+      se não existir". Todo o resto do módulo trabalha sempre com o mesmo
+      formato de objeto — isso é o que permite adicionar muito mais
+      informação no futuro (novos campos, novos países) sem tocar na
+      estrutura de renderização.
+   5) COMPONENTES REUTILIZÁVEIS. Pedaços de HTML que se repetiam (grade de
+      informações, lista de badges, card genérico, estado vazio) viraram
+      pequenas funções `ui*`. As abas da página são um REGISTRO
+      (`PAIS_TAB_RENDERERS`), não um switch gigante — adicionar uma aba
+      nova é 1 função + 1 entrada em `PAIS_DETALHE_ABAS`.
    ========================================================================== */
 
 /* Paleta por continente — usada na barra inferior do card e nos marcadores
@@ -31,15 +39,7 @@ const CONTINENTE_COR = {
 };
 function continenteCor(c) { return CONTINENTE_COR[c] || 'var(--brass)'; }
 
-/* Mantido por compatibilidade (não é mais usado nos cards/modal/mapa,
-   que agora usam flagImgHtml), caso algo externo ainda dependa dele. */
-function flagEmoji(code) {
-  if (!code) return '🏳️';
-  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
-}
-
-/* Bandeira real via flagcdn.com (SVG/PNG por código ISO 3166-1 alpha-2).
-   Muito mais confiável entre navegadores/SO do que emoji de bandeira. */
+/* Bandeira real via flagcdn.com (SVG/PNG por código ISO 3166-1 alpha-2). */
 function flagImgHtml(code, cls) {
   if (!code) return '';
   const c = code.toLowerCase();
@@ -52,8 +52,9 @@ function fmtPopulacao(n) {
   return n.toLocaleString('pt-BR');
 }
 
-/* Fonte de verdade dos países. lat/lng ~ localização da capital, usada
-   para posicionar o marcador no mapa-múndi (projeção equiretangular). */
+/* ==========================================================================
+   FONTE DE DADOS — camada "básica" (sempre disponível, usada na grade/mapa)
+   ========================================================================== */
 function paisesDefault() {
   return [
     { id: 'de', code: 'DE', nome: 'Alemanha', continente: 'Europa', capital: 'Berlim', populacao: 84000000, moeda: 'Euro (EUR)', idioma: 'Alemão', governo: 'República Federal Parlamentarista', lat: 52.52, lng: 13.40, organizacoes: ['UE', 'OTAN', 'G7', 'ONU'] },
@@ -64,8 +65,7 @@ function paisesDefault() {
     { id: 'cn', code: 'CN', nome: 'China', continente: 'Ásia', capital: 'Pequim', populacao: 1412000000, moeda: 'Yuan (CNY)', idioma: 'Mandarim', governo: 'República Popular Socialista', lat: 39.90, lng: 116.41, organizacoes: ['BRICS', 'G20', 'ONU (P5)', 'OMC'] },
     { id: 'es', code: 'ES', nome: 'Espanha', continente: 'Europa', capital: 'Madri', populacao: 47000000, moeda: 'Euro (EUR)', idioma: 'Espanhol', governo: 'Monarquia Parlamentarista', lat: 40.42, lng: -3.70, organizacoes: ['UE', 'OTAN', 'ONU'] },
     { id: 'us', code: 'US', nome: 'Estados Unidos', continente: 'América do Norte', capital: 'Washington, D.C.', populacao: 335000000, moeda: 'Dólar americano (USD)', idioma: 'Inglês', governo: 'República Federativa Presidencialista', lat: 38.90, lng: -77.04, organizacoes: ['G7', 'G20', 'OTAN', 'ONU (P5)'] },
-    { id: 'fr', code: 'FR', nome: 'França', continente: 'Europa', capital: 'Paris', populacao: 68400000, area: '643.801 km²', moeda: 'Euro (EUR)', idioma: 'Francês', fuso: 'UTC+1', governo: 'República semipresidencialista', nomeOficial: 'República Francesa', chefeEstado: 'Emmanuel Macron', chefeGoverno: 'Gabriel Attal', independencia: '4 de setembro de 1870', regiao: 'Europa Ocidental', subregiao: 'Europa Ocidental',
-      sobre: 'A França é uma república soberana transcontinental, cujo território metropolitano está localizado na Europa Ocidental e cujos territórios ultramarinos se espalham por diferentes regiões do mundo.',
+    { id: 'fr', code: 'FR', nome: 'França', continente: 'Europa', capital: 'Paris', populacao: 68400000, area: '643.801 km²', moeda: 'Euro (EUR)', idioma: 'Francês', governo: 'República semipresidencialista', nomeOficial: 'República Francesa', regiao: 'Europa Ocidental',
       curiosidade: 'A França é o país mais visitado do mundo, recebendo mais de 90 milhões de turistas por ano.',
       lat: 48.86, lng: 2.35, organizacoes: ['ONU (P5)', 'UE', 'OTAN', 'OCDE', 'G7', 'G20', 'UNESCO'] },
     { id: 'in', code: 'IN', nome: 'Índia', continente: 'Ásia', capital: 'Nova Délhi', populacao: 1428000000, moeda: 'Rupia indiana (INR)', idioma: 'Hindi / Inglês', governo: 'República Federativa Parlamentarista', lat: 28.61, lng: 77.21, organizacoes: ['BRICS', 'G20', 'ONU'] },
@@ -83,11 +83,12 @@ function paisesDefault() {
 }
 let paises = load('diplo_paises', null) || paisesDefault();
 let paisesFiltroContinente = 'todos';
-let paisesOrdem = 'az';
+let paisesFiltros = {
+  idioma: 'todos', organizacao: 'todos', moeda: 'todos', governo: 'todos',
+  g20: 'todos', brics: 'todos', ue: 'todos', ordenarPor: 'nome-az'
+};
+const GOVERNO_CATEGORIAS = ['Presidencialista', 'Semipresidencialista', 'Parlamentarista', 'Monarquia', 'Socialista'];
 
-/* Código ISO 3166-1 NUMÉRICO de cada país (é assim que o world-atlas
-   identifica o território de cada um no arquivo de fronteiras). Usado só
-   para casar cada `pais.id` com o polígono certo no mapa. */
 const ISO_NUMERICO_POR_PAIS = {
   de: 276, ar: 32, au: 36, br: 76, ca: 124, cn: 156, es: 724, us: 840,
   fr: 250, in: 356, il: 376, it: 380, jp: 392, mx: 484, pt: 620, gb: 826,
@@ -97,23 +98,93 @@ const PAIS_POR_ISO_NUMERICO = Object.fromEntries(
   Object.entries(ISO_NUMERICO_POR_PAIS).map(([id, iso]) => [iso, id])
 );
 
-/* Nome do arquivo em data/paises/ para os países que já têm ficha
-   completa cadastrada (governo, economia, relações, geografia, história,
-   curiosidades, flashcards). Os demais países mostram só o básico. */
+/* Arquivo em data/paises/ com a ficha completa (quando existir). */
 const PAIS_ARQUIVO_DETALHADO = { br: 'brasil', us: 'eua', cn: 'china', fr: 'franca', ru: 'russia' };
 
+function idiomasDoPais(p) {
+  return (p.idioma || '').split('/').map(s => s.replace(/\(.*?\)/g, '').trim()).filter(Boolean);
+}
+function organizacoesBaseDoPais(p) {
+  return (p.organizacoes || []).map(o => o.replace(/\(.*?\)/g, '').trim());
+}
+function listaIdiomasUnicos() {
+  const set = new Set(); paises.forEach(p => idiomasDoPais(p).forEach(i => set.add(i)));
+  return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+function listaOrganizacoesUnicas() {
+  const set = new Set(); paises.forEach(p => organizacoesBaseDoPais(p).forEach(o => set.add(o)));
+  return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+function listaMoedasUnicas() {
+  return [...new Set(paises.map(p => p.moeda))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
 function listaContinentes() { return [...new Set(paises.map(p => p.continente))].sort(); }
 
+/* ==========================================================================
+   GRADE + FILTROS (view "lista")
+   ========================================================================== */
 function renderPaisesFiltros() {
   const el = document.getElementById('paisesFiltroContinente'); if (!el) return;
   const conts = ['todos', ...listaContinentes()];
   el.innerHTML = conts.map(c => `<button class="chip ${paisesFiltroContinente === c ? 'active' : ''}" onclick="setPaisesFiltroContinente('${c}')">${c === 'todos' ? 'Todos' : c}</button>`).join('');
 }
 function setPaisesFiltroContinente(c) { paisesFiltroContinente = c; renderPaisesFiltros(); renderPaises(); }
+
 function togglePaisesOrdem() {
-  paisesOrdem = paisesOrdem === 'az' ? 'za' : 'az';
-  document.getElementById('paisesOrdemBtn').textContent = paisesOrdem === 'az' ? 'A → Z' : 'Z → A';
+  paisesFiltros.ordenarPor = paisesFiltros.ordenarPor === 'nome-za' ? 'nome-az' : 'nome-za';
+  atualizarLabelOrdenacao(); renderPaisesFiltrosAvancados(); renderPaises();
+}
+function atualizarLabelOrdenacao() {
+  const btn = document.getElementById('paisesOrdemBtn'); if (!btn) return;
+  const labels = { 'nome-az': 'A → Z', 'nome-za': 'Z → A', 'pop-desc': 'Pop. ↓', 'pop-asc': 'Pop. ↑' };
+  btn.textContent = labels[paisesFiltros.ordenarPor] || 'Ordenar';
+}
+
+function togglePaisesFiltrosAvancados() {
+  const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
+  const abrindo = el.style.display === 'none' || !el.style.display;
+  el.style.display = abrindo ? 'block' : 'none';
+  const btn = document.getElementById('paisesFiltrosAvancadosBtn');
+  if (btn) btn.textContent = abrindo ? '⚙ Ocultar filtros' : '⚙ Mais filtros';
+}
+function renderPaisesFiltrosAvancados() {
+  const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
+  const opcoes = (atual, valores) => ['<option value="todos">Todos</option>']
+    .concat(valores.map(v => `<option value="${v}" ${atual === v ? 'selected' : ''}>${v}</option>`)).join('');
+  const opcoesSimNao = (atual) => `
+    <option value="todos" ${atual === 'todos' ? 'selected' : ''}>Todos</option>
+    <option value="sim" ${atual === 'sim' ? 'selected' : ''}>Sim</option>
+    <option value="nao" ${atual === 'nao' ? 'selected' : ''}>Não</option>`;
+
+  el.innerHTML = `
+    <div class="pf-grid">
+      <div><label class="field-label">Idioma oficial</label><select onchange="setPaisesFiltro('idioma', this.value)">${opcoes(paisesFiltros.idioma, listaIdiomasUnicos())}</select></div>
+      <div><label class="field-label">Organização internacional</label><select onchange="setPaisesFiltro('organizacao', this.value)">${opcoes(paisesFiltros.organizacao, listaOrganizacoesUnicas())}</select></div>
+      <div><label class="field-label">Moeda</label><select onchange="setPaisesFiltro('moeda', this.value)">${opcoes(paisesFiltros.moeda, listaMoedasUnicas())}</select></div>
+      <div><label class="field-label">Forma de governo</label><select onchange="setPaisesFiltro('governo', this.value)">${opcoes(paisesFiltros.governo, GOVERNO_CATEGORIAS)}</select></div>
+      <div><label class="field-label">Membro do G20</label><select onchange="setPaisesFiltro('g20', this.value)">${opcoesSimNao(paisesFiltros.g20)}</select></div>
+      <div><label class="field-label">Membro do BRICS</label><select onchange="setPaisesFiltro('brics', this.value)">${opcoesSimNao(paisesFiltros.brics)}</select></div>
+      <div><label class="field-label">Membro da União Europeia</label><select onchange="setPaisesFiltro('ue', this.value)">${opcoesSimNao(paisesFiltros.ue)}</select></div>
+      <div><label class="field-label">Ordenar por</label>
+        <select onchange="setPaisesFiltro('ordenarPor', this.value)">
+          <option value="nome-az" ${paisesFiltros.ordenarPor === 'nome-az' ? 'selected' : ''}>Nome (A → Z)</option>
+          <option value="nome-za" ${paisesFiltros.ordenarPor === 'nome-za' ? 'selected' : ''}>Nome (Z → A)</option>
+          <option value="pop-desc" ${paisesFiltros.ordenarPor === 'pop-desc' ? 'selected' : ''}>População (maior → menor)</option>
+          <option value="pop-asc" ${paisesFiltros.ordenarPor === 'pop-asc' ? 'selected' : ''}>População (menor → maior)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn ghost small" style="margin-top:12px;" onclick="limparPaisesFiltrosAvancados()">Limpar filtros avançados</button>
+  `;
+}
+function setPaisesFiltro(campo, valor) {
+  paisesFiltros[campo] = valor;
+  if (campo === 'ordenarPor') atualizarLabelOrdenacao();
   renderPaises();
+}
+function limparPaisesFiltrosAvancados() {
+  paisesFiltros = { idioma: 'todos', organizacao: 'todos', moeda: 'todos', governo: 'todos', g20: 'todos', brics: 'todos', ue: 'todos', ordenarPor: 'nome-az' };
+  atualizarLabelOrdenacao(); renderPaisesFiltrosAvancados(); renderPaises();
 }
 
 function paisCardHtml(p) {
@@ -140,75 +211,139 @@ function paisCardHtml(p) {
 function renderPaises() {
   const el = document.getElementById('paisesGrid'); if (!el) return;
   const q = (document.getElementById('paisesSearch')?.value || '').trim().toLowerCase();
+
   let list = paises.filter(p => {
-    const matchQ = !q || p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q);
+    const matchQ = !q || p.nome.toLowerCase().includes(q) || p.capital.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q));
     const matchC = paisesFiltroContinente === 'todos' || p.continente === paisesFiltroContinente;
-    return matchQ && matchC;
+    const matchIdioma = paisesFiltros.idioma === 'todos' || idiomasDoPais(p).includes(paisesFiltros.idioma);
+    const matchOrg = paisesFiltros.organizacao === 'todos' || organizacoesBaseDoPais(p).includes(paisesFiltros.organizacao);
+    const matchMoeda = paisesFiltros.moeda === 'todos' || p.moeda === paisesFiltros.moeda;
+    const matchGoverno = paisesFiltros.governo === 'todos' || (p.governo || '').includes(paisesFiltros.governo);
+    const orgsBase = organizacoesBaseDoPais(p);
+    const matchG20 = paisesFiltros.g20 === 'todos' || (paisesFiltros.g20 === 'sim') === orgsBase.includes('G20');
+    const matchBrics = paisesFiltros.brics === 'todos' || (paisesFiltros.brics === 'sim') === orgsBase.includes('BRICS');
+    const matchUe = paisesFiltros.ue === 'todos' || (paisesFiltros.ue === 'sim') === orgsBase.includes('UE');
+    return matchQ && matchC && matchIdioma && matchOrg && matchMoeda && matchGoverno && matchG20 && matchBrics && matchUe;
   });
-  list.sort((a, b) => paisesOrdem === 'az' ? a.nome.localeCompare(b.nome, 'pt-BR') : b.nome.localeCompare(a.nome, 'pt-BR'));
 
-  el.innerHTML = list.length ? list.map(paisCardHtml).join('') : '<div class="empty" style="padding:20px 0; color:var(--text-muted);">Nenhum país encontrado para esse filtro.</div>';
+  list.sort((a, b) => {
+    switch (paisesFiltros.ordenarPor) {
+      case 'nome-za': return b.nome.localeCompare(a.nome, 'pt-BR');
+      case 'pop-desc': return b.populacao - a.populacao;
+      case 'pop-asc': return a.populacao - b.populacao;
+      default: return a.nome.localeCompare(b.nome, 'pt-BR');
+    }
+  });
 
-  // reinicia a animação de entrada a cada filtragem/busca
-  el.classList.remove('filtering');
-  void el.offsetWidth;
-  el.classList.add('filtering');
+  el.innerHTML = list.length ? list.map(paisCardHtml).join('') : '<div class="empty" style="padding:20px 0; color:var(--text-muted);">Nenhum país encontrado para esses filtros.</div>';
+  el.classList.remove('filtering'); void el.offsetWidth; el.classList.add('filtering');
 
   const lbl = document.getElementById('paisesCountLabel');
-  if (lbl) lbl.textContent = paises.length + ' país' + (paises.length === 1 ? '' : 'es') + ' catalogado' + (paises.length === 1 ? '' : 's');
-}
-
-/* ---- Modal rápido (continua existindo — usado a partir do mapa-múndi) --- */
-let paisModalIdAtual = null;
-function abrirPaisModal(id) {
-  const p = paises.find(x => x.id === id); if (!p) return;
-  paisModalIdAtual = id;
-  const orgs = p.organizacoes || [];
-  document.getElementById('paisModalBody').innerHTML = `
-    <div class="pm-hero" style="--accent:${continenteCor(p.continente)}">
-      <span class="pm-flag">${flagImgHtml(p.code)}</span>
-      <div>
-        <h3 style="margin-bottom:2px;">${p.nome}</h3>
-        <div class="pm-sub mono">${p.nomeOficial || p.nome} · ${p.continente}</div>
-      </div>
-    </div>
-    ${p.sobre ? `<p class="pm-sobre">${p.sobre}</p>` : ''}
-    <div class="pm-grid">
-      <div class="pm-item"><span class="field-label">Capital</span>${p.capital}</div>
-      <div class="pm-item"><span class="field-label">População</span>${fmtPopulacao(p.populacao)}</div>
-      <div class="pm-item"><span class="field-label">Moeda</span>${p.moeda}</div>
-      <div class="pm-item"><span class="field-label">Idioma</span>${p.idioma || '—'}</div>
-      <div class="pm-item"><span class="field-label">Governo</span>${p.governo || '—'}</div>
-      ${p.area ? `<div class="pm-item"><span class="field-label">Área</span>${p.area}</div>` : ''}
-      ${p.chefeEstado ? `<div class="pm-item"><span class="field-label">Chefe de Estado</span>${p.chefeEstado}</div>` : ''}
-      ${p.chefeGoverno ? `<div class="pm-item"><span class="field-label">Chefe de Governo</span>${p.chefeGoverno}</div>` : ''}
-    </div>
-    ${orgs.length ? `<div style="margin-top:14px;"><span class="field-label">Organizações internacionais</span><div class="pc-orgs" style="margin-top:6px;">${orgs.map(o => `<span class="org-badge">${o}</span>`).join('')}</div></div>` : ''}
-    ${p.curiosidade ? `<div class="pm-curiosidade"><span class="field-label">Curiosidade</span>${p.curiosidade}</div>` : ''}
-    <div style="margin-top:18px; text-align:right;">
-      <button class="btn secondary small" onclick="abrirPaisDetalheFromModal('${p.id}')">Ver ficha completa →</button>
-    </div>
-  `;
-  document.getElementById('paisModal').classList.add('show');
-}
-function closePaisModal(e) { if (e.target.classList.contains('modal-overlay')) closePaisModalDirect(); }
-function closePaisModalDirect() { document.getElementById('paisModal').classList.remove('show'); }
-function abrirPaisDetalheFromModal(id) {
-  closePaisModalDirect();
-  goSub('paisesLista');
-  abrirPaisDetalhe(id);
+  if (lbl) {
+    lbl.textContent = list.length === paises.length
+      ? paises.length + ' país' + (paises.length === 1 ? '' : 'es') + ' catalogado' + (paises.length === 1 ? '' : 's')
+      : list.length + ' de ' + paises.length + ' países (filtrados)';
+  }
 }
 
 /* ==========================================================================
-   Página de detalhe — abas completas (Geral, Governo e Política, Economia,
-   Relações Internacionais, Organizações, Geografia, História,
-   Curiosidades, Flashcards, Atualidades, Questões CACD).
-
-   Requer, no index.html, que o conteúdo de #sub-paisesLista esteja
-   organizado assim (ver instruções enviadas junto com este arquivo):
-     <div id="paisesListaWrap"> ...toolbar + #paisesGrid... </div>
-     <div id="paisesDetalheWrap" style="display:none;"></div>
+   CAMADA DE DADOS DA PÁGINA DE PAÍS — busca + normalização
    ========================================================================== */
+let paisFichaCache = {}; // arquivo (ex.: "brasil") -> JSON já carregado
+async function carregarFichaCompletaPais(paisId) {
+  const arquivo = PAIS_ARQUIVO_DETALHADO[paisId];
+  if (!arquivo) return null;
+  if (paisFichaCache[arquivo]) return paisFichaCache[arquivo];
+  try {
+    const res = await fetch(`data/paises/${arquivo}.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const dados = await res.json();
+    paisFichaCache[arquivo] = dados;
+    return dados;
+  } catch (e) {
+    console.error(`Falha ao carregar ficha completa de "${paisId}" (data/paises/${arquivo}.json):`, e);
+    return null;
+  }
+}
+
+/* Único lugar do código que decide "de onde vem cada campo, e o que
+   mostrar se não existir". A página de detalhe (e suas abas) trabalham
+   sempre com o formato normalizado abaixo — nunca com `basico`/`completo`
+   crus. Isso é o que permite acrescentar mais dados no futuro (novos
+   campos, novos países com ou sem ficha completa) sem tocar em nada da
+   renderização. */
+function normalizarPais(basico, completo) {
+  const p = basico, c = completo;
+  return {
+    id: p.id,
+    code: p.code,
+    nome: p.nome,
+    nomeOficial: (c && c.nomeOficial) || p.nomeOficial || p.nome,
+    continente: p.continente,
+    regiao: (c && c.regiao) || p.regiao || p.continente,
+    capital: (c && c.capital) || p.capital,
+    populacao: (c && c.populacao) || fmtPopulacao(p.populacao),
+    area: (c && c.area) || p.area || '—',
+    idiomas: (c && c.idiomas) || idiomasDoPais(p),
+    moeda: (c && c.moeda) || p.moeda,
+    fusoHorario: (c && c.fusoHorario) || '—',
+    dominio: (c && c.dominio) || '—',
+    codigoTelefonico: (c && c.codigoTelefonico) || '—',
+    governo: (c && c.governo) || { sistema: p.governo || '—', chefeEstado: '—', chefeGoverno: '—', constituicao: '—' },
+    economia: (c && c.economia) || null,
+    relacoes: (c && c.relacoes) || null,
+    organizacoes: (c && c.organizacoes) || (p.organizacoes || []).map(sigla => ({ sigla, nome: sigla })),
+    geografia: (c && c.geografia) || null,
+    historia: (c && c.historia) || [],
+    curiosidades: (c && c.curiosidades) || (p.curiosidade ? [p.curiosidade] : []),
+    flashcardsExtras: (c && c.flashcardsExtras) || [],
+    atualidades: (c && c.atualidades) || [],
+    questoesCACD: (c && c.questoesCACD) || [],
+    temFichaCompleta: !!c
+  };
+}
+
+/* ==========================================================================
+   COMPONENTES REUTILIZÁVEIS (blocos de HTML que se repetiam nas abas)
+   ========================================================================== */
+function uiInfoItem(label, valor) {
+  return `<div class="pm-item"><span class="field-label">${label}</span>${valor || '—'}</div>`;
+}
+function uiInfoGrid(pares) {
+  return `<div class="pm-grid">${pares.map(([l, v]) => uiInfoItem(l, v)).join('')}</div>`;
+}
+function uiBadgeList(itens) {
+  if (!itens || !itens.length) return '';
+  return `<div class="pc-orgs" style="margin-top:6px;">${itens.map(x => `<span class="org-badge">${x}</span>`).join('')}</div>`;
+}
+function uiEmpty(msg) { return `<div class="biblio-empty">${msg}</div>`; }
+function uiCardItem(topo, corpoHtml, estiloExtra) {
+  return `<div class="card" style="margin:0; padding:12px 14px;${estiloExtra || ''}">${topo ? `<div class="mono" style="font-size:11px; color:var(--brass-light);">${topo}</div>` : ''}<div style="font-size:13.5px; margin-top:${topo ? '2px' : '0'}; line-height:1.55;">${corpoHtml}</div></div>`;
+}
+function uiCarregando() { return '<div class="empty" style="padding:60px 0; text-align:center; color:var(--text-muted);">Carregando ficha completa…</div>'; }
+function uiPaisHero(n) {
+  return `
+    <div class="pd-hero" style="--accent:${continenteCor(n.continente)}">
+      <span class="pd-flag">${flagImgHtml(n.code)}</span>
+      <div>
+        <h2 style="margin-bottom:3px;">${n.nome}</h2>
+        <div class="pd-sub mono">${n.nomeOficial} · ${n.continente}${n.regiao && n.regiao !== n.continente ? ' · ' + n.regiao : ''}</div>
+        ${!n.temFichaCompleta ? '<span class="pd-badge-basico">Ficha básica — dados completos ainda não cadastrados</span>' : ''}
+      </div>
+    </div>`;
+}
+function uiPaisTabs(abas, atual) {
+  return `<div class="subtabs" style="margin:16px 20px 0;">${abas.map(a =>
+    `<button class="subtab-btn ${atual === a.id ? 'active' : ''}" onclick="irParaAbaPaisDetalhe('${a.id}')">${a.label}</button>`
+  ).join('')}</div>`;
+}
+
+/* ==========================================================================
+   REGISTRO DE ABAS — cada aba é uma entrada (id, label) + uma função pura
+   (n) => html. Adicionar uma aba nova = 1 função + 1 linha aqui embaixo.
+   ========================================================================== */
+const RELACAO_NOME_AMIGAVEL = { brasil: 'Brasil', eua: 'Estados Unidos', china: 'China', ue: 'União Europeia', regional: 'Relações regionais' };
+
 const PAIS_DETALHE_ABAS = [
   { id: 'geral', label: 'Geral' },
   { id: 'governo', label: 'Governo e Política' },
@@ -222,54 +357,113 @@ const PAIS_DETALHE_ABAS = [
   { id: 'atualidades', label: 'Atualidades' },
   { id: 'questoes', label: 'Questões CACD' }
 ];
-const RELACAO_NOME_AMIGAVEL = { brasil: 'Brasil', eua: 'Estados Unidos', china: 'China', ue: 'União Europeia', regional: 'Relações regionais' };
 
-let paisDetalheCache = {};   // arquivo (ex.: "brasil") -> JSON já carregado
-let paisDetalheAtual = null; // { basico, completo } do país aberto agora
+const PAIS_TAB_RENDERERS = {
+  geral(n) {
+    return uiInfoGrid([
+      ['Nome oficial', n.nomeOficial], ['Capital', n.capital], ['População', n.populacao],
+      ['Área', n.area], ['Idiomas', (n.idiomas || []).join(', ')], ['Moeda', n.moeda],
+      ['Região', n.regiao], ['Fuso horário', n.fusoHorario], ['Domínio', n.dominio], ['Código telefônico', n.codigoTelefonico]
+    ]) + (n.curiosidades[0] ? `<div class="pm-curiosidade" style="margin-top:16px;"><span class="field-label">Em destaque</span>${n.curiosidades[0]}</div>` : '');
+  },
+  governo(n) {
+    const g = n.governo;
+    return uiInfoGrid([['Sistema', g.sistema], ['Chefe de Estado', g.chefeEstado], ['Chefe de Governo', g.chefeGoverno], ['Constituição', g.constituicao]]);
+  },
+  economia(n) {
+    if (!n.economia) return uiEmpty('Nenhum dado econômico cadastrado ainda para este país.');
+    const e = n.economia;
+    return uiInfoGrid([['PIB (nominal)', e.pib], ['PIB (PPC)', e.pibPPC], ['PIB per capita', e.pibPerCapita], ['Crescimento', e.crescimento], ['Inflação', e.inflacao], ['Desemprego', e.desemprego]])
+      + `<div style="margin-top:14px;"><span class="field-label">Exportações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.exportacoes || '—'}</p></div>`
+      + `<div style="margin-top:10px;"><span class="field-label">Importações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.importacoes || '—'}</p></div>`
+      + (e.parceiros && e.parceiros.length ? `<div style="margin-top:10px;"><span class="field-label">Principais parceiros</span>${uiBadgeList(e.parceiros)}</div>` : '')
+      + (e.produtos && e.produtos.length ? `<div style="margin-top:10px;"><span class="field-label">Principais produtos</span>${uiBadgeList(e.produtos)}</div>` : '');
+  },
+  relacoes(n) {
+    if (!n.relacoes || !Object.keys(n.relacoes).length) return uiEmpty('Sem informações de relações internacionais cadastradas.');
+    return Object.entries(n.relacoes).map(([k, v]) => `
+      <div style="margin-bottom:14px;"><span class="field-label">${RELACAO_NOME_AMIGAVEL[k] || k}</span><p style="font-size:13.5px; line-height:1.6; margin:4px 0 0;">${v}</p></div>
+    `).join('');
+  },
+  organizacoes(n) {
+    if (!n.organizacoes.length) return uiEmpty('Nenhuma organização cadastrada.');
+    return `<div style="display:grid; gap:10px;">${n.organizacoes.map(o => uiCardItem(o.sigla, o.nome)).join('')}</div>`;
+  },
+  geografia(n) {
+    if (!n.geografia) return uiEmpty('Nenhum dado geográfico cadastrado ainda para este país.');
+    const g = n.geografia;
+    return `<div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Clima</span>${g.clima || '—'}</div>
+      <div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Relevo</span>${g.relevo || '—'}</div>`
+      + uiInfoGrid([
+        ['Países vizinhos', (g.paisesVizinhos || []).join(', ')],
+        ['Principais rios', (g.rios || []).join(', ')],
+        ['Principais cidades', (g.principaisCidades || []).join(', ')]
+      ]);
+  },
+  historia(n) {
+    if (!n.historia.length) return uiEmpty('Nenhum evento histórico cadastrado.');
+    return `<div style="display:flex; flex-direction:column; gap:10px;">${n.historia.map(item => uiCardItem(item.ano, item.evento, ' border-left:3px solid var(--brass);')).join('')}</div>`;
+  },
+  curiosidades(n) {
+    if (!n.curiosidades.length) return uiEmpty('Nenhuma curiosidade cadastrada.');
+    return `<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px;">${n.curiosidades.map(x => `<li style="font-size:13.5px; line-height:1.6;">${x}</li>`).join('')}</ul>`;
+  },
+  flashcards(n) {
+    if (!n.flashcardsExtras.length) return uiEmpty('Nenhum flashcard cadastrado para este país.');
+    return `<div style="display:grid; gap:10px;">${n.flashcardsExtras.map(f => `
+      <div class="card pd-flash" onclick="this.classList.toggle('flipped')">
+        <span class="field-label">Pergunta <span class="pd-flash-hint">(clique para ver a resposta)</span></span>
+        <div style="font-size:13.5px; margin:4px 0 0;">${f.pergunta}</div>
+        <div class="pd-flash-resposta"><span class="field-label">Resposta</span><div style="font-size:13.5px; margin-top:4px; color:var(--brass-light);">${f.resposta}</div></div>
+      </div>`).join('')}</div>`;
+  },
+  atualidades(n) {
+    if (!n.atualidades.length) return uiEmpty('Nenhuma atualidade cadastrada ainda para este país.');
+    return n.atualidades.map(a => uiCardItem(null, `<h4 style="margin-bottom:4px;">${a.titulo}</h4><p>${a.resumo}</p>`, ' margin-bottom:10px;')).join('');
+  },
+  questoes(n) {
+    if (!n.questoesCACD.length) return uiEmpty('Nenhuma questão CACD cadastrada ainda para este país.');
+    return n.questoesCACD.map(item => uiCardItem(null, item.texto || JSON.stringify(item), ' margin-bottom:10px;')).join('');
+  }
+};
+
+/* ==========================================================================
+   PÁGINA DE DETALHE — abrir/fechar/renderizar (uma página só, para
+   qualquer país). Requer no index.html:
+     <div id="paisesListaWrap"> ...toolbar + #paisesGrid... </div>
+     <div id="paisesDetalheWrap" style="display:none;"></div>
+   ========================================================================== */
+let paisDetalheAtual = null; // objeto NORMALIZADO do país aberto agora (ou null)
 let paisDetalheAbaAtual = 'geral';
 
-async function carregarFichaCompletaPais(paisId) {
-  const arquivo = PAIS_ARQUIVO_DETALHADO[paisId];
-  if (!arquivo) return null;
-  if (paisDetalheCache[arquivo]) return paisDetalheCache[arquivo];
-  try {
-    const res = await fetch(`data/paises/${arquivo}.json`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const dados = await res.json();
-    paisDetalheCache[arquivo] = dados;
-    return dados;
-  } catch (e) {
-    console.error(`Falha ao carregar ficha completa de "${paisId}" (data/paises/${arquivo}.json):`, e);
-    return null;
-  }
-}
-
-async function abrirPaisDetalhe(id) {
+async function abrirPaisDetalhe(id, opts = {}) {
+  const atualizarUrl = opts.atualizarUrl !== false;
   const p = paises.find(x => x.id === id); if (!p) return;
+
   const listaWrap = document.getElementById('paisesListaWrap');
   const detalheWrap = document.getElementById('paisesDetalheWrap');
-  if (!detalheWrap) {
-    // index.html ainda não tem a estrutura nova — cai no modal rápido pra não quebrar nada
-    abrirPaisModal(id);
-    return;
-  }
+  if (!detalheWrap) return; // index.html precisa da estrutura descrita acima
+
   if (listaWrap) listaWrap.style.display = 'none';
   detalheWrap.style.display = 'block';
-  detalheWrap.innerHTML = '<div class="empty" style="padding:60px 0; text-align:center; color:var(--text-muted);">Carregando ficha completa…</div>';
+  detalheWrap.innerHTML = uiCarregando();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const completo = await carregarFichaCompletaPais(id);
-  paisDetalheAtual = { basico: p, completo };
+  paisDetalheAtual = normalizarPais(p, completo);
   paisDetalheAbaAtual = 'geral';
   renderPaisDetalhe();
+  if (atualizarUrl) atualizarUrlPais(id);
 }
 
-function fecharPaisDetalhe() {
+function fecharPaisDetalhe(opts = {}) {
+  const atualizarUrl = opts.atualizarUrl !== false;
   const listaWrap = document.getElementById('paisesListaWrap');
   const detalheWrap = document.getElementById('paisesDetalheWrap');
   if (detalheWrap) { detalheWrap.style.display = 'none'; detalheWrap.innerHTML = ''; }
   if (listaWrap) listaWrap.style.display = 'block';
   paisDetalheAtual = null;
+  if (atualizarUrl) limparUrlPais();
 }
 
 function irParaAbaPaisDetalhe(aba) {
@@ -279,173 +473,51 @@ function irParaAbaPaisDetalhe(aba) {
 
 function renderPaisDetalhe() {
   const wrap = document.getElementById('paisesDetalheWrap'); if (!wrap || !paisDetalheAtual) return;
-  const { basico: p, completo: c } = paisDetalheAtual;
-  const abas = c ? PAIS_DETALHE_ABAS : [{ id: 'geral', label: 'Geral' }];
-  if (!abas.some(a => a.id === paisDetalheAbaAtual)) paisDetalheAbaAtual = 'geral';
-
-  const tabsHtml = abas.map(a =>
-    `<button class="subtab-btn ${paisDetalheAbaAtual === a.id ? 'active' : ''}" onclick="irParaAbaPaisDetalhe('${a.id}')">${a.label}</button>`
-  ).join('');
+  const n = paisDetalheAtual;
+  if (!PAIS_DETALHE_ABAS.some(a => a.id === paisDetalheAbaAtual)) paisDetalheAbaAtual = 'geral';
+  const renderTab = PAIS_TAB_RENDERERS[paisDetalheAbaAtual] || (() => '');
 
   wrap.innerHTML = `
     <button class="btn ghost small" onclick="fecharPaisDetalhe()" style="margin-bottom:14px;">← Voltar à lista</button>
     <div class="card" style="padding:0; overflow:hidden;">
-      <div class="pd-hero" style="--accent:${continenteCor(p.continente)}">
-        <span class="pd-flag">${flagImgHtml(p.code)}</span>
-        <div>
-          <h2 style="margin-bottom:3px;">${p.nome}</h2>
-          <div class="pd-sub mono">${(c && c.nomeOficial) || p.nome} · ${p.continente}${c && c.regiao ? ' · ' + c.regiao : ''}</div>
-        </div>
-      </div>
-      <div class="subtabs" style="margin:16px 20px 0;">${tabsHtml}</div>
-      <div class="pd-tab-content">${renderAbaPaisDetalhe(paisDetalheAbaAtual, p, c)}</div>
+      ${uiPaisHero(n)}
+      ${uiPaisTabs(PAIS_DETALHE_ABAS, paisDetalheAbaAtual)}
+      <div class="pd-tab-content">${renderTab(n)}</div>
     </div>
   `;
 }
 
-function renderAbaPaisDetalhe(aba, p, c) {
-  if (!c) {
-    const orgs = p.organizacoes || [];
-    return `
-      <div class="pm-grid">
-        <div class="pm-item"><span class="field-label">Capital</span>${p.capital}</div>
-        <div class="pm-item"><span class="field-label">População</span>${fmtPopulacao(p.populacao)}</div>
-        <div class="pm-item"><span class="field-label">Moeda</span>${p.moeda}</div>
-        <div class="pm-item"><span class="field-label">Idioma</span>${p.idioma || '—'}</div>
-        <div class="pm-item"><span class="field-label">Governo</span>${p.governo || '—'}</div>
-      </div>
-      ${orgs.length ? `<div style="margin-top:14px;"><span class="field-label">Organizações internacionais</span><div class="pc-orgs" style="margin-top:6px;">${orgs.map(o => `<span class="org-badge">${o}</span>`).join('')}</div></div>` : ''}
-      <div class="pd-aviso">Ficha completa deste país ainda não foi cadastrada — mostrando só os dados básicos disponíveis. Para liberar todas as abas (economia, história, relações internacionais etc.), crie um arquivo <code>data/paises/${p.id}.json</code> seguindo o mesmo formato usado para Brasil, EUA, China, França e Rússia.</div>
-    `;
-  }
-
-  switch (aba) {
-    case 'geral':
-      return `
-        <div class="pm-grid">
-          <div class="pm-item"><span class="field-label">Nome oficial</span>${c.nomeOficial || p.nome}</div>
-          <div class="pm-item"><span class="field-label">Capital</span>${c.capital || p.capital}</div>
-          <div class="pm-item"><span class="field-label">População</span>${c.populacao || fmtPopulacao(p.populacao)}</div>
-          <div class="pm-item"><span class="field-label">Área</span>${c.area || '—'}</div>
-          <div class="pm-item"><span class="field-label">Idiomas</span>${(c.idiomas || []).join(', ') || '—'}</div>
-          <div class="pm-item"><span class="field-label">Moeda</span>${c.moeda || p.moeda}</div>
-          <div class="pm-item"><span class="field-label">Região</span>${c.regiao || p.continente}</div>
-          <div class="pm-item"><span class="field-label">Fuso horário</span>${c.fusoHorario || '—'}</div>
-          <div class="pm-item"><span class="field-label">Domínio</span>${c.dominio || '—'}</div>
-          <div class="pm-item"><span class="field-label">Código telefônico</span>${c.codigoTelefonico || '—'}</div>
-        </div>
-        ${(c.curiosidades && c.curiosidades[0]) ? `<div class="pm-curiosidade" style="margin-top:16px;"><span class="field-label">Em destaque</span>${c.curiosidades[0]}</div>` : ''}
-      `;
-    case 'governo': {
-      const g = c.governo || {};
-      return `
-        <div class="pm-grid">
-          <div class="pm-item"><span class="field-label">Sistema</span>${g.sistema || '—'}</div>
-          <div class="pm-item"><span class="field-label">Chefe de Estado</span>${g.chefeEstado || '—'}</div>
-          <div class="pm-item"><span class="field-label">Chefe de Governo</span>${g.chefeGoverno || '—'}</div>
-          <div class="pm-item"><span class="field-label">Constituição</span>${g.constituicao || '—'}</div>
-        </div>
-      `;
-    }
-    case 'economia': {
-      const e = c.economia || {};
-      return `
-        <div class="pm-grid">
-          <div class="pm-item"><span class="field-label">PIB (nominal)</span>${e.pib || '—'}</div>
-          <div class="pm-item"><span class="field-label">PIB (PPC)</span>${e.pibPPC || '—'}</div>
-          <div class="pm-item"><span class="field-label">PIB per capita</span>${e.pibPerCapita || '—'}</div>
-          <div class="pm-item"><span class="field-label">Crescimento</span>${e.crescimento || '—'}</div>
-          <div class="pm-item"><span class="field-label">Inflação</span>${e.inflacao || '—'}</div>
-          <div class="pm-item"><span class="field-label">Desemprego</span>${e.desemprego || '—'}</div>
-        </div>
-        <div style="margin-top:14px;"><span class="field-label">Exportações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.exportacoes || '—'}</p></div>
-        <div style="margin-top:10px;"><span class="field-label">Importações</span><p style="font-size:13px; margin:4px 0 0; line-height:1.6;">${e.importacoes || '—'}</p></div>
-        ${(e.parceiros && e.parceiros.length) ? `<div style="margin-top:10px;"><span class="field-label">Principais parceiros</span><div class="pc-orgs" style="margin-top:6px;">${e.parceiros.map(x => `<span class="org-badge">${x}</span>`).join('')}</div></div>` : ''}
-        ${(e.produtos && e.produtos.length) ? `<div style="margin-top:10px;"><span class="field-label">Principais produtos</span><div class="pc-orgs" style="margin-top:6px;">${e.produtos.map(x => `<span class="org-badge">${x}</span>`).join('')}</div></div>` : ''}
-      `;
-    }
-    case 'relacoes': {
-      const r = c.relacoes || {};
-      const chaves = Object.keys(r);
-      if (!chaves.length) return '<div class="biblio-empty">Sem informações de relações internacionais cadastradas.</div>';
-      return chaves.map(k => `
-        <div style="margin-bottom:14px;">
-          <span class="field-label">${RELACAO_NOME_AMIGAVEL[k] || k}</span>
-          <p style="font-size:13.5px; line-height:1.6; margin:4px 0 0;">${r[k]}</p>
-        </div>
-      `).join('');
-    }
-    case 'organizacoes': {
-      const orgs = c.organizacoes || [];
-      if (!orgs.length) return '<div class="biblio-empty">Nenhuma organização cadastrada.</div>';
-      return `<div style="display:grid; gap:10px;">${orgs.map(o => `
-        <div class="card" style="margin:0; padding:12px 14px;">
-          <div class="mono" style="font-size:11px; color:var(--brass-light);">${o.sigla}</div>
-          <div style="font-size:13.5px; margin-top:2px;">${o.nome}</div>
-        </div>
-      `).join('')}</div>`;
-    }
-    case 'geografia': {
-      const g = c.geografia || {};
-      return `
-        <div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Clima</span>${g.clima || '—'}</div>
-        <div class="pm-item" style="margin-bottom:12px;"><span class="field-label">Relevo</span>${g.relevo || '—'}</div>
-        <div class="pm-grid">
-          <div class="pm-item"><span class="field-label">Países vizinhos</span>${(g.paisesVizinhos || []).join(', ') || '—'}</div>
-          <div class="pm-item"><span class="field-label">Principais rios</span>${(g.rios || []).join(', ') || '—'}</div>
-          <div class="pm-item"><span class="field-label">Principais cidades</span>${(g.principaisCidades || []).join(', ') || '—'}</div>
-        </div>
-      `;
-    }
-    case 'historia': {
-      const h = c.historia || [];
-      if (!h.length) return '<div class="biblio-empty">Nenhum evento histórico cadastrado.</div>';
-      return `<div style="display:flex; flex-direction:column; gap:10px;">${h.map(item => `
-        <div class="card" style="margin:0; padding:12px 14px; border-left:3px solid var(--brass);">
-          <div class="mono" style="font-size:11px; color:var(--brass-light);">${item.ano}</div>
-          <div style="font-size:13.5px; margin-top:3px; line-height:1.55;">${item.evento}</div>
-        </div>
-      `).join('')}</div>`;
-    }
-    case 'curiosidades': {
-      const cur = c.curiosidades || [];
-      if (!cur.length) return '<div class="biblio-empty">Nenhuma curiosidade cadastrada.</div>';
-      return `<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px;">${cur.map(x => `<li style="font-size:13.5px; line-height:1.6;">${x}</li>`).join('')}</ul>`;
-    }
-    case 'flashcards': {
-      const fc = c.flashcardsExtras || [];
-      if (!fc.length) return '<div class="biblio-empty">Nenhum flashcard cadastrado para este país.</div>';
-      return `<div style="display:grid; gap:10px;">${fc.map(f => `
-        <div class="card pd-flash" onclick="this.classList.toggle('flipped')">
-          <span class="field-label">Pergunta <span class="pd-flash-hint">(clique para ver a resposta)</span></span>
-          <div style="font-size:13.5px; margin:4px 0 0;">${f.pergunta}</div>
-          <div class="pd-flash-resposta"><span class="field-label">Resposta</span><div style="font-size:13.5px; margin-top:4px; color:var(--brass-light);">${f.resposta}</div></div>
-        </div>
-      `).join('')}</div>`;
-    }
-    case 'atualidades': {
-      const at = c.atualidades || [];
-      if (!at.length) return '<div class="biblio-empty">Nenhuma atualidade cadastrada ainda para este país.</div>';
-      return at.map(a => `<div class="card" style="margin-bottom:10px;"><h4>${a.titulo}</h4><p>${a.resumo}</p></div>`).join('');
-    }
-    case 'questoes': {
-      const q = c.questoesCACD || [];
-      if (!q.length) return '<div class="biblio-empty">Nenhuma questão CACD cadastrada ainda para este país.</div>';
-      return q.map(item => `<div class="card" style="margin-bottom:10px;">${item.texto || JSON.stringify(item)}</div>`).join('');
-    }
-    default: return '';
-  }
+/* ==========================================================================
+   ROTEAMENTO — cada país tem sua própria URL (#/paises/{id}), sem backend.
+   ========================================================================== */
+function atualizarUrlPais(id) {
+  history.pushState({ pais: id }, '', `${location.pathname}${location.search}#/paises/${id}`);
 }
+function limparUrlPais() {
+  history.pushState({ pais: null }, '', `${location.pathname}${location.search}#/paises`);
+}
+function aplicarRotaPaisAtual() {
+  const m = location.hash.match(/^#\/paises\/([a-z]{2,3})$/i);
+  if (m) {
+    const id = m[1].toLowerCase();
+    if (paises.some(p => p.id === id)) {
+      goTab('paises');
+      goSub('paisesLista');
+      abrirPaisDetalhe(id, { atualizarUrl: false });
+      return;
+    }
+  }
+  if (paisDetalheAtual) fecharPaisDetalhe({ atualizarUrl: false });
+}
+window.addEventListener('popstate', aplicarRotaPaisAtual);
+if (document.readyState !== 'loading') aplicarRotaPaisAtual();
+else window.addEventListener('DOMContentLoaded', aplicarRotaPaisAtual);
 
 /* ==========================================================================
-   Mapa-múndi — continentes reais (d3-geo + topojson), servidos como
-   arquivos locais do projeto (sem CDN externo, sem CORS, funciona offline
-   e de forma idêntica em qualquer navegador/dispositivo).
-
-   Arquivos que precisam existir no projeto:
-     vendor/d3.min.js
-     vendor/topojson-client.min.js
-     data/world-atlas-countries-110m.json
+   MAPA-MÚNDI — continentes reais (d3-geo + topojson), arquivos locais do
+   projeto (vendor/ e data/), com destaque do território ao selecionar.
+   Clicar num pino ou no território de um país abre a MESMA página de
+   detalhe usada pela grade (nenhum modal envolvido).
    ========================================================================== */
 function latLngToPct(lat, lng) {
   return { x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
@@ -455,9 +527,9 @@ const MAPA_MUNDI_W = 1000;
 const MAPA_MUNDI_H = 500;
 const MAPA_MUNDI_DATA_URL = 'data/world-atlas-countries-110m.json';
 
-let mapaMundiSvgCache = null;        // SVG dos continentes já pronto (monta 1x só)
-let mapaMundiFeaturesPromise = null; // promise dos dados geográficos (baixa 1x só)
-let paisesMapaSelecionado = null;    // id do país com o território destacado no momento
+let mapaMundiSvgCache = null;
+let mapaMundiFeaturesPromise = null;
+let paisesMapaSelecionado = null;
 
 function getMapaMundiFeatures() {
   if (!mapaMundiFeaturesPromise) {
@@ -501,8 +573,6 @@ function mapaMundiPinsHtml(q) {
   }).join('');
 }
 
-/* Aplica (ou limpa) a classe de destaque no <path> do território do país
-   selecionado. Não precisa reconstruir o SVG inteiro — só mexe nas classes. */
 function aplicarSelecaoMapa() {
   const wrap = document.getElementById('paisesMapaSvgWrap'); if (!wrap) return;
   wrap.querySelectorAll('.mapa-country.selected').forEach(el => el.classList.remove('selected'));
@@ -510,18 +580,14 @@ function aplicarSelecaoMapa() {
   const iso = ISO_NUMERICO_POR_PAIS[paisesMapaSelecionado];
   if (!iso) return;
   const el = wrap.querySelector(`.mapa-country[data-iso="${iso}"]`);
-  if (el) {
-    el.classList.add('selected');
-    el.parentNode.appendChild(el); // traz o território selecionado pra frente dos vizinhos
-  }
+  if (el) { el.classList.add('selected'); el.parentNode.appendChild(el); }
 }
 
-/* Chamado ao clicar num pino OU diretamente no território de um país no
-   mapa: destaca a área dele e abre o modal rápido (com atalho pra ficha completa). */
 function selecionarPaisNoMapa(id) {
   paisesMapaSelecionado = id;
   aplicarSelecaoMapa();
-  abrirPaisModal(id);
+  goSub('paisesLista');
+  abrirPaisDetalhe(id);
 }
 
 async function renderPaisesMapa() {
@@ -529,11 +595,7 @@ async function renderPaisesMapa() {
   const q = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
   const pins = mapaMundiPinsHtml(q);
 
-  wrap.innerHTML = `
-    ${mapaMundiSvgCache || '<div class="map-grid-lines"></div>'}
-    <div class="map-vignette"></div>
-    ${pins}
-  `;
+  wrap.innerHTML = `${mapaMundiSvgCache || '<div class="map-grid-lines"></div>'}<div class="map-vignette"></div>${pins}`;
   aplicarSelecaoMapa();
 
   if (!mapaMundiSvgCache) {
@@ -542,17 +604,15 @@ async function renderPaisesMapa() {
     const wrapAinda = document.getElementById('paisesMapaSvgWrap');
     if (!wrapAinda) return;
     const qAgora = (document.getElementById('paisesMapaSearch')?.value || '').trim().toLowerCase();
-    wrapAinda.innerHTML = `
-      ${svg}
-      <div class="map-vignette"></div>
-      ${mapaMundiPinsHtml(qAgora)}
-    `;
+    wrapAinda.innerHTML = `${svg}<div class="map-vignette"></div>${mapaMundiPinsHtml(qAgora)}`;
     aplicarSelecaoMapa();
   }
 }
 
 function renderPaisesModule() {
   renderPaisesFiltros();
+  renderPaisesFiltrosAvancados();
+  atualizarLabelOrdenacao();
   renderPaises();
   renderPaisesMapa();
 }
