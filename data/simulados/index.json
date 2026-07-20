@@ -1,29 +1,4 @@
 [
-  { 
-    "id": "2019", 
-    "ano": 2019, 
-    "fase": 1, 
-    "titulo": "CACD 2019 — 1ª Fase (exemplo)", 
-    "totalQuestoes": 5, 
-    "disciplinas": ["História", "Geografia", "Política Internacional", "Economia"], 
-    "arquivo": "2019.json" 
-  },
-  { 
-    "id": "2023", 
-    "ano": 2023, 
-    "fase": 1, 
-    "titulo": "CACD 2023 — 1ª Fase (exemplo)", 
-    "totalQuestoes": 5, 
-    "disciplinas": ["Direito Internacional", "Economia", "Política Internacional", "Geografia"], 
-    "arquivo": "2023.json" 
-  },
-  {
-    "id": "2025-manha",
-    "ano": 2025,
-    "fase": 1,
-    "titulo": "CACD 2025 — 1ª Fase (Manhã)",
-    "totalQuestoes": 120,
-    "disciplinas": ["Português", "História do Brasil", "História Mundial", "Geografia"],
-    "arquivo": "2025-manha.json"
-  }
+  { "id": "2019", "ano": 2019, "fase": 1, "titulo": "CACD 2019 — 1ª Fase (exemplo)", "totalQuestoes": 5, "disciplinas": ["História", "Geografia", "Política Internacional", "Economia"], "arquivo": "2019.json" },
+  { "id": "2023", "ano": 2023, "fase": 1, "titulo": "CACD 2023 — 1ª Fase (exemplo)", "totalQuestoes": 5, "disciplinas": ["Direito Internacional", "Economia", "Política Internacional", "Geografia"], "arquivo": "2023.json" }
 ]
