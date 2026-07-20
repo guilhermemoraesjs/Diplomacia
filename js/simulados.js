@@ -532,20 +532,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 mapaGabarito[parseInt(matchGab[1])] = matchGab[2].toUpperCase();
             }
 
-            // 3. Quebra do texto da prova pelos marcadores numéricos de cada item
-            // Padrão Cebraspe: Itens começam isolados com quebra de linha seguida pelo número
-            const blocosItens = textoProva.split(/(?=^\s*\d+\s+)/gm); 
+            // 3. Quebra do texto da prova pelos marcadores numéricos de cada item (Ajustado para Cebraspe/CACD)
+            // Removeu o '▲' do início de linha para pegar os itens colados no meio do texto do PDF
+            const blocosItens = textoProva.split(/(?=\b\d+\s+[A-ZÁÀÂÃÉÈÊÍÏÓÒÔÕÚÇ])/g); 
             itensExtraidos = [];
 
             blocosItens.forEach(bloco => {
-                // Captura o número no início da linha e isola o corpo do texto do item
-                const matchItem = bloco.match(/^\s*(\d+)\s+([\s\S]*)/);
+                // Captura o número do item e isola o corpo do texto
+                const matchItem = bloco.match(/\b(\d+)\s+([\s\S]*)/);
                 if (!matchItem) return;
 
                 const numeroItem = parseInt(matchItem[1]);
                 let textoCorpo = matchItem[2].trim();
 
-                // Limpa possíveis resíduos de numeração ou cabeçalhos clonados da página do PDF
+                // Ignora números soltos que não sejam itens da prova (como anos ou páginas)
+                if (numeroItem < 1 || numeroItem > 240) return;
+
+                // Limpa possíveis resíduos de cabeçalhos clonados da página do PDF
                 textoCorpo = textoCorpo.replace(/CEBRASPE\s*-\s*IRBRCACDOBJ\s*-\s*Edital:\s*\d+/gi, '').trim();
 
                 // Vincula a resposta ao mapa gerado a partir do gabarito oficial (Default: C)
@@ -558,8 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // Ordena os itens numericamente para garantir consistência visual
-            itensExtraidos.sort((a, b) => a.numero - b.numero);
+            // Remove duplicatas caso o split tenha repetido algum bloco
+            itensExtraidos = itensExtraidos.filter((item, index, self) =>
+                index === self.findIndex((t) => t.numero === item.numero)
+            );
 
             // 4. Exibição dos dados na interface de revisão
             exibirTelaRevisao();
