@@ -20,7 +20,7 @@ const CLOUD_KEYS = [
   'diplo_discursivas', 'diplo_atualidades', 'diplo_notas',
   'biblio_docs', 'biblio_pastas', 'biblio_expanded_folders',
   'chancelaria_theme', 'diplo_paises', 'paises_favoritos', 'simulados_progresso',
-  'dashboard_atividade', 'dashboard_streak', 'dashboard_metas'
+  'dashboard_atividade', 'dashboard_streak', 'dashboard_metas', 'nav_order'
 ];
 
 let currentUid = null;
