@@ -410,6 +410,7 @@ function responderQuestao(letra) {
   if (typeof trackActivity === 'function') trackActivity(correta ? 'acerto' : 'erro', `Questão de ${q.disciplina} · ${q.tema}`);
   renderSimuladoProva();
 }
+
 function navegarQuestao(delta) {
   simuladoSessao.indiceAtual = Math.max(0, Math.min(simuladoSessao.questoes.length - 1, simuladoSessao.indiceAtual + delta));
   simuladoSessao.questaoInicioMs = Date.now();
