@@ -6,7 +6,7 @@
 <title>Chancelaria — Gabinete de Estudos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
@@ -55,13 +55,29 @@
   </div>
 </div>
 
-<div id="loginGate">
+<!-- GABINETE MODAL — FICHA DE PAÍS -->
+<div id="paisModal" class="modal-overlay" onclick="closePaisModal(event)">
+  <div class="modal-card pais-modal-card" onclick="event.stopPropagation()">
+    <div id="paisModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn ghost small" onclick="closePaisModalDirect()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="loginGate" class="hidden">
   <div class="gate-card">
     <div class="wax">GA</div>
     <h1>Chancelaria</h1>
-    <p style="font-size:12.5px; color:var(--text-muted); margin-top:8px; line-height:1.6;">Entre com sua conta Google para acessar seus estudos — seus dados ficam salvos na nuvem e sincronizados entre todos os seus dispositivos.</p>
     <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:16px;">Entrar com Google</button>
-    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px; font-size:11px;"></div>
+    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px;"></div>
+  </div>
+</div>
+
+  <div id="globalSearchOverlay" class="gsearch-overlay" onclick="if(event.target===this) fecharBuscaGlobal()">
+  <div class="gsearch-box" onclick="event.stopPropagation()">
+    <input type="text" id="globalSearchInput" placeholder="Buscar questões, temas, países..." oninput="executarBuscaGlobal(this.value)">
+    <div class="gsearch-results" id="globalSearchResults"></div>
   </div>
 </div>
 
@@ -72,6 +88,7 @@
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
   <div class="top-right-cabinet">
+    <button class="global-search-trigger" onclick="abrirBuscaGlobal()">🔎 Buscar questões, temas, países... <kbd>⌘K</kbd></button>
     <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Alternar Tema</button>
     <div class="protocolo mono">
       <div id="protocoloData">—</div>
@@ -109,25 +126,36 @@
           </div>
         </div>
 
-        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
-          <div class="stamp">novo módulo</div>
-          <div class="tag">Dossiê III</div>
-          <h2>Países</h2>
-          <p>Perfis completos de países — dados gerais, política, economia, geografia, questões e flashcards, com comparador e favoritos.</p>
-          <div class="foot">
-            <span class="progress-label" id="paisesCountLabel">explorar países</span>
-            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
-          </div>
-        </div>
-
         <div class="dossie" style="--accent:var(--ok);" onclick="goTab('biblioteca')">
           <div class="stamp">acervo pessoal</div>
-          <div class="tag">Dossiê IV</div>
+          <div class="tag">Dossiê III</div>
           <h2>Biblioteca</h2>
           <p>Seu acervo de documentos, fichamentos e leituras — organizado por estantes, buscável e conectado por tema.</p>
           <div class="foot">
             <span class="progress-label" id="biblioCountLabel">0 documentos arquivados</span>
             <div class="ring" style="--pct:100;"><div class="hole">📚</div></div>
+          </div>
+        </div>
+
+        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
+          <div class="stamp">acervo geopolítico</div>
+          <div class="tag">Dossiê IV</div>
+          <h2>Países</h2>
+          <p>Fichas completas de todos os países — capitais, organizações, política externa e mapa-múndi interativo.</p>
+          <div class="foot">
+            <span class="progress-label" id="paisesCountLabel">0 países catalogados</span>
+            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
+          </div>
+        </div>
+
+        <div class="dossie" style="--accent:var(--seal-glow);" onclick="goTab('simulados')">
+          <div class="stamp">banco de questões</div>
+          <div class="tag">Dossiê V</div>
+          <h2>Simulados</h2>
+          <p>Resolva provas do CACD direto na plataforma, sem PDFs — por disciplina, ano ou simulado personalizado.</p>
+          <div class="foot">
+            <span class="progress-label">10 questões cadastradas</span>
+            <div class="ring" style="--pct:100;"><div class="hole">📝</div></div>
           </div>
         </div>
       </div>
@@ -287,48 +315,85 @@
   </section>
 
   <section class="view" id="view-paises">
-    <div id="paisesListShell">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <h3 class="section-title" style="margin-bottom:0;">Países</h3>
-        <button class="btn secondary small" onclick="abrirComparador()">⇄ Comparar países</button>
-      </div>
-      <p class="intro-line">Explore perfis completos de países — dados gerais, política, economia, relações internacionais, geografia e seu próprio material de estudo por país.</p>
+    <h3 class="section-title">Países — Fichas Geopolíticas</h3>
+    <p class="intro-line">Explore informações detalhadas sobre todos os países relevantes para a prova.</p>
 
-      <input type="text" id="paisesSearch" class="biblio-search" placeholder="Buscar por país, capital, idioma, moeda..." oninput="renderPaisesGrid()">
-
-      <div class="filters" id="paisesFiltroContinente"></div>
-      <div class="filters">
-        <select id="paisesFiltroIdioma" class="filter-select" onchange="renderPaisesGrid()"><option value="">Idioma — todos</option></select>
-        <select id="paisesFiltroMoeda" class="filter-select" onchange="renderPaisesGrid()"><option value="">Moeda — todas</option></select>
-        <select id="paisesFiltroOrganizacao" class="filter-select" onchange="renderPaisesGrid()"><option value="">Organização — todas</option></select>
-        <select id="paisesFiltroSistema" class="filter-select" onchange="renderPaisesGrid()"><option value="">Sistema político — todos</option></select>
-        <button class="chip" id="paisesFavBtn" onclick="togglePaisesSoFavoritos()">★ Favoritos</button>
-      </div>
-
-      <div id="paisesStatus" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:10px;"></div>
-      <div class="paises-grid" id="paisesGrid"></div>
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')">📇 Lista</button>
+      <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')">🗺️ Mapa-múndi</button>
+      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();">⚖️ Comparar</button>
     </div>
 
-    <div id="paisesDetailShell" style="display:none;">
-      <button class="btn ghost small" onclick="fecharPaisDetalhe()">← Voltar</button>
-      <div class="pais-hero" id="paisHero"></div>
-      <div class="pais-layout">
-        <div class="pais-main-col">
-          <div class="subtabs pais-tabs" id="paisTabs"></div>
-          <div class="pais-tabcontent" id="paisTabContent"></div>
+    <div class="subview active" id="sub-paisesLista">
+      <div id="paisesListaWrap">
+        <div class="paises-toolbar">
+          <input type="text" id="paisesSearch" placeholder="Buscar por país, capital, idioma, moeda ou organização..." oninput="renderPaises()">
+          <div class="filters" id="paisesFiltroContinente"></div>
+          <div class="paises-filtros-avancados">
+            <select id="paisesFiltroIdioma" onchange="setPaisesFiltroIdioma(this.value)"></select>
+            <select id="paisesFiltroMoeda" onchange="setPaisesFiltroMoeda(this.value)"></select>
+            <select id="paisesFiltroGoverno" onchange="setPaisesFiltroGoverno(this.value)"></select>
+            <select id="paisesFiltroOrganizacaoSelect" onchange="setPaisesFiltroOrganizacao(this.value)"></select>
+          </div>
+          <div class="filters">
+            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()">★ Favoritos</button>
+            <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
+            <span class="mono" id="paisesCountLabel" style="font-size:11px; color:var(--text-muted); align-self:center; margin-left:auto;"></span>
+          </div>
         </div>
-        <div id="paisStudySidebar"></div>
+        <div class="paises-grid" id="paisesGrid"></div>
       </div>
+      <div id="paisesDetalheWrap" style="display:none;"></div>
     </div>
 
-    <div id="paisesCompareShell" style="display:none;">
-      <button class="btn ghost small" onclick="fecharComparador()">← Voltar</button>
-      <h3 class="section-title" style="margin-top:18px;">Comparar países</h3>
-      <div class="row2">
-        <div><label class="field-label">País A</label><select id="compararPaisA" onchange="renderComparacao()"></select></div>
-        <div><label class="field-label">País B</label><select id="compararPaisB" onchange="renderComparacao()"></select></div>
+    <div class="subview" id="sub-paisesMapaView">
+      <div class="paises-toolbar" style="margin-bottom:10px;">
+        <input type="text" id="paisesMapaSearch" placeholder="Buscar país no mapa..." oninput="renderPaisesMapa()">
       </div>
-      <div id="comparacaoResult" style="margin-top:16px;"></div>
+      <div class="mapa-mundi-wrap">
+        <div class="mapa-mundi" id="paisesMapaSvgWrap"></div>
+      </div>
+      <p class="mapa-hint">Clique em um marcador para abrir a ficha completa do país.</p>
+    </div>
+
+    <div class="subview" id="sub-paisesComparar">
+      <div class="card">
+        <label class="field-label">País A</label>
+        <select id="compararSelectA" onchange="setCompararPais('a', this.value)"></select>
+        <label class="field-label" style="margin-top:12px;">País B</label>
+        <select id="compararSelectB" onchange="setCompararPais('b', this.value)"></select>
+      </div>
+      <div class="card" id="compararResultado"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-organizacoes">
+    <h3 class="section-title">Organizações Internacionais</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: ONU, OMC, BRICS, OTAN e outras, com fichas completas e questões relacionadas.</div></div>
+  </section>
+
+  <section class="view" id="view-tratados">
+    <h3 class="section-title">Tratados</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: tratados internacionais relevantes para o CACD, ligados às questões dos Simulados.</div></div>
+  </section>
+
+  <section class="view" id="view-flashcards">
+    <h3 class="section-title">Flashcards</h3>
+    <div class="card"><div class="biblio-empty">Central de flashcards em construção. Por enquanto, os flashcards automáticos de cada país já estão disponíveis dentro da ficha de cada país, em Países.</div></div>
+  </section>
+
+  <section class="view" id="view-configuracoes">
+    <h3 class="section-title">Configurações</h3>
+    <div class="card">
+      <label class="field-label">Tema</label>
+      <button class="btn secondary small" onclick="toggleTheme()">🌓 Alternar tema claro/escuro</button>
+      <label class="field-label" style="margin-top:16px;">Conta</label>
+      <div id="authBoxConfig"></div>
+    </div>
+    <div class="card">
+      <label class="field-label">Ordem do menu lateral</label>
+      <p class="intro-line" style="margin:4px 0 12px;">Use as setas para reorganizar a ordem das páginas na barra lateral.</p>
+      <div id="configNavOrderList"></div>
     </div>
   </section>
 
@@ -359,6 +424,10 @@
 
       <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
         <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
+          <div id="simuladosGraficoEvolucao"></div>
+        </div>
+        <div class="card">
           <h4 style="font-size:13px; margin-bottom:10px;">Sequência de estudos</h4>
           <div class="dash-streak-days" id="simuladosStreakDias"></div>
         </div>
@@ -372,8 +441,6 @@
         <h4 style="font-size:13px; margin-bottom:10px;">Temas mais cobrados</h4>
         <div id="simuladosTemasCobrados"></div>
       </div>
-
-      <p class="mapa-hint" style="text-align:left;">Administra o banco de provas? <a href="#/admin/importador" onclick="event.preventDefault(); abrirImportadorProvas();" style="color:var(--ub-azul); text-decoration:underline;">Abrir Importador de Provas ↗</a></p>
     </div>
 
     <div id="simuladosPanelConfig" style="display:none;">
@@ -389,109 +456,13 @@
     </div>
   </section>
 
-  <!-- ==========================================================================
-       IMPORTADOR DE PROVAS (uso interno/admin) — fica FORA da navegação normal.
-       Acesso: link discreto no rodapé de Simulados, ou digitando o hash
-       #/admin/importador direto na URL. Protegido por uma senha local (ver
-       js/importador-provas.js) — isso NÃO é segurança de servidor, é apenas
-       para não aparecer no caminho do usuário comum, já que o site é
-       estático e não existe backend/autenticação real por trás dele.
-       ========================================================================== -->
-  <section class="view" id="view-admin-importador">
-    <div id="importadorGate" class="card" style="max-width:420px; margin:40px auto; text-align:center;">
-      <h3 class="section-title" style="justify-content:center;">Acesso restrito</h3>
-      <p class="intro-line">Área interna de importação de provas. Informe a senha de administração.</p>
-      <input type="password" id="importadorSenhaInput" placeholder="Senha" onkeydown="if(event.key==='Enter') tentarDesbloquearImportador();">
-      <button class="btn secondary" style="margin-top:12px; width:100%;" onclick="tentarDesbloquearImportador()">Entrar</button>
-      <div id="importadorSenhaErro" class="mono" style="color:var(--bad); font-size:11px; margin-top:8px;"></div>
-    </div>
-
-    <div id="importadorApp" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-        <div>
-          <h3 class="section-title">Importador de Provas</h3>
-          <p class="intro-line" style="margin-top:-8px;">PDF da prova + PDF do gabarito → questões estruturadas, prontas para revisão.</p>
-        </div>
-        <button class="btn ghost small" onclick="goTab('simulados')">← Voltar para Simulados</button>
-      </div>
-
-      <div class="imp-steps" id="impSteps"></div>
-
-      <!-- Passo 1: upload -->
-      <div class="card imp-panel" id="impPanelUpload">
-        <div class="row2">
-          <div>
-            <label class="field-label">1. PDF da prova</label>
-            <input type="file" id="impFileProva" accept="application/pdf">
-            <div class="mono imp-file-status" id="impFileProvaStatus"></div>
-          </div>
-          <div>
-            <label class="field-label">2. PDF do gabarito oficial</label>
-            <input type="file" id="impFileGabarito" accept="application/pdf">
-            <div class="mono imp-file-status" id="impFileGabaritoStatus"></div>
-          </div>
-        </div>
-        <div class="row2" style="margin-top:6px;">
-          <div><label class="field-label">Ano da prova</label><input type="number" id="impAno" placeholder="Ex.: 2024"></div>
-          <div><label class="field-label">Fase</label><select id="impFase"><option value="1">1ª Fase</option><option value="2">2ª Fase</option></select></div>
-        </div>
-        <button class="btn secondary" style="margin-top:14px;" onclick="processarImportacao()">Extrair questões automaticamente</button>
-        <div id="impProcessandoStatus" class="mono" style="margin-top:8px; font-size:11.5px; color:var(--text-muted);"></div>
-      </div>
-
-      <!-- Passo 2: revisão -->
-      <div class="card imp-panel" id="impPanelRevisao" style="display:none;">
-        <div class="imp-revisao-head">
-          <div id="impRevisaoResumo" class="mono" style="font-size:11.5px; color:var(--text-muted);"></div>
-          <button class="btn ghost small" onclick="adicionarQuestaoManual()">+ Adicionar questão manualmente</button>
-        </div>
-        <div id="impQuestoesList"></div>
-        <div style="display:flex; gap:10px; margin-top:16px;">
-          <button class="btn ghost" onclick="voltarParaUpload()">← Refazer upload</button>
-          <button class="btn secondary" onclick="irParaExportacao()">Revisão concluída — gerar arquivos →</button>
-        </div>
-      </div>
-
-      <!-- Passo 3: exportação -->
-      <div class="card imp-panel" id="impPanelExport" style="display:none;">
-        <div id="impExportResumo"></div>
-        <label class="field-label" style="margin-top:14px;">data/simulados/provas/{ano}.json</label>
-        <textarea id="impExportProva" readonly style="min-height:160px; font-family:'IBM Plex Mono'; font-size:11px;"></textarea>
-        <div class="imp-export-actions">
-          <button class="btn small secondary" onclick="baixarArquivoImportador('provaJson')">⬇ Baixar {ano}.json</button>
-          <button class="btn small ghost" onclick="copiarTextareaImportador('impExportProva')">Copiar</button>
-        </div>
-
-        <label class="field-label" style="margin-top:18px;">Entradas para acrescentar em data/simulados/index.json</label>
-        <textarea id="impExportIndex" readonly style="min-height:70px; font-family:'IBM Plex Mono'; font-size:11px;"></textarea>
-        <div class="imp-export-actions">
-          <button class="btn small secondary" onclick="baixarArquivoImportador('indexJson')">⬇ Baixar index-append.json</button>
-          <button class="btn small ghost" onclick="copiarTextareaImportador('impExportIndex')">Copiar</button>
-        </div>
-
-        <label class="field-label" style="margin-top:18px;">Entradas para acrescentar em data/simulados/questoes-index.json</label>
-        <textarea id="impExportQIndex" readonly style="min-height:110px; font-family:'IBM Plex Mono'; font-size:11px;"></textarea>
-        <div class="imp-export-actions">
-          <button class="btn small secondary" onclick="baixarArquivoImportador('qindexJson')">⬇ Baixar questoes-index-append.json</button>
-          <button class="btn small ghost" onclick="copiarTextareaImportador('impExportQIndex')">Copiar</button>
-        </div>
-
-        <div class="imp-aviso">
-          📌 A Chancelaria é um site estático (sem servidor/backend), então não existe um botão que escreva sozinho dentro do seu repositório. Baixe os 3 arquivos acima e: substitua/crie <code>data/simulados/provas/{ano}.json</code>, e cole as entradas geradas dentro dos arrays já existentes em <code>index.json</code> e <code>questoes-index.json</code>. Isso leva ~1 minuto e é o único passo manual que resta.
-        </div>
-        <button class="btn ghost" style="margin-top:14px;" onclick="voltarParaRevisao()">← Voltar para revisão</button>
-      </div>
-    </div>
-  </section>
-
   <section class="view" id="view-biblioteca">
     <h3 class="section-title">Biblioteca</h3>
-
     <p class="intro-line">Seu acervo pessoal: documentos, fichamentos e leituras — organizados e conectados por tema.</p>
 
     <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
       <div>
-        <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:14.5px; color:var(--text-main);">🔁 Revisão espaçada</div>
+        <div style="font-family:'Fraunces',serif; font-size:15px; color:var(--text-main);">🔁 Revisão espaçada</div>
         <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
       </div>
       <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
@@ -513,7 +484,7 @@
       <div class="biblio-main">
         <div id="biblioListView">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <h4 id="biblioCurrentPastaLabel" style="font-family:'Inter',sans-serif; font-weight:700; font-size:15px; color:var(--text-main);">Todas as estantes</h4>
+            <h4 id="biblioCurrentPastaLabel" style="font-family:'Fraunces',serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
             <div style="display:flex; gap:6px;">
               <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
               <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
@@ -533,11 +504,11 @@
           <div class="card" style="padding:22px 20px;">
             <div style="display:flex; align-items:baseline; gap:10px;">
               <span id="viewIcon" style="font-size:22px;">📄</span>
-              <h2 id="viewTitulo" style="font-family:'Inter',sans-serif; font-weight:700; font-size:21px; color:var(--text-main);"></h2>
+              <h2 id="viewTitulo" style="font-family:'Fraunces',serif; font-size:22px; color:var(--text-main);"></h2>
             </div>
             <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
             <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
-            <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(59,130,246,.08); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
+            <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(180,145,75,.1); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
               <span>🔁 Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
             </div>
             <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;"></div>
@@ -560,7 +531,7 @@
           </div>
           <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
             <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
-            <h2 id="reviewTitulo" style="font-family:'Inter',sans-serif; font-weight:700; font-size:20px; color:var(--text-main);"></h2>
+            <h2 id="reviewTitulo" style="font-family:'Fraunces',serif; font-size:21px; color:var(--text-main);"></h2>
             <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
             <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
               <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">❌ Não lembrei</button>
@@ -570,7 +541,7 @@
           </div>
           <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
             <div style="font-size:32px; margin-bottom:10px;">🎉</div>
-            <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:16px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-family:'Fraunces',serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
             <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
           </div>
@@ -580,7 +551,7 @@
           <button class="btn ghost small" onclick="fecharDocumento()" style="margin-bottom:12px;">← Voltar</button>
           <div class="biblio-editor-wrap">
             <div>
-              <input type="text" id="docTitulo" placeholder="Título do documento" style="font-family:'Inter',sans-serif; font-weight:700; font-size:18px; padding:10px 4px; background:none; border:none; border-bottom:1px solid var(--border-color); border-radius:0; margin-bottom:10px;">
+              <input type="text" id="docTitulo" placeholder="Título do documento" style="font-family:'Fraunces',serif; font-size:19px; padding:10px 4px; background:none; border:none; border-bottom:1px solid var(--border-color); border-radius:0; margin-bottom:10px;">
               <div class="row2">
                 <div><label class="field-label">Tipo</label>
                   <select id="docTipo">
@@ -690,27 +661,11 @@
 </main>
 
 <div class="tabbar">
-  <div class="sidebar-brand"><div class="wax">GA</div><span>Chancelaria</span></div>
-  <button class="active" data-tab="inicio" onclick="goTab('inicio')">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
-    <span>Início</span>
-  </button>
-  <button data-tab="palavras" onclick="goTab('palavras')">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-    <span>Palavras</span>
-  </button>
-  <button data-tab="diplomacia" onclick="goTab('diplomacia')">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.6 3.8 5.8 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.8-3.8-9S9.5 5.6 12 3z"/></svg>
-    <span>Diplomacia</span>
-  </button>
-  <button data-tab="paises" onclick="goTab('paises')">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V3"/><path d="M6 4h11l-2 4 2 4H6"/></svg>
-    <span>Países</span>
-  </button>
-  <button data-tab="biblioteca" onclick="goTab('biblioteca')">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.2V4.8A1.8 1.8 0 0 1 5.8 3H19v18H5.8A1.8 1.8 0 0 1 4 19.2z"/><path d="M9 3v18"/></svg>
-    <span>Biblioteca</span>
-  </button>
+  <div class="sidebar-nav-scroll" id="sidebarNavScroll"></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
+    <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
+  </div>
 </div>
 
 <!-- ==========================================================================
@@ -729,21 +684,17 @@
 <script src="js/discursiva.js"></script>
 <script src="js/atualidades.js"></script>
 <script src="js/notas.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="js/paises.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/simulados.js"></script>
 <script src="js/biblioteca-pastas.js"></script>
 <script src="js/biblioteca-documentos.js"></script>
 <script src="js/biblioteca-editor.js"></script>
 <script src="js/biblioteca-revisao.js"></script>
 <script src="js/biblioteca-busca.js"></script>
 <script src="js/stats.js"></script>
-<script src="js/paises.js"></script>
-<script src="js/simulados.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  if (window['pdfjsLib']) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
-</script>
-<script src="js/importador-provas.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
