@@ -478,3 +478,170 @@ function finalizarSimulado() {
     <button class="btn secondary" onclick="showSimuladosPanel('home'); renderSimuladosHome();">Voltar ao início de Simulados</button>
   `;
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const inputProva = document.getElementById('pdf-prova');
+    const inputGabarito = document.getElementById('pdf-gabarito');
+    const btnProcessar = document.getElementById('btn-processar-importacao');
+    const telaRevisao = document.getElementById('tela-revisao-importacao');
+    const containerRevisao = document.getElementById('container-revisao-questoes');
+    const btnSalvar = document.getElementById('btn-salvar-json-plataforma');
+
+    let itensExtraidos = [];
+
+    // Habilita o botão de ação apenas quando ambos os arquivos estiverem carregados
+    const verificarInputs = () => {
+        btnProcessar.disabled = !(inputProva.files.length && inputGabarito.files.length);
+    };
+    inputProva.addEventListener('change', verificarInputs);
+    inputGabarito.addEventListener('change', verificarInputs);
+
+    // Função assíncrona para extrair texto bruto do PDF usando a biblioteca PDF.js
+    async function extrairTextoPDF(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let textoCompleto = "";
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const pagina = await pdf.getPage(i);
+            const conteudoTexto = await pagina.getTextContent();
+            const textoPagina = conteudoTexto.items.map(item => item.str).join(" ");
+            textoCompleto += textoPagina + "\n";
+        }
+        return textoCompleto;
+    }
+
+    // Processador Principal do Fluxo de Importação
+    btnProcessar.addEventListener('click', async () => {
+        try {
+            btnProcessar.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando arquivos...';
+            btnProcessar.disabled = true;
+            
+            const textoProva = await extrairTextoPDF(inputProva.files[0]);
+            const textoGabarito = await extrairTextoPDF(inputGabarito.files[0]);
+
+            // 1. Identificação automática do ano no texto da prova
+            const anoMatch = textoProva.match(/\b(20\d{2})\b/);
+            if (anoMatch) document.getElementById('import-ano').value = anoMatch[1];
+
+            // 2. Mapeamento do Gabarito Oficial Cebraspe (Item -> C, E, X)
+            const mapaGabarito = {};
+            // Regex estruturada para ler pares de "Número do Item" e "Gabarito" na tabela do PDF
+            const regexGabarito = /(\d+)\s*\n*\s*([CEX])\b/g; 
+            let matchGab;
+            while ((matchGab = regexGabarito.exec(textoGabarito)) !== null) {
+                mapaGabarito[parseInt(matchGab[1])] = matchGab[2].toUpperCase();
+            }
+
+            // 3. Quebra do texto da prova pelos marcadores numéricos de cada item
+            // Padrão Cebraspe: Itens começam isolados com quebra de linha seguida pelo número
+            const blocosItens = textoProva.split(/(?=^\s*\d+\s+)/gm); 
+            itensExtraidos = [];
+
+            blocosItens.forEach(bloco => {
+                // Captura o número no início da linha e isola o corpo do texto do item
+                const matchItem = bloco.match(/^\s*(\d+)\s+([\s\S]*)/);
+                if (!matchItem) return;
+
+                const numeroItem = parseInt(matchItem[1]);
+                let textoCorpo = matchItem[2].trim();
+
+                // Limpa possíveis resíduos de numeração ou cabeçalhos clonados da página do PDF
+                textoCorpo = textoCorpo.replace(/CEBRASPE\s*-\s*IRBRCACDOBJ\s*-\s*Edital:\s*\d+/gi, '').trim();
+
+                // Vincula a resposta ao mapa gerado a partir do gabarito oficial (Default: C)
+                const respostaGabarito = mapaGabarito[numeroItem] || "C"; 
+
+                itensExtraidos.push({
+                    numero: numeroItem,
+                    enunciado: textoCorpo,
+                    gabarito: respostaGabarito
+                });
+            });
+
+            // Ordena os itens numericamente para garantir consistência visual
+            itensExtraidos.sort((a, b) => a.numero - b.numero);
+
+            // 4. Exibição dos dados na interface de revisão
+            exibirTelaRevisao();
+
+        } catch (error) {
+            alert("Erro crítico no processamento dos arquivos: " + error.message);
+            console.error(error);
+        } finally {
+            btnProcessar.innerHTML = '<i class="fa fa-cogs"></i> Extrair Automaticamente';
+            btnProcessar.disabled = false;
+        }
+    });
+
+    // Renderização dos elementos da Tela de Revisão
+    function exibirTelaRevisao() {
+        containerRevisao.innerHTML = "";
+        telaRevisao.style.display = "block";
+
+        if (itensExtraidos.length === 0) {
+            containerRevisao.innerHTML = "<p style='color: #red; font-weight: bold;'>Nenhum item foi mapeado. Certifique-se de que o PDF inserido possui texto selecionável.</p>";
+            return;
+        }
+
+        itensExtraidos.forEach((item, index) => {
+            const itemHTML = `
+                <div class="item-revisao-bloco" style="background: #fff; border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-left: 5px solid #0076a3; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: bold; font-size: 1.1em;">Item nº ${item.numero}</span>
+                        <div>
+                            <label style="margin-right: 5px; font-weight: bold;">Gabarito:</label>
+                            <select class="change-gab" data-index="${index}" style="padding: 4px 8px; font-weight: bold;">
+                                <option value="C" ${item.gabarito === 'C' ? 'selected' : ''}>Certo (C)</option>
+                                <option value="E" ${item.gabarito === 'E' ? 'selected' : ''}>Errado (E)</option>
+                                <option value="X" ${item.gabarito === 'X' ? 'selected' : ''}>Anulado (X)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea class="form-control change-enunciado" data-index="${index}" rows="3" style="width: 100%; padding: 8px; font-family: sans-serif; resize: vertical;">${item.enunciado}</textarea>
+                    </div>
+                </div>
+            `;
+            containerRevisao.insertAdjacentHTML('beforeend', itemHTML);
+        });
+
+        // Escuta ativamente as alterações manuais do usuário na tela de revisão
+        document.querySelectorAll('.change-gab').forEach(el => el.addEventListener('change', (e) => {
+            itensExtraidos[e.target.dataset.index].gabarito = e.target.value;
+        }));
+        document.querySelectorAll('.change-enunciado').forEach(el => el.addEventListener('input', (e) => {
+            itensExtraidos[e.target.dataset.index].enunciado = e.target.value;
+        }));
+    }
+
+    // 5. Compilação da estrutura de dados e geração do download do JSON
+    btnSalvar.addEventListener('click', () => {
+        const ano = document.getElementById('import-ano').value;
+        const periodo = document.getElementById('import-periodo').value;
+
+        const outputJSON = {
+            prova: {
+                ano: parseInt(ano),
+                periodo: periodo,
+                total_itens: itensExtraidos.length
+            },
+            questoes: itensExtraidos.map(item => ({
+                id: `${ano}-${periodo}-q${item.numero}`,
+                numero: item.numero,
+                enunciado: item.enunciado,
+                resposta_correta: item.gabarito
+            }))
+        };
+
+        // Geração do arquivo blob para download direto no navegador
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(outputJSON, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `${ano}-${periodo}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+
+        alert(`Sucesso! O arquivo '${ano}-${periodo}.json' foi gerado. Insira-o na pasta 'data/simulados/provas/' do seu projeto para integrá-lo ao banco.`);
+    });
+});
