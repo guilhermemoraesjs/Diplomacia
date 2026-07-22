@@ -605,52 +605,42 @@
         </div>
 
         <div id="biblioEditorView" style="display:none;">
-          <button class="btn ghost small" onclick="fecharDocumento()" style="margin-bottom:12px;">← Voltar</button>
-          <div class="biblio-editor-wrap">
-            <div>
-              <input type="text" id="docTitulo" placeholder="Título do documento" style="font-family:'Fraunces',serif; font-size:19px; padding:10px 4px; background:none; border:none; border-bottom:1px solid var(--border-color); border-radius:0; margin-bottom:10px;">
-              <div class="row2">
-                <div><label class="field-label">Tipo</label>
-                  <select id="docTipo">
-                    <option value="📄">📄 Documento</option>
-                    <option value="📝">📝 Texto longo</option>
-                    <option value="📚">📚 Resumo</option>
-                    <option value="🗂️">🗂️ Fichamento</option>
-                    <option value="🧠">🧠 Mapa mental</option>
-                    <option value="📜">📜 Legislação</option>
-                    <option value="📰">📰 Atualidade</option>
-                    <option value="🌐">🌐 Link</option>
-                  </select>
-                </div>
-                <div><label class="field-label">Pasta / Estante</label><select id="docPasta"></select></div>
-              </div>
-              <div class="row2">
-                <div><label class="field-label">Autor</label><input type="text" id="docAutor"></div>
-                <div><label class="field-label">Fonte</label><input type="text" id="docFonte"></div>
-              </div>
-              <div class="row2">
-                <div><label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select></div>
-                <div><label class="field-label">Data</label><input type="date" id="docData"></div>
-              </div>
-              <label class="field-label">Tags</label>
+          <div class="biblio-breadcrumb">
+            <button class="btn ghost small" onclick="fecharDocumento()">← Biblioteca</button>
+            <span class="bc-sep">/</span>
+            <span class="bc-item" id="bcPastaLabel">Sem pasta</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-item bc-current" id="bcTituloLabel">Novo documento</span>
+          </div>
+
+          <div class="biblio-editor-shell">
+            <div class="biblio-editor-col">
               <div class="biblio-tags-input" id="docTagsInput" onclick="document.getElementById('docTagNovo').focus()">
-                <input type="text" id="docTagNovo" placeholder="Adicionar tag e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
+                <input type="text" id="docTagNovo" placeholder="+ Adicionar tags e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
               </div>
 
-              <label class="field-label" style="margin-top:16px; display:flex; align-items:center; gap:8px; cursor:pointer;">
-                <input type="checkbox" id="docSrsAtivo" style="width:16px; height:16px; accent-color:var(--ub-azul); cursor:pointer; flex-shrink:0;">
-                <span style="text-transform:none; letter-spacing:0; font-size:12.5px;">🔁 Incluir na revisão espaçada da Biblioteca</span>
-              </label>
-              <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:4px;"></div>
+              <input type="text" id="docTitulo" placeholder="Título do documento" class="biblio-title-input" oninput="atualizarBreadcrumbTitulo()">
+              <input type="text" id="docDescricao" placeholder="Descrição breve (opcional)..." class="biblio-desc-input">
 
-              <label class="field-label" style="margin-top:16px;">Conteúdo</label>
+              <div class="biblio-meta-row">
+                <span class="mono" id="docMetaCriado">Criada agora</span>
+                <span class="mono" id="docMetaEditado"></span>
+                <button type="button" class="biblio-fav-toggle" id="docFavBtn" onclick="toggleDocFavorita()">☆ Favorita</button>
+                <select id="docPrioridade" class="biblio-priority-select" onchange="save('__noop__',null)">
+                  <option value="">Sem prioridade</option>
+                  <option value="baixa">🔹 Prioridade: Baixa</option>
+                  <option value="media">🔶 Prioridade: Média</option>
+                  <option value="alta">🔺 Prioridade: Alta</option>
+                </select>
+              </div>
+
               <div id="docConteudoWrap">
                 <div class="biblio-editor-toolbar" id="docToolbar">
                   <button type="button" title="Desfazer" onclick="fmt('undo')">↺</button>
                   <button type="button" title="Refazer" onclick="fmt('redo')">↻</button>
                   <span class="toolbar-sep"></span>
                   <select title="Estilo de parágrafo" onchange="if(this.value){fmt('formatBlock', this.value);} this.selectedIndex=0;">
-                    <option value="">Estilo ▾</option>
+                    <option value="">Texto normal ▾</option>
                     <option value="P">Parágrafo</option>
                     <option value="H1">Título 1</option>
                     <option value="H2">Título 2</option>
@@ -662,54 +652,136 @@
                   <button type="button" title="Itálico (Ctrl+I)" onclick="fmt('italic')"><i>I</i></button>
                   <button type="button" title="Sublinhado (Ctrl+U)" onclick="fmt('underline')"><u>S</u></button>
                   <button type="button" title="Tachado" onclick="fmt('strikeThrough')"><s>T</s></button>
-                  <button type="button" title="Sobrescrito" onclick="fmt('superscript')">x²</button>
-                  <button type="button" title="Subscrito" onclick="fmt('subscript')">x₂</button>
+                  <button type="button" title="Código inline" onclick="fmt('formatBlock','PRE')">{ }</button>
                   <span class="toolbar-sep"></span>
                   <input type="color" title="Cor do texto" value="#e3c481" oninput="fmt('foreColor', this.value)">
-                  <input type="color" title="Cor de realce" value="#3e5c76" oninput="highlightColor(this.value)">
-                  <span class="toolbar-sep"></span>
                   <button type="button" title="Alinhar à esquerda" onclick="fmt('justifyLeft')">≡</button>
-                  <button type="button" title="Centralizar" onclick="fmt('justifyCenter')">≣</button>
-                  <button type="button" title="Alinhar à direita" onclick="fmt('justifyRight')">☰</button>
-                  <button type="button" title="Justificar" onclick="fmt('justifyFull')">▤</button>
-                  <span class="toolbar-sep"></span>
-                  <button type="button" title="Lista com marcadores" onclick="fmt('insertUnorderedList')">• lista</button>
-                  <button type="button" title="Lista numerada" onclick="fmt('insertOrderedList')">1. lista</button>
-                  <button type="button" title="Lista de tarefas" onclick="insertChecklist()">☑ tarefas</button>
-                  <button type="button" title="Diminuir recuo" onclick="fmt('outdent')">⇤</button>
-                  <button type="button" title="Aumentar recuo" onclick="fmt('indent')">⇥</button>
-                  <span class="toolbar-sep"></span>
-                  <button type="button" title="Citação" onclick="fmt('formatBlock','BLOCKQUOTE')">" citação</button>
-                  <button type="button" title="Bloco de código" onclick="fmt('formatBlock','PRE')">{ } código</button>
+                  <select title="Listas" onchange="if(this.value==='ul')fmt('insertUnorderedList'); else if(this.value==='ol')fmt('insertOrderedList'); this.selectedIndex=0;">
+                    <option value="">Listas ▾</option>
+                    <option value="ul">• Lista com marcadores</option>
+                    <option value="ol">1. Lista numerada</option>
+                  </select>
+                  <select title="Blocos" onchange="if(this.value==='check')insertChecklist(); else if(this.value==='toggle')insertToggleBlock(); this.selectedIndex=0;">
+                    <option value="">☑ Blocos ▾</option>
+                    <option value="check">☑ Checklist</option>
+                    <option value="toggle">▸ Bloco recolhível</option>
+                  </select>
+                  <button type="button" title="Link" onclick="fmtLink()">🔗</button>
+                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️</button>
+                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦</button>
+                  <select title="Caixa de destaque" onchange="if(this.value) insertCallout(this.value); this.selectedIndex=0;">
+                    <option value="">⚠ Destaque ▾</option>
+                    <option value="info">ℹ️ Informação</option>
+                    <option value="atencao">⚠️ Atenção</option>
+                    <option value="importante">🔴 Importante</option>
+                  </select>
                   <button type="button" title="Linha divisória" onclick="fmt('insertHorizontalRule')">―</button>
-                  <span class="toolbar-sep"></span>
-                  <button type="button" title="Link" onclick="fmtLink()">🔗 link</button>
-                  <button type="button" title="Remover link" onclick="fmt('unlink')">🔗✕</button>
-                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️ imagem</button>
-                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦ tabela</button>
-                  <span class="toolbar-sep"></span>
-                  <button type="button" title="Limpar formatação" onclick="clearFormatting()">limpar</button>
                   <span class="toolbar-fs-spacer"></span>
-                  <span class="editor-wordcount" id="docWordCount">0 palavras</span>
                   <button type="button" title="Tela cheia" onclick="toggleEditorFullscreen()">⛶</button>
                 </div>
                 <input type="file" id="docImgFileInput" accept="image/*" style="display:none" onchange="handleImageFile(event)">
                 <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
               </div>
 
-              <label class="field-label" style="margin-top:14px;">Observações</label>
-              <textarea id="docObservacoes" style="min-height:60px;"></textarea>
+              <div class="biblio-editor-footer">
+                <div class="biblio-footer-stats mono">
+                  <span id="docWordCount">0 palavras</span>
+                  <span id="docCharCount">0 caracteres</span>
+                  <span id="docReadTime">~0 min de leitura</span>
+                </div>
+                <div class="biblio-footer-autosave mono" id="docAutosaveLabel"></div>
+              </div>
 
-              <div style="display:flex; gap:8px; margin-top:16px;">
-                <button class="btn secondary" onclick="saveDocumento()">Salvar documento</button>
+              <div class="biblio-editor-actions">
+                <button class="btn secondary" onclick="saveDocumento()">Salvar</button>
                 <button class="btn ghost" onclick="deleteDocumentoAtual()">Excluir</button>
+              </div>
+
+              <div class="biblio-ai-actions">
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Assistente de IA')">✨ Assistente de IA</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar flashcards')">🔁 Gerar flashcards</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar questões')">❓ Gerar questões</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Mapa mental')">🕸️ Mapa mental</button>
               </div>
             </div>
 
-            <div class="biblio-related">
-              <h4>Relacionados por tag</h4>
-              <div class="biblio-related-list" id="biblioRelatedList"></div>
-            </div>
+            <aside class="biblio-panel">
+              <div class="biblio-panel-tabs">
+                <button class="bp-tab active" data-ptab="painel" onclick="setBiblioPanelTab('painel')">Painel</button>
+                <button class="bp-tab" data-ptab="propriedades" onclick="setBiblioPanelTab('propriedades')">Propriedades</button>
+              </div>
+
+              <div class="bp-content" id="bpPainel">
+                <div class="panel-section">
+                  <div class="panel-section-title">Revisão</div>
+                  <label class="field-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
+                    <input type="checkbox" id="docSrsAtivo" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
+                    <span style="font-size:12.5px;">Incluir na revisão espaçada</span>
+                  </label>
+                  <div id="docSrsControles" style="margin-top:10px;">
+                    <div class="row2">
+                      <div><label class="field-label">Próxima revisão</label><input type="date" id="docSrsData"></div>
+                      <div><label class="field-label">Horário</label><input type="time" id="docSrsHora" value="09:00"></div>
+                    </div>
+                    <label class="field-label" style="margin-top:8px;">Intervalo</label>
+                    <select id="docSrsPreset" onchange="aplicarIntervaloPreset(this.value)">
+                      <option value="">Personalizado</option>
+                      <option value="1">Amanhã</option>
+                      <option value="3">3 dias</option>
+                      <option value="7" selected>7 dias</option>
+                      <option value="15">15 dias</option>
+                      <option value="30">30 dias</option>
+                    </select>
+                    <label class="field-label" style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
+                      <input type="checkbox" id="docSrsAutomatico" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
+                      <span style="font-size:12px;">✨ Usar revisão espaçada automática</span>
+                    </label>
+                    <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:6px;"></div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Conexões</div>
+                  <div id="painelConexoes"></div>
+                  <button class="btn ghost small" style="width:100%; margin-top:8px;" onclick="abrirTodasConexoes()">Ver todas as conexões</button>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Relacionados</div>
+                  <div id="painelRelacionados"></div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Estatísticas</div>
+                  <div class="panel-stat-row"><span>Palavras</span><span class="mono" id="statPalavras">0</span></div>
+                  <div class="panel-stat-row"><span>Caracteres</span><span class="mono" id="statCaracteres">0</span></div>
+                  <div class="panel-stat-row"><span>Tempo de leitura</span><span class="mono" id="statTempoLeitura">0 min</span></div>
+                </div>
+              </div>
+
+              <div class="bp-content" id="bpPropriedades" style="display:none;">
+                <div class="panel-section">
+                  <label class="field-label">Tipo</label>
+                  <select id="docTipo">
+                    <option value="📄">📄 Documento</option>
+                    <option value="📝">📝 Texto longo</option>
+                    <option value="📚">📚 Resumo</option>
+                    <option value="🗂️">🗂️ Fichamento</option>
+                    <option value="🧠">🧠 Mapa mental</option>
+                    <option value="📜">📜 Legislação</option>
+                    <option value="📰">📰 Atualidade</option>
+                    <option value="🌐">🌐 Link</option>
+                  </select>
+                  <label class="field-label">Pasta / Estante</label><select id="docPasta" onchange="atualizarBreadcrumbTitulo()"></select>
+                  <label class="field-label">Autor</label><input type="text" id="docAutor">
+                  <label class="field-label">Fonte</label><input type="text" id="docFonte">
+                  <label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select>
+                  <label class="field-label">Data</label><input type="date" id="docData">
+                  <label class="field-label" style="margin-top:14px;">Observações</label>
+                  <textarea id="docObservacoes" style="min-height:60px;"></textarea>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
