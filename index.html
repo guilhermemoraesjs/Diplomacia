@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Chancelaria — Gabinete de Estudos</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/logo-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
@@ -55,40 +58,23 @@
   </div>
 </div>
 
-<!-- GABINETE MODAL — FICHA DE PAÍS -->
-<div id="paisModal" class="modal-overlay" onclick="closePaisModal(event)">
-  <div class="modal-card pais-modal-card" onclick="event.stopPropagation()">
-    <div id="paisModalBody"></div>
-    <div class="modal-actions">
-      <button class="btn ghost small" onclick="closePaisModalDirect()">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<div id="loginGate" class="hidden">
+<div id="loginGate">
   <div class="gate-card">
-    <div class="wax">GA</div>
+    <div class="wax"><img src="assets/logo-96.png" alt="Chancelaria" class="logo-img"></div>
     <h1>Chancelaria</h1>
+    <p style="font-size:12.5px; color:var(--text-muted); margin-top:8px; line-height:1.6;">Entre com sua conta Google para acessar seus estudos — seus dados ficam salvos na nuvem e sincronizados entre todos os seus dispositivos.</p>
     <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:16px;">Entrar com Google</button>
-    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px;"></div>
-  </div>
-</div>
-
-  <div id="globalSearchOverlay" class="gsearch-overlay" onclick="if(event.target===this) fecharBuscaGlobal()">
-  <div class="gsearch-box" onclick="event.stopPropagation()">
-    <input type="text" id="globalSearchInput" placeholder="Buscar questões, temas, países..." oninput="executarBuscaGlobal(this.value)">
-    <div class="gsearch-results" id="globalSearchResults"></div>
+    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px; font-size:11px;"></div>
   </div>
 </div>
 
 <div class="letterhead">
   <div class="brand">
-    <div class="wax crest">GA</div>
+    <div class="wax crest"><img src="assets/logo-64.png" alt="Chancelaria" class="logo-img"></div>
     <h1>Chancelaria</h1>
     <div class="sub">gabinete pessoal de estudos</div>
   </div>
   <div class="top-right-cabinet">
-    <button class="global-search-trigger" onclick="abrirBuscaGlobal()">🔎 Buscar questões, temas, países... <kbd>⌘K</kbd></button>
     <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Alternar Tema</button>
     <div class="protocolo mono">
       <div id="protocoloData">—</div>
@@ -126,36 +112,25 @@
           </div>
         </div>
 
+        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
+          <div class="stamp">novo módulo</div>
+          <div class="tag">Dossiê III</div>
+          <h2>Países</h2>
+          <p>Perfis completos de países — dados gerais, política, economia, geografia, questões e flashcards, com comparador e favoritos.</p>
+          <div class="foot">
+            <span class="progress-label" id="paisesCountLabel">explorar países</span>
+            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
+          </div>
+        </div>
+
         <div class="dossie" style="--accent:var(--ok);" onclick="goTab('biblioteca')">
           <div class="stamp">acervo pessoal</div>
-          <div class="tag">Dossiê III</div>
+          <div class="tag">Dossiê IV</div>
           <h2>Biblioteca</h2>
           <p>Seu acervo de documentos, fichamentos e leituras — organizado por estantes, buscável e conectado por tema.</p>
           <div class="foot">
             <span class="progress-label" id="biblioCountLabel">0 documentos arquivados</span>
             <div class="ring" style="--pct:100;"><div class="hole">📚</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
-          <div class="stamp">acervo geopolítico</div>
-          <div class="tag">Dossiê IV</div>
-          <h2>Países</h2>
-          <p>Fichas completas de todos os países — capitais, organizações, política externa e mapa-múndi interativo.</p>
-          <div class="foot">
-            <span class="progress-label" id="paisesCountLabel">0 países catalogados</span>
-            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--seal-glow);" onclick="goTab('simulados')">
-          <div class="stamp">banco de questões</div>
-          <div class="tag">Dossiê V</div>
-          <h2>Simulados</h2>
-          <p>Resolva provas do CACD direto na plataforma, sem PDFs — por disciplina, ano ou simulado personalizado.</p>
-          <div class="foot">
-            <span class="progress-label">10 questões cadastradas</span>
-            <div class="ring" style="--pct:100;"><div class="hole">📝</div></div>
           </div>
         </div>
       </div>
@@ -287,7 +262,7 @@
           </div>
         </div>
         <textarea id="dTema" placeholder="Tema ou Enunciado..." style="margin-top:8px;"></textarea>
-        <input type="text" id="dLinhas" placeholder="Extensão (ex: 90 lines)" style="margin-top:8px;">
+        <input type="text" id="dLinhas" placeholder="Extensão (ex: 90 linhas)" style="margin-top:8px;">
         <button class="btn small secondary" onclick="addDiscursiva()" style="margin-top:12px;">Criar Exercício</button>
       </div>
       <div id="discursivasList"></div>
@@ -315,201 +290,48 @@
   </section>
 
   <section class="view" id="view-paises">
-    <h3 class="section-title">Países — Fichas Geopolíticas</h3>
-    <p class="intro-line">Explore informações detalhadas sobre todos os países relevantes para a prova.</p>
-
-    <div class="subtabs">
-      <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')">📇 Lista</button>
-      <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')">🗺️ Mapa-múndi</button>
-      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();">⚖️ Comparar</button>
-    </div>
-
-    <div class="subview active" id="sub-paisesLista">
-      <div id="paisesListaWrap">
-        <div class="paises-toolbar">
-          <input type="text" id="paisesSearch" placeholder="Buscar por país, capital, idioma, moeda ou organização..." oninput="renderPaises()">
-          <div class="filters" id="paisesFiltroContinente"></div>
-          <div class="paises-filtros-avancados">
-            <select id="paisesFiltroIdioma" onchange="setPaisesFiltroIdioma(this.value)"></select>
-            <select id="paisesFiltroMoeda" onchange="setPaisesFiltroMoeda(this.value)"></select>
-            <select id="paisesFiltroGoverno" onchange="setPaisesFiltroGoverno(this.value)"></select>
-            <select id="paisesFiltroOrganizacaoSelect" onchange="setPaisesFiltroOrganizacao(this.value)"></select>
-          </div>
-          <div class="filters">
-            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()">★ Favoritos</button>
-            <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
-            <span class="mono" id="paisesCountLabel" style="font-size:11px; color:var(--text-muted); align-self:center; margin-left:auto;"></span>
-          </div>
-        </div>
-        <div class="paises-grid" id="paisesGrid"></div>
+    <div id="paisesListShell">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <h3 class="section-title" style="margin-bottom:0;">Países</h3>
+        <button class="btn secondary small" onclick="abrirComparador()">⇄ Comparar países</button>
       </div>
-      <div id="paisesDetalheWrap" style="display:none;"></div>
-    </div>
+      <p class="intro-line">Explore perfis completos de países — dados gerais, política, economia, relações internacionais, geografia e seu próprio material de estudo por país.</p>
 
-    <div class="subview" id="sub-paisesMapaView">
-      <div class="paises-toolbar" style="margin-bottom:10px;">
-        <input type="text" id="paisesMapaSearch" placeholder="Buscar país no mapa..." oninput="renderPaisesMapa()">
-      </div>
-      <div class="mapa-mundi-wrap">
-        <div class="mapa-mundi" id="paisesMapaSvgWrap"></div>
-      </div>
-      <p class="mapa-hint">Clique em um marcador para abrir a ficha completa do país.</p>
-    </div>
+      <input type="text" id="paisesSearch" class="biblio-search" placeholder="Buscar por país, capital, idioma, moeda..." oninput="renderPaisesGrid()">
 
-    <div class="subview" id="sub-paisesComparar">
-      <div class="card">
-        <label class="field-label">País A</label>
-        <select id="compararSelectA" onchange="setCompararPais('a', this.value)"></select>
-        <label class="field-label" style="margin-top:12px;">País B</label>
-        <select id="compararSelectB" onchange="setCompararPais('b', this.value)"></select>
-      </div>
-      <div class="card" id="compararResultado"></div>
-    </div>
-  </section>
-
-  <section class="view" id="view-organizacoes">
-    <h3 class="section-title">Organizações Internacionais</h3>
-    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: ONU, OMC, BRICS, OTAN e outras, com fichas completas e questões relacionadas.</div></div>
-  </section>
-
-  <section class="view" id="view-tratados">
-    <h3 class="section-title">Tratados</h3>
-    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: tratados internacionais relevantes para o CACD, ligados às questões dos Simulados.</div></div>
-  </section>
-
-  <section class="view" id="view-flashcards">
-    <h3 class="section-title">Flashcards</h3>
-    <div class="card"><div class="biblio-empty">Central de flashcards em construção. Por enquanto, os flashcards automáticos de cada país já estão disponíveis dentro da ficha de cada país, em Países.</div></div>
-  </section>
-
-  <section class="view" id="view-configuracoes">
-    <h3 class="section-title">Configurações</h3>
-    <div class="card">
-      <label class="field-label">Tema</label>
-      <button class="btn secondary small" onclick="toggleTheme()">🌓 Alternar tema claro/escuro</button>
-      <label class="field-label" style="margin-top:16px;">Conta</label>
-      <div id="authBoxConfig"></div>
-    </div>
-    <div class="card">
-      <label class="field-label">Ordem do menu lateral</label>
-      <p class="intro-line" style="margin:4px 0 12px;">Use as setas para reorganizar a ordem das páginas na barra lateral.</p>
-      <div id="configNavOrderList"></div>
-    </div>
-  </section>
-
-  <section class="view" id="view-simulados">
-    <h3 class="section-title">Simulados</h3>
-    <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
-
-    <!-- ========================================== -->
-    <!-- INCORPORAÇÃO DO IMPORTADOR CHANCELARIA -->
-    <!-- ========================================== -->
-    <div id="importador-provas-container" class="admin-section card" style="margin-top: 20px; padding: 20px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-md); margin-bottom: 25px;">
-        <h3 style="font-family:'Fraunces', serif; margin-bottom: 5px; color: var(--text-main);">PROMPT — Sistema de Importação de Provas (Chancelaria)</h3>
-        <p class="intro-line" style="margin-bottom: 15px; color: var(--text-muted);">Fluxo automatizado para o padrão Cebraspe (C/E)[cite: 2, 3]. Faça o upload da prova e do gabarito oficial para processamento direto.</p>
-        
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
-        
-        <div class="row2" style="margin-bottom: 15px;">
-            <div>
-                <label class="field-label" style="font-weight: bold;">1. PDF da Prova (Manhã ou Tarde):</label>
-                <input type="file" id="pdf-prova" accept="application/pdf" style="width: 100%; margin-top: 5px;">
-            </div>
-            <div>
-                <label class="field-label" style="font-weight: bold;">2. PDF do Gabarito Oficial Definitivo:</label>
-                <input type="file" id="pdf-gabarito" accept="application/pdf" style="width: 100%; margin-top: 5px;">
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <button id="btn-processar-importacao" class="btn secondary small" style="font-weight: bold;" disabled>
-                Extrair Automaticamente
-            </button>
-        </div>
-
-        <!-- Componente Externo para Leitura de Buffer de PDFs -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-        <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
-
-        <!-- Monitor de Edição Fina e Validação -->
-        <div id="tela-revisao-importacao" style="display: none; border-top: 1px dashed var(--border-color); padding-top: 15px; margin-top: 15px;">
-            <h4 style="font-family:'Fraunces', serif; margin-bottom: 10px; color: var(--text-main);">Tela de Revisão e Ajustes</h4>
-            
-            <div class="row2" style="margin-bottom: 15px;">
-                <div>
-                    <label class="field-label">Ano da Prova:</label>
-                    <input type="number" id="import-ano" value="2025" style="width: 100%;">
-                </div>
-                <div>
-                    <label class="field-label">Período / Turno:</label>
-                    <select id="import-periodo" style="width: 100%;">
-                        <option value="manha">Manhã</option>
-                        <option value="tarde" selected>Tarde</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="container-revisao-questoes" style="max-height: 400px; overflow-y: auto; background: var(--bg-body); padding: 15px; border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: var(--radius-sm);"></div>
-
-            <button id="btn-salvar-json-plataforma" class="btn secondary" style="font-weight: bold;">
-                Salvar no Banco JSON da Plataforma
-            </button>
-        </div>
-    </div>
-    <!-- ========================================== -->
-
-    <div id="simuladosPanelHome">
-      <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
-
-      <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
-      <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:start;">
-        <div class="sim-modos-grid" id="simuladosModos"></div>
-        <div>
-          <div class="card dash-side-panel">
-            <h4 style="font-size:13px; margin-bottom:10px;">Desempenho por disciplina</h4>
-            <div id="simuladosDesempenhoDisciplina"></div>
-          </div>
-          <div class="card dash-side-panel">
-            <h4 style="font-size:13px; margin-bottom:10px;">Atividade recente</h4>
-            <div id="simuladosAtividadeRecente"></div>
-          </div>
-        </div>
+      <div class="filters" id="paisesFiltroContinente"></div>
+      <div class="filters">
+        <select id="paisesFiltroIdioma" class="filter-select" onchange="renderPaisesGrid()"><option value="">Idioma — todos</option></select>
+        <select id="paisesFiltroMoeda" class="filter-select" onchange="renderPaisesGrid()"><option value="">Moeda — todas</option></select>
+        <select id="paisesFiltroOrganizacao" class="filter-select" onchange="renderPaisesGrid()"><option value="">Organização — todas</option></select>
+        <select id="paisesFiltroSistema" class="filter-select" onchange="renderPaisesGrid()"><option value="">Sistema político — todos</option></select>
+        <button class="chip" id="paisesFavBtn" onclick="togglePaisesSoFavoritos()">★ Favoritos</button>
       </div>
 
-      <h3 class="section-title" style="margin-top:24px;">Provas disponíveis</h3>
-      <div class="dash-provas-grid" id="simuladosProvasDisponiveis"></div>
+      <div id="paisesStatus" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:10px;"></div>
+      <div class="paises-grid" id="paisesGrid"></div>
+    </div>
 
-      <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
-        <div class="card">
-          <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
-          <div id="simuladosGraficoEvolucao"></div>
+    <div id="paisesDetailShell" style="display:none;">
+      <button class="btn ghost small" onclick="fecharPaisDetalhe()">← Voltar</button>
+      <div class="pais-hero" id="paisHero"></div>
+      <div class="pais-layout">
+        <div class="pais-main-col">
+          <div class="subtabs pais-tabs" id="paisTabs"></div>
+          <div class="pais-tabcontent" id="paisTabContent"></div>
         </div>
-        <div class="card">
-          <h4 style="font-size:13px; margin-bottom:10px;">Sequência de estudos</h4>
-          <div class="dash-streak-days" id="simuladosStreakDias"></div>
-        </div>
-        <div class="card">
-          <h4 style="font-size:13px; margin-bottom:10px; text-align:center;">Meta mensal</h4>
-          <div id="simuladosMetaMensal"></div>
-        </div>
-      </div>
-
-      <div class="card style="margin-top:16px;">
-        <h4 style="font-size:13px; margin-bottom:10px;">Temas mais cobrados</h4>
-        <div id="simuladosTemasCobrados"></div>
+        <div id="paisStudySidebar"></div>
       </div>
     </div>
 
-    <div id="simuladosPanelConfig" style="display:none;">
-      <div id="simuladosConfigWrap"></div>
-    </div>
-
-    <div id="simuladosPanelProof" style="display:none;">
-      <div id="simuladosProvaWrap"></div>
-    </div>
-
-    <div id="simuladosPanelResultado" style="display:none;">
-      <div id="simuladosResultadoWrap"></div>
+    <div id="paisesCompareShell" style="display:none;">
+      <button class="btn ghost small" onclick="fecharComparador()">← Voltar</button>
+      <h3 class="section-title" style="margin-top:18px;">Comparar países</h3>
+      <div class="row2">
+        <div><label class="field-label">País A</label><select id="compararPaisA" onchange="renderComparacao()"></select></div>
+        <div><label class="field-label">País B</label><select id="compararPaisB" onchange="renderComparacao()"></select></div>
+      </div>
+      <div id="comparacaoResult" style="margin-top:16px;"></div>
     </div>
   </section>
 
@@ -519,7 +341,7 @@
 
     <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
       <div>
-        <div style="font-family:'Fraunces',serif; font-size:15px; color:var(--text-main);">🔁 Revisão espaçada</div>
+        <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:14.5px; color:var(--text-main);">🔁 Revisão espaçada</div>
         <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
       </div>
       <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
@@ -541,7 +363,7 @@
       <div class="biblio-main">
         <div id="biblioListView">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <h4 id="biblioCurrentPastaLabel" style="font-family:'Fraunces',serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
+            <h4 id="biblioCurrentPastaLabel" style="font-family:'Inter',sans-serif; font-weight:700; font-size:15px; color:var(--text-main);">Todas as estantes</h4>
             <div style="display:flex; gap:6px;">
               <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
               <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
@@ -561,11 +383,11 @@
           <div class="card" style="padding:22px 20px;">
             <div style="display:flex; align-items:baseline; gap:10px;">
               <span id="viewIcon" style="font-size:22px;">📄</span>
-              <h2 id="viewTitulo" style="font-family:'Fraunces',serif; font-size:22px; color:var(--text-main);"></h2>
+              <h2 id="viewTitulo" style="font-family:'Inter',sans-serif; font-weight:700; font-size:21px; color:var(--text-main);"></h2>
             </div>
             <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
             <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
-            <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(180,145,75,.1); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
+            <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(59,130,246,.08); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
               <span>🔁 Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
             </div>
             <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;"></div>
@@ -588,7 +410,7 @@
           </div>
           <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
             <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
-            <h2 id="reviewTitulo" style="font-family:'Fraunces',serif; font-size:21px; color:var(--text-main);"></h2>
+            <h2 id="reviewTitulo" style="font-family:'Inter',sans-serif; font-weight:700; font-size:20px; color:var(--text-main);"></h2>
             <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
             <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
               <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">❌ Não lembrei</button>
@@ -598,49 +420,59 @@
           </div>
           <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
             <div style="font-size:32px; margin-bottom:10px;">🎉</div>
-            <div style="font-family:'Fraunces',serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:16px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
             <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
           </div>
         </div>
 
         <div id="biblioEditorView" style="display:none;">
-          <div class="biblio-breadcrumb">
-            <button class="btn ghost small" onclick="fecharDocumento()">← Biblioteca</button>
-            <span class="bc-sep">/</span>
-            <span class="bc-item" id="bcPastaLabel">Sem pasta</span>
-            <span class="bc-sep">/</span>
-            <span class="bc-item bc-current" id="bcTituloLabel">Novo documento</span>
-          </div>
-
-          <div class="biblio-editor-shell">
-            <div class="biblio-editor-col">
+          <button class="btn ghost small" onclick="fecharDocumento()" style="margin-bottom:12px;">← Voltar</button>
+          <div class="biblio-editor-wrap">
+            <div>
+              <input type="text" id="docTitulo" placeholder="Título do documento" style="font-family:'Inter',sans-serif; font-weight:700; font-size:18px; padding:10px 4px; background:none; border:none; border-bottom:1px solid var(--border-color); border-radius:0; margin-bottom:10px;">
+              <div class="row2">
+                <div><label class="field-label">Tipo</label>
+                  <select id="docTipo">
+                    <option value="📄">📄 Documento</option>
+                    <option value="📝">📝 Texto longo</option>
+                    <option value="📚">📚 Resumo</option>
+                    <option value="🗂️">🗂️ Fichamento</option>
+                    <option value="🧠">🧠 Mapa mental</option>
+                    <option value="📜">📜 Legislação</option>
+                    <option value="📰">📰 Atualidade</option>
+                    <option value="🌐">🌐 Link</option>
+                  </select>
+                </div>
+                <div><label class="field-label">Pasta / Estante</label><select id="docPasta"></select></div>
+              </div>
+              <div class="row2">
+                <div><label class="field-label">Autor</label><input type="text" id="docAutor"></div>
+                <div><label class="field-label">Fonte</label><input type="text" id="docFonte"></div>
+              </div>
+              <div class="row2">
+                <div><label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select></div>
+                <div><label class="field-label">Data</label><input type="date" id="docData"></div>
+              </div>
+              <label class="field-label">Tags</label>
               <div class="biblio-tags-input" id="docTagsInput" onclick="document.getElementById('docTagNovo').focus()">
-                <input type="text" id="docTagNovo" placeholder="+ Adicionar tags e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
+                <input type="text" id="docTagNovo" placeholder="Adicionar tag e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
               </div>
 
-              <input type="text" id="docTitulo" placeholder="Título do documento" class="biblio-title-input" oninput="atualizarBreadcrumbTitulo()">
-              <input type="text" id="docDescricao" placeholder="Descrição breve (opcional)..." class="biblio-desc-input">
+              <label class="field-label" style="margin-top:16px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="docSrsAtivo" style="width:16px; height:16px; accent-color:var(--ub-azul); cursor:pointer; flex-shrink:0;">
+                <span style="text-transform:none; letter-spacing:0; font-size:12.5px;">🔁 Incluir na revisão espaçada da Biblioteca</span>
+              </label>
+              <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:4px;"></div>
 
-              <div class="biblio-meta-row">
-                <span class="mono" id="docMetaCriado">Criada agora</span>
-                <span class="mono" id="docMetaEditado"></span>
-                <button type="button" class="biblio-fav-toggle" id="docFavBtn" onclick="toggleDocFavorita()">☆ Favorita</button>
-                <select id="docPrioridade" class="biblio-priority-select" onchange="save('__noop__',null)">
-                  <option value="">Sem prioridade</option>
-                  <option value="baixa">🔹 Prioridade: Baixa</option>
-                  <option value="media">🔶 Prioridade: Média</option>
-                  <option value="alta">🔺 Prioridade: Alta</option>
-                </select>
-              </div>
-
+              <label class="field-label" style="margin-top:16px;">Conteúdo</label>
               <div id="docConteudoWrap">
                 <div class="biblio-editor-toolbar" id="docToolbar">
                   <button type="button" title="Desfazer" onclick="fmt('undo')">↺</button>
                   <button type="button" title="Refazer" onclick="fmt('redo')">↻</button>
                   <span class="toolbar-sep"></span>
                   <select title="Estilo de parágrafo" onchange="if(this.value){fmt('formatBlock', this.value);} this.selectedIndex=0;">
-                    <option value="">Texto normal ▾</option>
+                    <option value="">Estilo ▾</option>
                     <option value="P">Parágrafo</option>
                     <option value="H1">Título 1</option>
                     <option value="H2">Título 2</option>
@@ -652,136 +484,54 @@
                   <button type="button" title="Itálico (Ctrl+I)" onclick="fmt('italic')"><i>I</i></button>
                   <button type="button" title="Sublinhado (Ctrl+U)" onclick="fmt('underline')"><u>S</u></button>
                   <button type="button" title="Tachado" onclick="fmt('strikeThrough')"><s>T</s></button>
-                  <button type="button" title="Código inline" onclick="fmt('formatBlock','PRE')">{ }</button>
+                  <button type="button" title="Sobrescrito" onclick="fmt('superscript')">x²</button>
+                  <button type="button" title="Subscrito" onclick="fmt('subscript')">x₂</button>
                   <span class="toolbar-sep"></span>
                   <input type="color" title="Cor do texto" value="#e3c481" oninput="fmt('foreColor', this.value)">
+                  <input type="color" title="Cor de realce" value="#3e5c76" oninput="highlightColor(this.value)">
+                  <span class="toolbar-sep"></span>
                   <button type="button" title="Alinhar à esquerda" onclick="fmt('justifyLeft')">≡</button>
-                  <select title="Listas" onchange="if(this.value==='ul')fmt('insertUnorderedList'); else if(this.value==='ol')fmt('insertOrderedList'); this.selectedIndex=0;">
-                    <option value="">Listas ▾</option>
-                    <option value="ul">• Lista com marcadores</option>
-                    <option value="ol">1. Lista numerada</option>
-                  </select>
-                  <select title="Blocos" onchange="if(this.value==='check')insertChecklist(); else if(this.value==='toggle')insertToggleBlock(); this.selectedIndex=0;">
-                    <option value="">☑ Blocos ▾</option>
-                    <option value="check">☑ Checklist</option>
-                    <option value="toggle">▸ Bloco recolhível</option>
-                  </select>
-                  <button type="button" title="Link" onclick="fmtLink()">🔗</button>
-                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️</button>
-                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦</button>
-                  <select title="Caixa de destaque" onchange="if(this.value) insertCallout(this.value); this.selectedIndex=0;">
-                    <option value="">⚠ Destaque ▾</option>
-                    <option value="info">ℹ️ Informação</option>
-                    <option value="atencao">⚠️ Atenção</option>
-                    <option value="importante">🔴 Importante</option>
-                  </select>
+                  <button type="button" title="Centralizar" onclick="fmt('justifyCenter')">≣</button>
+                  <button type="button" title="Alinhar à direita" onclick="fmt('justifyRight')">☰</button>
+                  <button type="button" title="Justificar" onclick="fmt('justifyFull')">▤</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Lista com marcadores" onclick="fmt('insertUnorderedList')">• lista</button>
+                  <button type="button" title="Lista numerada" onclick="fmt('insertOrderedList')">1. lista</button>
+                  <button type="button" title="Lista de tarefas" onclick="insertChecklist()">☑ tarefas</button>
+                  <button type="button" title="Diminuir recuo" onclick="fmt('outdent')">⇤</button>
+                  <button type="button" title="Aumentar recuo" onclick="fmt('indent')">⇥</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Citação" onclick="fmt('formatBlock','BLOCKQUOTE')">" citação</button>
+                  <button type="button" title="Bloco de código" onclick="fmt('formatBlock','PRE')">{ } código</button>
                   <button type="button" title="Linha divisória" onclick="fmt('insertHorizontalRule')">―</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Link" onclick="fmtLink()">🔗 link</button>
+                  <button type="button" title="Remover link" onclick="fmt('unlink')">🔗✕</button>
+                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️ imagem</button>
+                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦ tabela</button>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Limpar formatação" onclick="clearFormatting()">limpar</button>
                   <span class="toolbar-fs-spacer"></span>
+                  <span class="editor-wordcount" id="docWordCount">0 palavras</span>
                   <button type="button" title="Tela cheia" onclick="toggleEditorFullscreen()">⛶</button>
                 </div>
                 <input type="file" id="docImgFileInput" accept="image/*" style="display:none" onchange="handleImageFile(event)">
                 <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
               </div>
 
-              <div class="biblio-editor-footer">
-                <div class="biblio-footer-stats mono">
-                  <span id="docWordCount">0 palavras</span>
-                  <span id="docCharCount">0 caracteres</span>
-                  <span id="docReadTime">~0 min de leitura</span>
-                </div>
-                <div class="biblio-footer-autosave mono" id="docAutosaveLabel"></div>
-              </div>
+              <label class="field-label" style="margin-top:14px;">Observações</label>
+              <textarea id="docObservacoes" style="min-height:60px;"></textarea>
 
-              <div class="biblio-editor-actions">
-                <button class="btn secondary" onclick="saveDocumento()">Salvar</button>
+              <div style="display:flex; gap:8px; margin-top:16px;">
+                <button class="btn secondary" onclick="saveDocumento()">Salvar documento</button>
                 <button class="btn ghost" onclick="deleteDocumentoAtual()">Excluir</button>
-              </div>
-
-              <div class="biblio-ai-actions">
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Assistente de IA')">✨ Assistente de IA</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar flashcards')">🔁 Gerar flashcards</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar questões')">❓ Gerar questões</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Mapa mental')">🕸️ Mapa mental</button>
               </div>
             </div>
 
-            <aside class="biblio-panel">
-              <div class="biblio-panel-tabs">
-                <button class="bp-tab active" data-ptab="painel" onclick="setBiblioPanelTab('painel')">Painel</button>
-                <button class="bp-tab" data-ptab="propriedades" onclick="setBiblioPanelTab('propriedades')">Propriedades</button>
-              </div>
-
-              <div class="bp-content" id="bpPainel">
-                <div class="panel-section">
-                  <div class="panel-section-title">Revisão</div>
-                  <label class="field-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
-                    <input type="checkbox" id="docSrsAtivo" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
-                    <span style="font-size:12.5px;">Incluir na revisão espaçada</span>
-                  </label>
-                  <div id="docSrsControles" style="margin-top:10px;">
-                    <div class="row2">
-                      <div><label class="field-label">Próxima revisão</label><input type="date" id="docSrsData"></div>
-                      <div><label class="field-label">Horário</label><input type="time" id="docSrsHora" value="09:00"></div>
-                    </div>
-                    <label class="field-label" style="margin-top:8px;">Intervalo</label>
-                    <select id="docSrsPreset" onchange="aplicarIntervaloPreset(this.value)">
-                      <option value="">Personalizado</option>
-                      <option value="1">Amanhã</option>
-                      <option value="3">3 dias</option>
-                      <option value="7" selected>7 dias</option>
-                      <option value="15">15 dias</option>
-                      <option value="30">30 dias</option>
-                    </select>
-                    <label class="field-label" style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
-                      <input type="checkbox" id="docSrsAutomatico" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
-                      <span style="font-size:12px;">✨ Usar revisão espaçada automática</span>
-                    </label>
-                    <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:6px;"></div>
-                  </div>
-                </div>
-
-                <div class="panel-section">
-                  <div class="panel-section-title">Conexões</div>
-                  <div id="painelConexoes"></div>
-                  <button class="btn ghost small" style="width:100%; margin-top:8px;" onclick="abrirTodasConexoes()">Ver todas as conexões</button>
-                </div>
-
-                <div class="panel-section">
-                  <div class="panel-section-title">Relacionados</div>
-                  <div id="painelRelacionados"></div>
-                </div>
-
-                <div class="panel-section">
-                  <div class="panel-section-title">Estatísticas</div>
-                  <div class="panel-stat-row"><span>Palavras</span><span class="mono" id="statPalavras">0</span></div>
-                  <div class="panel-stat-row"><span>Caracteres</span><span class="mono" id="statCaracteres">0</span></div>
-                  <div class="panel-stat-row"><span>Tempo de leitura</span><span class="mono" id="statTempoLeitura">0 min</span></div>
-                </div>
-              </div>
-
-              <div class="bp-content" id="bpPropriedades" style="display:none;">
-                <div class="panel-section">
-                  <label class="field-label">Tipo</label>
-                  <select id="docTipo">
-                    <option value="📄">📄 Documento</option>
-                    <option value="📝">📝 Texto longo</option>
-                    <option value="📚">📚 Resumo</option>
-                    <option value="🗂️">🗂️ Fichamento</option>
-                    <option value="🧠">🧠 Mapa mental</option>
-                    <option value="📜">📜 Legislação</option>
-                    <option value="📰">📰 Atualidade</option>
-                    <option value="🌐">🌐 Link</option>
-                  </select>
-                  <label class="field-label">Pasta / Estante</label><select id="docPasta" onchange="atualizarBreadcrumbTitulo()"></select>
-                  <label class="field-label">Autor</label><input type="text" id="docAutor">
-                  <label class="field-label">Fonte</label><input type="text" id="docFonte">
-                  <label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select>
-                  <label class="field-label">Data</label><input type="date" id="docData">
-                  <label class="field-label" style="margin-top:14px;">Observações</label>
-                  <textarea id="docObservacoes" style="min-height:60px;"></textarea>
-                </div>
-              </div>
-            </aside>
+            <div class="biblio-related">
+              <h4>Relacionados por tag</h4>
+              <div class="biblio-related-list" id="biblioRelatedList"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -790,11 +540,27 @@
 </main>
 
 <div class="tabbar">
-  <div class="sidebar-nav-scroll" id="sidebarNavScroll"></div>
-  <div class="sidebar-footer">
-    <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
-    <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
-  </div>
+  <div class="sidebar-brand"><div class="wax"><img src="assets/logo-64.png" alt="Chancelaria" class="logo-img"></div><span>Chancelaria</span></div>
+  <button class="active" data-tab="inicio" onclick="goTab('inicio')">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+    <span>Início</span>
+  </button>
+  <button data-tab="palavras" onclick="goTab('palavras')">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+    <span>Palavras</span>
+  </button>
+  <button data-tab="diplomacia" onclick="goTab('diplomacia')">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.6 3.8 5.8 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.8-3.8-9S9.5 5.6 12 3z"/></svg>
+    <span>Diplomacia</span>
+  </button>
+  <button data-tab="paises" onclick="goTab('paises')">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V3"/><path d="M6 4h11l-2 4 2 4H6"/></svg>
+    <span>Países</span>
+  </button>
+  <button data-tab="biblioteca" onclick="goTab('biblioteca')">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.2V4.8A1.8 1.8 0 0 1 5.8 3H19v18H5.8A1.8 1.8 0 0 1 4 19.2z"/><path d="M9 3v18"/></svg>
+    <span>Biblioteca</span>
+  </button>
 </div>
 
 <!-- ==========================================================================
@@ -813,17 +579,13 @@
 <script src="js/discursiva.js"></script>
 <script src="js/atualidades.js"></script>
 <script src="js/notas.js"></script>
-<script src="vendor/d3.min.js"></script>
-<script src="vendor/topojson-client.min.js"></script>
-<script src="js/paises.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/simulados.js"></script>
 <script src="js/biblioteca-pastas.js"></script>
 <script src="js/biblioteca-documentos.js"></script>
 <script src="js/biblioteca-editor.js"></script>
 <script src="js/biblioteca-revisao.js"></script>
 <script src="js/biblioteca-busca.js"></script>
 <script src="js/stats.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
