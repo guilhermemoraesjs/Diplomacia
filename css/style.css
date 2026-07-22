@@ -786,3 +786,56 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .nav-reorder-ic{ font-size:16px; width:22px; text-align:center; }
 .nav-reorder-label{ flex:1; font-size:13px; color:var(--text-main); }
 .nav-reorder-arrows{ display:flex; gap:4px; }
+
+/* ==========================================================================
+   ADIÇÕES — redesenho do editor da Biblioteca (breadcrumb, painel lateral,
+   revisão customizável, callouts, blocos recolhíveis, wikilinks).
+   ========================================================================== */
+.biblio-breadcrumb{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-muted); margin-bottom:14px; flex-wrap:wrap; }
+.biblio-breadcrumb .bc-sep{ opacity:.5; }
+.biblio-breadcrumb .bc-current{ color:var(--text-main); font-weight:600; }
+
+.biblio-editor-shell{ display:grid; grid-template-columns:1fr; gap:18px; }
+@media (min-width:1000px){ .biblio-editor-shell{ grid-template-columns:1fr 300px; align-items:start; } }
+
+.biblio-editor-col{ min-width:0; }
+.biblio-title-input{ width:100%; font-family:'Inter',sans-serif; font-weight:700; font-size:26px; padding:8px 2px; background:none; border:none; color:var(--text-main); margin-top:10px; }
+.biblio-title-input:focus{ outline:none; }
+.biblio-desc-input{ width:100%; font-size:13.5px; padding:2px; background:none; border:none; color:var(--text-muted); margin-bottom:10px; }
+.biblio-desc-input:focus{ outline:none; }
+
+.biblio-meta-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--text-muted); margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border-color); }
+.biblio-fav-toggle{ background:none; border:1px solid var(--border-color); border-radius:20px; padding:4px 10px; color:var(--text-muted); font-size:11.5px; cursor:pointer; }
+.biblio-fav-toggle.active{ color:var(--brass-light); border-color:var(--brass-light); background:rgba(227,196,129,.1); }
+.biblio-priority-select{ width:auto; font-size:11px; padding:4px 8px; }
+
+.biblio-editor-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color:var(--text-muted); flex-wrap:wrap; gap:6px; }
+.biblio-footer-stats{ display:flex; gap:14px; flex-wrap:wrap; }
+.biblio-editor-actions{ display:flex; gap:8px; margin-top:16px; }
+.biblio-ai-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid var(--border-color); }
+
+.biblio-panel{ background:linear-gradient(155deg, var(--ink-3), var(--ink-2)); border:1px solid var(--border-color); border-radius:var(--radius-ui); padding:14px; align-self:start; position:sticky; top:14px; }
+.biblio-panel-tabs{ display:flex; gap:4px; background:rgba(0,0,0,.2); border-radius:9px; padding:3px; margin-bottom:14px; }
+.bp-tab{ flex:1; background:none; border:none; color:var(--text-muted); font-size:12px; padding:7px 0; border-radius:7px; }
+.bp-tab.active{ background:var(--ub-azul); color:#fff; font-weight:600; }
+
+.panel-section{ margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,.06); }
+.panel-section:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.panel-section-title{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); font-family:'IBM Plex Mono'; margin-bottom:10px; }
+.panel-conn-row{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:8px 6px; border-radius:7px; cursor:pointer; color:var(--text-light); }
+.panel-conn-row:hover{ background:var(--card-hover-bg); }
+.panel-conn-row.disabled{ opacity:.45; cursor:default; }
+.panel-conn-row.disabled:hover{ background:none; }
+.panel-stat-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:6px 0; color:var(--text-light); }
+
+.callout{ display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-radius:var(--radius-sm); margin:12px 0; font-size:13px; line-height:1.55; }
+.callout-icon{ flex-shrink:0; }
+.callout-info{ background:rgba(0,122,255,.1); border:1px solid rgba(0,122,255,.35); }
+.callout-atencao{ background:rgba(227,196,129,.1); border:1px solid rgba(227,196,129,.4); }
+.callout-importante{ background:rgba(194,75,75,.1); border:1px solid rgba(194,75,75,.4); }
+
+.toggle-block{ border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; margin:12px 0; background:rgba(255,255,255,.02); }
+.toggle-block summary{ cursor:pointer; font-weight:600; color:var(--text-main); }
+.toggle-block[open] summary{ margin-bottom:8px; }
+
+.biblio-body-editable .wikilink{ color:var(--ub-azul); text-decoration:underline; text-decoration-style:dotted; cursor:pointer; }
