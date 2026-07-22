@@ -616,3 +616,6 @@ function renderPaisesModule() {
   renderPaises();
   renderPaisesMapa();
 }
+window.initPaisesTab = function () {
+    renderPaisesModule();
+};
