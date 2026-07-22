@@ -6,7 +6,7 @@
 
 function docsDueForReview() {
   const today = todayISO();
-  return biblioDocs.filter(d => d.srsAtivo && d.srs && d.srs.nextReview <= today);
+  return biblioDocs.filter(d => d.srsAtivo && d.srs && d.srs.nextReview && d.srs.nextReview <= today);
 }
 function renderBiblioReviewBar() {
   const bar = document.getElementById('biblioReviewBar'); if (!bar) return;
@@ -50,17 +50,22 @@ function renderReviewCard() {
 }
 function rateReview(quality) {
   const d = reviewQueue[reviewIndex]; if (!d) return;
-  if (!d.srs) d.srs = { interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
-  if (quality === 'again') {
-    d.srs.interval = 1; d.srs.reps = 0;
-  } else if (quality === 'hard') {
-    d.srs.interval = Math.max(1, Math.round(d.srs.interval * 1.3));
+  if (!d.srs) d.srs = { modo: 'automatico', interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
+  if (d.srs.modo === 'manual') {
+    d.srs.lastReview = todayISO();
+    d.srs.nextReview = null; // aguarda você escolher a próxima data em Propriedades
   } else {
-    d.srs.interval = d.srs.reps === 0 ? 3 : Math.round(d.srs.interval * 2.3);
-    d.srs.reps++;
+    if (quality === 'again') {
+      d.srs.interval = 1; d.srs.reps = 0;
+    } else if (quality === 'hard') {
+      d.srs.interval = Math.max(1, Math.round(d.srs.interval * 1.3));
+    } else {
+      d.srs.interval = d.srs.reps === 0 ? 3 : Math.round(d.srs.interval * 2.3);
+      d.srs.reps++;
+    }
+    d.srs.lastReview = todayISO();
+    d.srs.nextReview = addDaysISO(todayISO(), d.srs.interval);
   }
-  d.srs.lastReview = todayISO();
-  d.srs.nextReview = addDaysISO(todayISO(), d.srs.interval);
   save('biblio_docs', biblioDocs);
   reviewIndex++;
   renderReviewCard();
