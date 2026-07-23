@@ -404,63 +404,7 @@
     <h3 class="section-title">Simulados</h3>
     <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
 
-    <!-- ========================================== -->
-    <!-- INCORPORAÇÃO DO IMPORTADOR CHANCELARIA -->
-    <!-- ========================================== -->
-    <div id="importador-provas-container" class="admin-section card" style="margin-top: 20px; padding: 20px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-md); margin-bottom: 25px;">
-        <h3 style="font-family:'Fraunces', serif; margin-bottom: 5px; color: var(--text-main);">PROMPT — Sistema de Importação de Provas (Chancelaria)</h3>
-        <p class="intro-line" style="margin-bottom: 15px; color: var(--text-muted);">Fluxo automatizado para o padrão Cebraspe (C/E)[cite: 2, 3]. Faça o upload da prova e do gabarito oficial para processamento direto.</p>
-        
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 15px;">
-        
-        <div class="row2" style="margin-bottom: 15px;">
-            <div>
-                <label class="field-label" style="font-weight: bold;">1. PDF da Prova (Manhã ou Tarde):</label>
-                <input type="file" id="pdf-prova" accept="application/pdf" style="width: 100%; margin-top: 5px;">
-            </div>
-            <div>
-                <label class="field-label" style="font-weight: bold;">2. PDF do Gabarito Oficial Definitivo:</label>
-                <input type="file" id="pdf-gabarito" accept="application/pdf" style="width: 100%; margin-top: 5px;">
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <button id="btn-processar-importacao" class="btn secondary small" style="font-weight: bold;" disabled>
-                Extrair Automaticamente
-            </button>
-        </div>
-
-        <!-- Componente Externo para Leitura de Buffer de PDFs -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-        <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
-
-        <!-- Monitor de Edição Fina e Validação -->
-        <div id="tela-revisao-importacao" style="display: none; border-top: 1px dashed var(--border-color); padding-top: 15px; margin-top: 15px;">
-            <h4 style="font-family:'Fraunces', serif; margin-bottom: 10px; color: var(--text-main);">Tela de Revisão e Ajustes</h4>
-            
-            <div class="row2" style="margin-bottom: 15px;">
-                <div>
-                    <label class="field-label">Ano da Prova:</label>
-                    <input type="number" id="import-ano" value="2025" style="width: 100%;">
-                </div>
-                <div>
-                    <label class="field-label">Período / Turno:</label>
-                    <select id="import-periodo" style="width: 100%;">
-                        <option value="manha">Manhã</option>
-                        <option value="tarde" selected>Tarde</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="container-revisao-questoes" style="max-height: 400px; overflow-y: auto; background: var(--bg-body); padding: 15px; border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: var(--radius-sm);"></div>
-
-            <button id="btn-salvar-json-plataforma" class="btn secondary" style="font-weight: bold;">
-                Salvar no Banco JSON da Plataforma
-            </button>
-        </div>
-    </div>
-    <!-- ========================================== -->
-
+    
     <div id="simuladosPanelHome">
       <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
 
@@ -497,7 +441,7 @@
         </div>
       </div>
 
-      <div class="card style="margin-top:16px;">
+      <div class="card" style="margin-top:16px;">
         <h4 style="font-size:13px; margin-bottom:10px;">Temas mais cobrados</h4>
         <div id="simuladosTemasCobrados"></div>
       </div>
@@ -507,7 +451,7 @@
       <div id="simuladosConfigWrap"></div>
     </div>
 
-    <div id="simuladosPanelProof" style="display:none;">
+    <div id="simuladosPanelProva" style="display:none;">
       <div id="simuladosProvaWrap"></div>
     </div>
 
