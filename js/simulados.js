@@ -366,7 +366,18 @@ function renderSimuladoProva() {
       else if (resposta.escolha === a.letra) cls += ' incorreta';
     }
     return `<button type="button" class="${cls}" onclick="responderQuestao('${a.letra}')"><b>${a.letra})</b> ${a.texto}</button>`;
-  }).join('') : '';
+  }).join('') : (q.tipo === 'certo-errado' ? ['C', 'E'].map(letra => {
+    let cls = 'sim-alt';
+    if (resposta && resposta.escolha === letra) cls += ' selecionada';
+    if (mostrarFeedback) {
+      if (letra === q.respostaCorreta) cls += ' correta';
+      else if (resposta.escolha === letra) cls += ' incorreta';
+    }
+    const label = letra === 'C' ? 'Certo' : 'Errado';
+    return `<button type="button" class="${cls}" onclick="responderQuestao('${letra}')" ${q.anulado ? 'disabled' : ''}><b>${letra}</b> — ${label}</button>`;
+  }).join('') : '');
+
+  const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>⚠ Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.</div>` : '';
 
   wrap.innerHTML = `
     <div class="sim-topbar">
@@ -385,6 +396,7 @@ function renderSimuladoProva() {
       </div>
       <p class="sim-enunciado">${q.enunciado}</p>
       <div class="sim-alternativas">${altsHtml}</div>
+      ${avisoAnulado}
       ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? '✅ Correto!' : '❌ Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
       <label class="field-label" style="margin-top:14px;">Sua anotação</label>
       <textarea onchange="salvarAnotacaoQuestao('${q.id}', this.value)" placeholder="Anote algo sobre esta questão...">${simuladosProgresso.anotacoes[q.id] || ''}</textarea>
@@ -402,7 +414,8 @@ function renderSimuladoProva() {
 
 function responderQuestao(letra) {
   const q = questaoAtual(); const s = simuladoSessao;
-  const correta = q.tipo === 'multipla' ? letra === q.respostaCorreta : null;
+  if (q.anulado) return; // item cancelado pela banca — não é possível responder
+  const correta = (q.tipo === 'multipla' || q.tipo === 'certo-errado') ? letra === q.respostaCorreta : null;
   const tempoSeg = Math.round((Date.now() - s.questaoInicioMs) / 1000);
   simuladosProgresso.respondidas[q.id] = { escolha: letra, correta, tempoSeg, data: new Date().toISOString() };
   salvarProgresso();
