@@ -1,37 +1,41 @@
 :root, body[data-theme="dark"] {
   --ink:#0F172A;
-  --ink-2:#16213A;
+  --ink-2:#141C31;
   --ink-3:#1A2235;
-  --parchment:#F5F5F5;
-  --parchment-2:#E3E5E8;
-  --text-dark:#0F172A;
+  --parchment:#1A2235;
+  --parchment-2:#212A40;
+  --text-dark:#F5F5F5;
   --text-light:#F5F5F5;
+  --text-main:#F5F5F5;
   --text-muted:#8A8F98;
+  --border-color: rgba(201,163,90,.18);
   --card-hover-bg: rgba(201,163,90,.08);
-  --bg-overlay-opacity: .18;
+  --bg-overlay-opacity: .16;
 }
 
 body[data-theme="light"] {
-  --ink:#F5F5F5;
+  --ink:#F5F6F9;
   --ink-2:#FFFFFF;
-  --ink-3:#EAEAEC;
-  --parchment:#0F172A;
-  --parchment-2:#1A2235;
-  --text-dark:#F5F5F5;
+  --ink-3:#EEF0F4;
+  --parchment:#FFFFFF;
+  --parchment-2:#EEF0F4;
+  --text-dark:#0F172A;
   --text-light:#0F172A;
+  --text-main:#0F172A;
   --text-muted:#6B7280;
-  --card-hover-bg: rgba(15,23,42,.05);
+  --border-color: rgba(15,23,42,.12);
+  --card-hover-bg: rgba(201,163,90,.08);
   --bg-overlay-opacity: .05;
 }
 
 :root {
   --brass:#C9A35A;
-  --brass-light:#E4C48A;
+  --brass-light:#DFC189;
   --seal:#C9A35A;
-  --seal-glow:#EF4444;
-  --seal-light:#D9B679;
-  --azul:#1A2235;
-  --azul-light:#8A8F98;
+  --seal-glow:#DFC189;
+  --seal-light:#B8924A;
+  --azul:#2C3A56;
+  --azul-light:#8FA3C8;
   --ok:#22C55E;
   --ok-glow:#4ADE80;
   --bad:#EF4444;
@@ -44,9 +48,9 @@ body[data-theme="light"] {
   --sidebar-w:0px;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Paleta oficial da marca Chancelaria */
+  /* Paleta oficial Chancelaria (manual da marca) */
   --ub-verde:#22C55E;
-  --ub-azul:#0F172A;
+  --ub-azul:#C9A35A;
   --ub-cinza:#8A8F98;
   --ub-branco:#F5F5F5;
 }
@@ -55,8 +59,8 @@ body[data-theme="light"] {
 html,body{margin:0;padding:0;}
 body{
   background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(180,145,75,.10), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(62,92,118,.14), transparent 55%),
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(201,163,90,.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(26,34,53,.35), transparent 55%),
     var(--ink);
   color:var(--text-light);
   font-family:'Inter', sans-serif;
@@ -88,8 +92,15 @@ button{font-family:inherit; cursor:pointer;}
 :focus-visible{outline:2px solid var(--brass-light); outline-offset:2px;}
 
 /* ===== Selo de lacre reutilizável ===== */
-.brand-logo-img{ height:40px; width:auto; display:block; filter:drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
-.brand-logo-img.crest{ height:64px; margin:0 auto 10px; }
+.wax{
+  position:relative; border-radius:14px; overflow:hidden;
+  width:44px; height:44px; flex-shrink:0;
+  background:var(--ink-3); border:1px solid var(--border-color);
+  box-shadow:0 4px 14px rgba(0,0,0,.35);
+  display:flex; align-items:center; justify-content:center;
+}
+.wax img{ width:100%; height:100%; object-fit:cover; display:block; }
+.wax::before{ content:none; }
 
 /* ===== Masthead / letterhead ===== */
 .letterhead{
@@ -244,22 +255,25 @@ input[type=text], input[type=number], input[type=date], textarea, select{
   width:100%; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main);
   padding:11px 12px; border-radius:var(--radius-sm); font-family:'Inter'; font-size:13.5px; transition:border-color .15s, box-shadow .15s;
 }
-input:focus, textarea:focus, select:focus{ border-color:var(--ub-azul); box-shadow:0 0 0 3px rgba(0,122,255,0.15); outline:none; }
+input:focus, textarea:focus, select:focus{ border-color:var(--ub-azul); box-shadow:0 0 0 3px rgba(201,163,90,0.15); outline:none; }
 textarea{resize:vertical; min-height:64px;}
 label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); display:block; margin:10px 0 5px; font-weight:500;}
 
-.btn{ background:var(--brass); color:#0F172A; border:none; padding:10.5px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; letter-spacing:.02em; transition: var(--transition); }
-.btn:hover{ filter:brightness(1.1); box-shadow:0 8px 20px -10px rgba(201,163,90,.55); transform:translateY(-1px); }
-.btn.secondary{background:var(--ink-3); color:var(--text-light); border:1px solid var(--border-color);}
+.btn{ background:var(--seal); color:var(--ink); border:none; padding:10.5px 18px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; letter-spacing:.02em; transition: var(--transition); }
+.btn:hover{ filter:brightness(1.08); box-shadow:0 8px 20px -10px rgba(201,163,90,.6); transform:translateY(-1px); }
+.btn.secondary{background:var(--ink-3); color:var(--text-main); border:1px solid var(--border-color);}
+.btn.secondary:hover{ border-color:var(--brass-light); }
 .btn.ghost{background:rgba(255,255,255,.02); border:1px solid var(--border-color); color:var(--text-muted);}
-.btn.danger{background:var(--bad); color:#fff;}
+.btn.danger{ background:var(--bad); color:#fff; }
+.btn.danger:hover{ filter:brightness(1.1); box-shadow:0 8px 20px -10px rgba(239,68,68,.6); }
 .btn.small{padding:7.5px 12px; font-size:11.5px; border-radius:8px;}
+.btn:disabled{ opacity:.45; cursor:not-allowed; filter:none; transform:none; box-shadow:none; }
 
 .row2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
 .filters{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
 .chip{ font-size:11.5px; padding:6px 13px; border-radius:20px; border:1px solid var(--border-color); color:var(--text-muted); background:var(--ink-2); transition:all .15s; cursor:pointer; }
 .chip:hover{ border-color:var(--ub-azul); color:var(--text-main); }
-.chip.active{background:var(--ub-azul); color:#fff; border-color:var(--ub-azul); box-shadow:0 4px 12px -6px rgba(0,122,255,.5);}
+.chip.active{background:var(--ub-azul); color:#fff; border-color:var(--ub-azul); box-shadow:0 4px 12px -6px rgba(201,163,90,.5);}
 
 /* ===== Configuração Unificada de Cards do Cronograma ===== */
 .crono{ border-left:3px solid var(--brass); display:flex; gap:10px; align-items:flex-start; cursor:pointer; transition: var(--transition); }
@@ -288,7 +302,7 @@ label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06
 .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: var(--ink-3); border-radius: 6px; padding: 6px; cursor: pointer; transition: var(--transition); }
 .cal-day:hover { border-color: var(--ub-azul); }
 .cal-day.empty-cell { background: transparent; cursor: default; pointer-events: none; }
-.cal-day.today { border-color: var(--ub-verde); background: rgba(46,196,182,0.06); }
+.cal-day.today { border-color: var(--ub-verde); background: rgba(34,197,94,0.06); }
 .cal-day.active-filter { background: var(--ub-azul); }
 .cal-day-num { font-size: 11px; font-family: 'IBM Plex Mono'; font-weight: 600; color: var(--text-main); }
 .cal-day-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--seal-glow); }
@@ -690,9 +704,9 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .sim-topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; font-size:12.5px; color:var(--text-muted); }
 .sim-nav-grid{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
 .sim-nav-item{ width:30px; height:30px; border-radius:8px; border:1px solid var(--border-color); background:var(--ink-3); color:var(--text-muted); font-family:'IBM Plex Mono'; font-size:11px; cursor:pointer; }
-.sim-nav-item.respondida{ background:rgba(92,122,79,.25); border-color:var(--ok); color:var(--ok-glow); }
+.sim-nav-item.respondida{ background:rgba(34,197,94,.25); border-color:var(--ok); color:var(--ok-glow); }
 .sim-nav-item.marcada{ background:rgba(227,196,129,.2); border-color:var(--brass-light); color:var(--brass-light); }
-.sim-nav-item.atual{ border-color:var(--ub-azul); box-shadow:0 0 0 2px rgba(0,122,255,.3); color:var(--text-main); }
+.sim-nav-item.atual{ border-color:var(--ub-azul); box-shadow:0 0 0 2px rgba(201,163,90,.3); color:var(--text-main); }
 
 .sim-q-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .sim-icon-btn{ background:none; border:1px solid var(--border-color); border-radius:8px; color:var(--text-muted); font-size:14px; padding:5px 9px; cursor:pointer; }
@@ -701,9 +715,9 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .sim-alternativas{ display:flex; flex-direction:column; gap:8px; }
 .sim-alt{ text-align:left; background:var(--ink-3); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:11px 14px; font-size:13px; color:var(--text-light); cursor:pointer; transition:var(--transition); }
 .sim-alt:hover{ border-color:var(--ub-azul); }
-.sim-alt.selecionada{ border-color:var(--ub-azul); background:rgba(0,122,255,.08); }
-.sim-alt.correta{ border-color:var(--ok); background:rgba(92,122,79,.18); color:var(--ok-glow); }
-.sim-alt.incorreta{ border-color:var(--bad); background:rgba(194,75,75,.14); color:var(--bad); }
+.sim-alt.selecionada{ border-color:var(--ub-azul); background:rgba(201,163,90,.08); }
+.sim-alt.correta{ border-color:var(--ok); background:rgba(34,197,94,.18); color:var(--ok-glow); }
+.sim-alt.incorreta{ border-color:var(--bad); background:rgba(239,68,68,.14); color:var(--bad); }
 .sim-explicacao{ margin-top:16px; padding:12px 14px; background:rgba(180,145,75,.08); border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:13px; line-height:1.6; color:var(--text-light); }
 /* ==========================================================================
    ADIÇÕES — nova casca "dashboard" (sidebar, busca global, stat cards,
@@ -750,9 +764,9 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .dash-disc-row{ display:flex; align-items:center; font-size:12px; padding:6px 0; }
 .dash-activity-row{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); }
 .dash-activity-ic{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
-.dash-activity-ic.acerto{ background:rgba(92,122,79,.25); color:var(--ok-glow); }
-.dash-activity-ic.erro{ background:rgba(194,75,75,.2); color:var(--bad); }
-.dash-activity-ic.simulado{ background:rgba(0,122,255,.2); color:var(--ub-azul); }
+.dash-activity-ic.acerto{ background:rgba(34,197,94,.25); color:var(--ok-glow); }
+.dash-activity-ic.erro{ background:rgba(239,68,68,.2); color:var(--bad); }
+.dash-activity-ic.simulado{ background:rgba(201,163,90,.2); color:var(--ub-azul); }
 .dash-activity-txt{ font-size:12px; color:var(--text-light); }
 .dash-activity-time{ font-size:10px; color:var(--text-muted); }
 .dash-tema-row{ display:flex; align-items:center; gap:8px; font-size:12px; padding:5px 0; color:var(--text-light); }
@@ -764,7 +778,7 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .dash-streak-days{ display:flex; justify-content:space-between; gap:4px; }
 .dash-streak-day{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; color:var(--text-muted); }
 .dash-streak-dot{ width:24px; height:24px; border-radius:50%; background:var(--ink-3); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:11px; }
-.dash-streak-dot.active{ background:rgba(46,196,182,.25); border-color:var(--ub-verde); color:var(--ub-verde); }
+.dash-streak-dot.active{ background:rgba(34,197,94,.25); border-color:var(--ub-verde); color:var(--ub-verde); }
 /* ==========================================================================
    ADIÇÕES — menu lateral rolável + tela de reordenar em Configurações.
    ========================================================================== */
@@ -825,9 +839,9 @@ body.editor-fullscreen-active{ overflow:hidden; }
 
 .callout{ display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-radius:var(--radius-sm); margin:12px 0; font-size:13px; line-height:1.55; }
 .callout-icon{ flex-shrink:0; }
-.callout-info{ background:rgba(0,122,255,.1); border:1px solid rgba(0,122,255,.35); }
+.callout-info{ background:rgba(201,163,90,.1); border:1px solid rgba(201,163,90,.35); }
 .callout-atencao{ background:rgba(227,196,129,.1); border:1px solid rgba(227,196,129,.4); }
-.callout-importante{ background:rgba(194,75,75,.1); border:1px solid rgba(194,75,75,.4); }
+.callout-importante{ background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.4); }
 
 .toggle-block{ border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; margin:12px 0; background:rgba(255,255,255,.02); }
 .toggle-block summary{ cursor:pointer; font-weight:600; color:var(--text-main); }
