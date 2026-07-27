@@ -2,1519 +2,775 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Hub Linguístico</title>
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" href="/icon.png">
-<meta name="theme-color" content="#09090b">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Chancelaria — Gabinete de Estudos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/logo-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/logo-180.png">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-analytics-compat.js"></script>
-
-<script src="https://bernardo-castilho.github.io/DragDropTouch/DragDropTouch.js"></script>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#09090b;--surf:rgba(18,18,22,.95);--card:rgba(26,26,32,.98);
-  --text:#f1f1f3;--muted:#71717a;--muted2:#a1a1aa;
-  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
-  --accent:#3b82f6;--accent-glow:rgba(59,130,246,.18);
-  --ai:#8b5cf6;--ai-glow:rgba(139,92,246,.18);
-  --success:#10b981;--warn:#f59e0b;--danger:#ef4444;
-  --blur:blur(16px);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
-
-/* ANIMATIONS */
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fireFlicker{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.15) rotate(2deg)}}
-@keyframes countUp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
-@keyframes heatPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.fade-in{animation:fadeIn .25s ease both;}
-
-/* HEADER */
-.header{background:rgba(9,9,11,.92);backdrop-filter:var(--blur);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:56px;gap:10px;}
-.brand{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.brand h1{font-size:.95rem;font-weight:600;letter-spacing:-.02em;}
-.lang-switcher{display:flex;gap:3px;background:rgba(0,0,0,.35);padding:4px;border-radius:9px;border:1px solid var(--border);}
-.lang-btn{background:transparent;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:500;color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:3px;font-family:'Inter',sans-serif;white-space:nowrap;}
-.lang-btn:hover{color:var(--text);background:rgba(255,255,255,.05);}
-.lang-btn.active{color:#fff;background:var(--accent);}
-/* Latin button special color */
-.lang-btn#lang-btn-la.active{background:linear-gradient(135deg,#7c4f1e,#b8860b);}
-.header-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.xp-pill{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.4);border:1px solid var(--border);padding:5px 12px;border-radius:20px;font-size:.76rem;}
-.xp-bar-wrap{width:64px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
-.xp-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s ease;}
-.pomo{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
-.cloud-badge{display:none;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:var(--success);padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:500;}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 15px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap;line-height:1;-webkit-tap-highlight-color:transparent;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover{background:#2563eb;transform:translateY(-1px);box-shadow:0 4px 14px var(--accent-glow);}
-.btn-primary:active{transform:none;}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-ghost{background:transparent;color:var(--muted2);border:1px solid var(--border);}
-.btn-ghost:hover{color:var(--text);border-color:var(--border2);background:rgba(255,255,255,.03);}
-.btn-ghost:disabled{opacity:.4;cursor:not-allowed;}
-.btn-ai{background:linear-gradient(135deg,var(--accent),var(--ai));color:#fff;}
-.btn-ai:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 18px var(--ai-glow);}
-.btn-ai:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none;}
-.btn-danger{background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.2);}
-.btn-danger:hover{background:rgba(239,68,68,.18);}
-.btn-success{background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.2);}
-.btn-success:hover{background:rgba(16,185,129,.18);}
-.spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
-.icon-btn{background:rgba(255,255,255,.04);border:1px solid transparent;color:var(--muted);cursor:pointer;padding:5px 8px;border-radius:6px;font-size:.85rem;transition:all .18s;display:inline-flex;align-items:center;line-height:1;-webkit-tap-highlight-color:transparent;min-width:32px;min-height:32px;justify-content:center;}
-.icon-btn:hover{background:rgba(255,255,255,.1);color:var(--text);}
-
-/* LAYOUT */
-.container{max-width:1600px;margin:0 auto;padding:18px 16px;}
-.panel{background:var(--surf);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:12px;padding:18px;}
-
-/* TABS */
-.tabs{display:flex;gap:1px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;padding-bottom:0;}
-.tab-btn{background:transparent;border:none;color:var(--muted);padding:10px 14px;cursor:pointer;font-size:.82rem;font-weight:500;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
-.tab-btn:hover{color:var(--text);}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
-.tab-content{display:none;animation:fadeIn .25s ease;}
-.tab-content.active{display:block;}
-.filter-bar{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-
-/* FORMS */
-input[type=text],input[type=email],select,textarea{background:rgba(0,0,0,.4);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:.85rem;width:100%;box-sizing:border-box;transition:all .18s;outline:none;}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
-input::placeholder,textarea::placeholder{color:var(--muted);}
-select option{background:#18181b;}
-
-/* DASHBOARD */
-.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
-.dash-card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;transition:border-color .2s;}
-.dash-card:hover{border-color:var(--border2);}
-.dash-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;font-weight:600;}
-.dash-value{font-size:2.4rem;font-weight:700;letter-spacing:-.04em;line-height:1;animation:countUp .4s ease both;}
-
-/* STREAK */
-.streak-card{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));border:1px solid rgba(245,158,11,.25)!important;}
-.streak-fire{display:inline-block;animation:fireFlicker 1.8s ease-in-out infinite;}
-.streak-max{font-size:.65rem;color:var(--warn);opacity:.8;margin-top:4px;}
-
-/* RISK BADGE */
-.risk-badge{font-size:.58rem;padding:1px 5px;border-radius:6px;font-weight:700;vertical-align:middle;margin-left:4px;}
-.risk-high{background:rgba(239,68,68,.18);color:#fca5a5;}
-.risk-med{background:rgba(245,158,11,.18);color:#fcd34d;}
-
-/* KANBAN */
-.vocab-form{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
-.vocab-form>*{flex:1;min-width:110px;}
-.vocab-form>.btn{flex:0 0 auto;}
-.kanban-board{display:flex;gap:12px;overflow-x:auto;padding-bottom:14px;align-items:flex-start;min-height:50vh;}
-.kanban-col{flex:0 0 268px;display:flex;flex-direction:column;}
-.kanban-col.dragging-col{opacity:.35;}
-.col-header{padding:5px 11px;border-radius:6px;font-size:.73rem;font-weight:700;margin-bottom:8px;width:fit-content;}
-.col-body{background:rgba(0,0,0,.15);border:1px solid var(--border);border-radius:10px;padding:8px;min-height:160px;transition:all .2s;}
-.col-body.drag-over{background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.3);}
-.word-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;}
-.word-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.45);}
-.word-card:active{transform:none;}
-.word-card.dragging{opacity:.4;border-style:dashed;border-color:var(--accent);}
-.w-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:6px;}
-.w-main{font-size:.98rem;font-weight:700;flex:1;}
-.w-trans{font-size:.82rem;color:var(--muted2);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px;}
-.w-phrase{font-size:.76rem;color:#777;font-style:italic;border-top:1px solid var(--border);padding-top:7px;margin-top:3px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
-.w-badge{font-size:.6rem;padding:2px 6px;border-radius:7px;background:rgba(139,92,246,.14);color:#a78bfa;font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
-.blur-text{filter:blur(4px);user-select:none;opacity:.55;}
-
-/* SRS */
-.srs-wrap{max-width:640px;margin:0 auto;}
-.srs-ready{text-align:center;padding:52px 20px;}
-.srs-ready h2{font-size:1.65rem;font-weight:700;letter-spacing:-.03em;margin-bottom:8px;}
-.srs-card{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:36px 28px;text-align:center;position:relative;overflow:hidden;}
-.srs-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,.05) 0%,transparent 65%);pointer-events:none;}
-.srs-prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-.prog-bar{flex:1;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin:0 12px;}
-.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s;}
-.srs-word{font-size:2.4rem;font-weight:700;letter-spacing:-.04em;margin-bottom:9px;line-height:1.1;}
-.srs-ctx{font-size:.92rem;color:var(--muted2);font-style:italic;margin-bottom:28px;}
-.srs-answer{padding-top:24px;border-top:1px solid var(--border);margin-top:8px;}
-.srs-ans-text{font-size:1.3rem;font-weight:600;color:var(--success);margin-bottom:22px;}
-.srs-rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.srs-rating .btn{flex-direction:column;gap:2px;padding:14px 6px;}
-.srs-rating .btn small{font-size:.66rem;opacity:.65;font-weight:400;}
-body.focus-mode .header,body.focus-mode .tabs,body.focus-mode .filter-bar,body.focus-mode .mobile-nav{display:none!important;}
-body.focus-mode .container{padding-top:5vh;}
-
-/* READING */
-.reading-layout{display:flex;gap:16px;}
-.text-sidebar{width:180px;flex-shrink:0;display:flex;flex-direction:column;gap:7px;}
-.text-main{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;}
-.text-list-item{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:.8rem;font-weight:500;transition:all .18s;display:flex;justify-content:space-between;align-items:center;gap:5px;}
-.text-list-item:hover{border-color:var(--border2);}
-.text-list-item.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.07);}
-.text-list-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.reading-header{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
-.reader-panels{display:flex;gap:12px;flex:1;}
-.reader-panel-wrap{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;}
-.reader-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
-.reader-view{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;padding:16px;height:48vh;overflow-y:auto;font-size:.98rem;line-height:1.9;}
-.reader-edit{height:48vh;border-radius:8px!important;resize:none;font-size:.88rem;line-height:1.8;}
-.clickable-word{cursor:pointer;border-bottom:1px dashed rgba(255,255,255,.14);padding:0 1px;transition:all .14s;border-radius:3px;}
-.clickable-word:hover{background:rgba(59,130,246,.28);border-bottom-color:transparent;color:#fff;}
-.para-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:6px;border-radius:6px;transition:background .15s;}
-.para-row:hover{background:rgba(255,255,255,.02);}
-
-/* AUDIO PLAYER */
-.audio-player{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:8px 14px;flex-wrap:wrap;}
-.ap-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .18s;-webkit-tap-highlight-color:transparent;}
-.ap-btn:hover{background:rgba(255,255,255,.12);}
-.ap-time{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--accent);min-width:40px;text-align:center;}
-.ap-slider{-webkit-appearance:none;height:4px;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer;flex:1;min-width:80px;}
-.ap-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
-.file-upload-wrap{position:relative;overflow:hidden;display:inline-block;}
-.file-upload-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px;}
-
-/* MODALS */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:16px;}
-.modal.open{display:flex;}
-.modal-box{background:#121216;border:1px solid var(--border);border-radius:16px;padding:26px;width:100%;max-height:90vh;overflow-y:auto;animation:fadeIn .2s ease;box-shadow:0 24px 50px rgba(0,0,0,.65);}
-.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.modal-title{font-size:1.05rem;font-weight:600;}
-.ai-block{background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:15px;font-size:.86rem;line-height:1.75;white-space:pre-wrap;}
-
-/* MOBILE NAV */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(9,9,11,.96);backdrop-filter:var(--blur);border-top:1px solid var(--border);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:150;}
-.mobile-nav-inner{display:flex;}
-.mnav-btn{flex:1;background:none;border:none;color:var(--muted);padding:7px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.58rem;font-family:'Inter',sans-serif;transition:color .2s;-webkit-tap-highlight-color:transparent;}
-.mnav-btn .ni{font-size:1.3rem;line-height:1;}
-.mnav-btn.active{color:var(--accent);}
-.mnav-btn:hover{color:var(--text);}
-
-/* LATIN NOTICE BANNER */
-.latin-notice{background:linear-gradient(135deg,rgba(184,134,11,.1),rgba(124,79,30,.12));border:1px solid rgba(184,134,11,.25);border-radius:10px;padding:10px 14px;font-size:.79rem;color:#d4a843;display:none;align-items:center;gap:8px;margin-bottom:14px;}
-.latin-notice.visible{display:flex;}
-
-/* DECK STATS */
-.deck-stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:18px;}
-.deck-stat-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .2s;}
-.deck-stat-card:hover{border-color:var(--border2);}
-.deck-stat-name{font-size:.75rem;font-weight:600;color:var(--muted2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
-.deck-stat-bar-wrap{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:6px;}
-.deck-stat-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--ai));transition:width .5s ease;}
-.deck-stat-nums{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);}
-
-/* MACRON KEYBOARD */
-.macron-bar{display:flex;gap:4px;flex-wrap:wrap;padding:6px 0 2px;}
-.macron-key{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:5px;color:var(--muted2);cursor:pointer;font-size:.82rem;padding:3px 7px;font-family:'Inter',sans-serif;transition:all .15s;line-height:1.4;}
-.macron-key:hover{background:rgba(59,130,246,.15);border-color:var(--accent);color:var(--text);}
-
-/* SRS MODE TOGGLE */
-.srs-mode-toggle{display:flex;gap:6px;justify-content:center;margin-bottom:18px;}
-.srs-mode-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:500;padding:6px 14px;font-family:'Inter',sans-serif;transition:all .18s;}
-.srs-mode-btn.active{background:rgba(59,130,246,.12);border-color:var(--accent);color:var(--accent);}
-
-/* UNDO TOAST */
-.undo-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1e28;border:1px solid var(--border2);border-radius:10px;padding:10px 16px;font-size:.82rem;display:flex;align-items:center;gap:10px;z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
-.undo-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
-
-/* BACKUP WARNING */
-.backup-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 14px;font-size:.76rem;color:var(--warn);display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
-.backup-warn.visible{display:flex;}
-
-/* PROGRESS CHART */
-.progress-chart-wrap{position:relative;height:140px;margin-top:8px;}
-.progress-chart-wrap canvas{width:100%!important;}
-.chart-legend{display:flex;gap:14px;margin-top:10px;font-size:.72rem;color:var(--muted);}
-.chart-legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0;}
-
-/* DICT PANEL */
-.dict-panel{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-top:10px;font-size:.85rem;line-height:1.7;display:none;}
-.dict-panel.visible{display:block;animation:fadeIn .2s ease;}
-.dict-panel-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.dict-word{font-size:1.15rem;font-weight:700;}
-.dict-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
-.dict-link{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--accent);border-radius:6px;padding:4px 10px;font-size:.74rem;text-decoration:none;cursor:pointer;transition:all .15s;}
-.dict-link:hover{background:rgba(59,130,246,.2);}
-
-/* NOTES FIELD */
-.notes-section{border-top:1px solid var(--border);padding-top:10px;margin-top:2px;}
-
-.cal-day{border:1px solid var(--border);border-radius:9px;padding:10px 6px;text-align:center;}
-.cal-day-name{font-size:.68rem;color:var(--muted);margin-bottom:4px;}
-.cal-day-count{font-size:1.15rem;font-weight:700;line-height:1;}
-.cal-day-date{font-size:.6rem;color:var(--muted);margin-top:4px;}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .mobile-nav{display:block;}
-  .tabs{display:none;}
-  .container{padding:14px 12px;padding-bottom:80px;}
-  .kanban-board{flex-direction:column;}
-  .kanban-col{flex:none;width:100%;}
-  .reader-panels{flex-direction:column;}
-  .reading-layout{flex-direction:column;}
-  .text-sidebar{width:100%;}
-  .reader-view,.reader-edit{height:38vh;}
-  .srs-rating{grid-template-columns:repeat(2,1fr);}
-  .srs-word{font-size:1.9rem;}
-  .dash-grid{grid-template-columns:repeat(2,1fr);}
-  .header-right .xp-pill,.header-right .pomo{display:none!important;}
-  .header{height:auto;padding:10px 12px;flex-wrap:wrap;gap:8px;}
-  .vocab-form>*{min-width:calc(50% - 4px);}
-  .filter-bar{gap:7px;}
-  .panel{padding:14px;}
-  .heatmap-grid{grid-template-columns:repeat(9,1fr);}
-}
-@media(max-width:480px){
-  .dash-grid{grid-template-columns:repeat(2,1fr);}
-  .srs-card{padding:24px 16px;}
-  .heatmap-grid{grid-template-columns:repeat(7,1fr);}
-  .modal-box{padding:18px;}
-}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-theme="dark" data-active-tab="inicio">
 
-<!-- MODALS -->
-<div class="modal" id="authModal">
-  <div class="modal-box" style="max-width:380px;text-align:center;">
-    <div style="font-size:2rem;margin-bottom:10px;">🌐</div>
-    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:6px;">Hub Linguístico</h2>
-    <p style="color:var(--muted);margin-bottom:24px;font-size:.85rem;">Login para sincronizar na nuvem.</p>
-    <button class="btn btn-ghost" style="width:100%;padding:12px;justify-content:center;font-size:.9rem;background:rgba(255,255,255,.05);margin-bottom:8px;" onclick="simulateGoogleLogin()">
-      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-      Entrar com Google
-    </button>
-    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModals()">Continuar Offline</button>
-  </div>
-</div>
+<!-- GABINETE MODAL DE ANOTAÇÕES -->
+<div id="editCronoModal" class="modal-overlay" onclick="closeEditModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3>Gabinete de Estudo — Detalhes</h3>
+    <input type="hidden" id="editCronoId">
 
-<div class="modal" id="aiModal">
-  <div class="modal-box" style="max-width:540px;">
-    <div class="modal-hdr"><span class="modal-title" style="color:#a78bfa;">✨ Análise da IA</span><button class="icon-btn" onclick="closeModals()">✕</button></div>
-    <div id="ai-content" class="ai-block">Analisando...</div>
-    <button class="btn btn-ghost" style="width:100%;margin-top:14px;justify-content:center;" onclick="closeModals()">Fechar</button>
-  </div>
-</div>
+    <label class="field-label">Tema / Tópico</label>
+    <input type="text" id="editCronoTema">
 
-<div class="modal" id="lingqModal" onclick="modalOutsideClick(event)">
-  <div class="modal-box" style="max-width:420px;">
-    <div class="modal-hdr">
-      <span class="modal-title">Capturar Palavra</span>
-      <div style="display:flex;gap:6px;"><button class="icon-btn" id="btn-lingq-audio">🔊</button><button class="icon-btn" onclick="closeModals()">✕</button></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <input type="text" id="lingq-word" readonly style="font-size:1.1rem;font-weight:700;background:rgba(0,0,0,.5);">
-      <input type="text" id="lingq-trans" placeholder="Tradução em português">
+    <label class="field-label">Fichamento / Suas Anotações de Estudo</label>
+    <textarea id="editCronoEstudar" placeholder="Escreva aqui seus resumos, insights e anotações do que foi estudado..."></textarea>
+
+    <div class="row2">
       <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-          <label style="font-size:.74rem;color:var(--muted);font-weight:500;">Frase de Contexto</label>
-          <button class="icon-btn" id="btn-lingq-ctx-audio">🔊</button>
-        </div>
-        <textarea id="lingq-context" rows="3"></textarea>
+        <label class="field-label">Matéria</label>
+        <select id="editCronoMateria"></select>
       </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:2px;">
-        <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-        <button class="btn btn-primary" onclick="salvarLingq()">Salvar Palavra</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL EDIÇÃO (completo: classe, status, categoria) -->
-<div class="modal" id="modalEdicao" onclick="modalOutsideClick(event)">
-  <div class="modal-box" style="max-width:520px;">
-    <div class="modal-hdr">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="modal-title">Editar Palavra</span>
-        <button class="icon-btn" id="edit-audio-btn" title="Ouvir pronúncia">🔊</button>
-      </div>
-      <button class="icon-btn" onclick="closeModals()">✕</button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <input type="text" id="edit-word" readonly style="font-size:1.1rem;font-weight:700;background:rgba(0,0,0,.3);">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div>
-          <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;">Tradução</label>
-          <input type="text" id="edit-pt" placeholder="Tradução em português">
-        </div>
-        <div>
-          <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;">Classe</label>
-          <select id="edit-class">
-            <option value="Vazio">— Classe —</option>
-            <option value="Verb">Verb</option><option value="Noun">Noun</option>
-            <option value="Adjective">Adjective</option><option value="Pronoun">Pronoun</option>
-            <option value="Adverb">Adverb</option>
-            <option value="Preposition">Preposition</option><option value="Conjunction">Conjunction</option>
-            <option value="Interjection">Interjection</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div>
-          <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;">Status</label>
-          <select id="edit-status"></select>
-        </div>
-        <div>
-          <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;">Coleção</label>
-          <input list="cat-list" type="text" id="edit-cat" placeholder="Coleção (Deck)">
-        </div>
-      </div>
-
-      <!-- SEÇÃO GRAMATICAL LATIM (só aparece quando latim ativo) -->
-      <div id="edit-latin-section" style="display:none;border:1px solid rgba(184,134,11,.2);border-radius:8px;padding:12px;background:rgba(184,134,11,.04);">
-        <div style="font-size:.72rem;color:#d4a843;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;">🏛️ Gramática Latina</div>
-        <!-- Formas principais do verbo -->
-        <div id="edit-verb-forms" style="display:none;">
-          <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:6px;">Formas principais <span style="color:var(--muted);font-weight:400;">(1ª sing. pres. · infinitivo · perf. · supino)</span></label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-            <input type="text" id="edit-form1" placeholder="amō">
-            <input type="text" id="edit-form2" placeholder="amāre">
-            <input type="text" id="edit-form3" placeholder="amāvī">
-            <input type="text" id="edit-form4" placeholder="amātum">
-          </div>
-          <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Conjugação</label>
-          <select id="edit-conj">
-            <option value="">— Conjugação —</option>
-            <option value="1ª">1ª conjugação (-āre)</option>
-            <option value="2ª">2ª conjugação (-ēre)</option>
-            <option value="3ª">3ª conjugação (-ere)</option>
-            <option value="3ª-io">3ª-io conjugação (-ere/-io)</option>
-            <option value="4ª">4ª conjugação (-īre)</option>
-            <option value="irregular">Irregular</option>
-          </select>
-        </div>
-        <!-- Declinação do substantivo/adjetivo -->
-        <div id="edit-noun-forms" style="display:none;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-            <div>
-              <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Nominativo sg.</label>
-              <input type="text" id="edit-nom" placeholder="ex: terra">
-            </div>
-            <div>
-              <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Genitivo sg.</label>
-              <input type="text" id="edit-gen" placeholder="ex: terrae">
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <div>
-              <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Declinação</label>
-              <select id="edit-decl">
-                <option value="">— Declinação —</option>
-                <option value="1ª">1ª (-a, -ae) fem.</option>
-                <option value="2ª-m">2ª (-us/-er, -ī) masc.</option>
-                <option value="2ª-n">2ª (-um, -ī) neut.</option>
-                <option value="3ª">3ª (cons./i-stem)</option>
-                <option value="4ª">4ª (-us, -ūs)</option>
-                <option value="5ª">5ª (-ēs, -ēī)</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Gênero</label>
-              <select id="edit-gender">
-                <option value="">—</option>
-                <option value="m">Masculino (m.)</option>
-                <option value="f">Feminino (f.)</option>
-                <option value="n">Neutro (n.)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <!-- Teclado de macrons -->
-        <div style="margin-top:10px;">
-          <label style="font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px;">Inserir caractere especial em qualquer campo ativo:</label>
-          <div class="macron-bar" id="macron-bar"></div>
-        </div>
-      </div>
-
-      <div class="notes-section">
-        <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;">Frase de Contexto</label>
-        <textarea id="edit-phrase" rows="2" style="resize:vertical;"></textarea>
-        <label style="font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;margin-top:8px;">📝 Notas pessoais <span style="font-weight:400;opacity:.7;">(observações, dicas, referências)</span></label>
-        <textarea id="edit-notes" rows="2" style="resize:vertical;" placeholder="Ex: Cf. João 1:1 · lembrar de não confundir com verbum · aparece na Missa de Requiem..."></textarea>
-      </div>
-      <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
-        <button class="btn btn-danger" id="btn-excluir">🗑 Lixeira</button>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-ghost" onclick="closeModals()">Cancelar</button>
-          <button class="btn btn-primary" id="btn-salvar-edicao">Salvar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL LIXEIRA PALAVRAS -->
-<div class="modal" id="lixeiraModal">
-  <div class="modal-box" style="max-width:500px;">
-    <div class="modal-hdr">
-      <span class="modal-title">🗑️ Lixeira de Palavras (<span id="lixeira-lang"></span>)</span>
-      <button class="icon-btn" onclick="closeModals()">✕</button>
-    </div>
-    <div id="lixeira-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;"></div>
-    <button class="btn btn-danger" style="width:100%;margin-top:14px;justify-content:center;" onclick="esvaziarLixeira()">Esvaziar Lixeira</button>
-  </div>
-</div>
-
-<!-- MODAL LIXEIRA TEXTOS -->
-<div class="modal" id="lixeiraTextosModal">
-  <div class="modal-box" style="max-width:500px;">
-    <div class="modal-hdr">
-      <span class="modal-title">🗑️ Lixeira de Textos</span>
-      <button class="icon-btn" onclick="closeModals()">✕</button>
-    </div>
-    <div id="lixeira-textos-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;"></div>
-    <button class="btn btn-danger" style="width:100%;margin-top:14px;justify-content:center;" onclick="esvaziarLixeiraTextos()">Esvaziar Lixeira</button>
-  </div>
-</div>
-
-<!-- HEADER -->
-<header class="header">
-  <div class="brand"><span style="font-size:1.3rem;">🌐</span><h1>Hub Linguístico</h1></div>
-  <div class="lang-switcher">
-    <button class="lang-btn active" onclick="switchLang('fr')" id="lang-btn-fr">🇫🇷 FR</button>
-    <button class="lang-btn" onclick="switchLang('en')" id="lang-btn-en">🇬🇧 EN</button>
-    <button class="lang-btn" onclick="switchLang('es')" id="lang-btn-es">🇪🇸 ES</button>
-    <button class="lang-btn" onclick="switchLang('la')" id="lang-btn-la">🏛️ LA</button>
-  </div>
-  <div class="header-right">
-    <div class="xp-pill">
-      <span style="font-weight:700;color:var(--warn);font-size:.83rem;" id="ui-level">Lvl 1</span>
-      <div><div class="xp-bar-wrap"><div class="xp-bar-fill" id="ui-xp-bar"></div></div>
-      <div style="font-size:.6rem;color:var(--muted);text-align:center;margin-top:2px;" id="ui-xp-text">0/100</div></div>
-    </div>
-    <select id="audio-speed" class="btn btn-ghost" style="padding:5px 8px;width:auto;font-size:.74rem;">
-      <option value="0.5">0.5×</option><option value="0.75">0.75×</option>
-      <option value="1" selected>1.0×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option>
-    </select>
-    <div class="pomo">
-      <span id="timer-display" style="color:var(--muted);">25:00</span>
-      <button class="btn btn-ghost" style="padding:4px 8px;font-size:.7rem;" id="timer-btn" onclick="toggleTimer()">▶</button>
-    </div>
-    <span class="cloud-badge" id="cloud-status">☁ Sync</span>
-    <button class="btn btn-ghost" style="font-size:.74rem;" onclick="abrirLogin()" id="btn-login">Login</button>
-    <button class="btn btn-ghost" style="font-size:.74rem;" onclick="exportarDados()" title="Backup">💾</button>
-  </div>
-</header>
-
-<!-- MAIN -->
-<div class="container">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('tab-dashboard')">🏠 Hoje</button>
-    <button class="tab-btn" onclick="switchTab('tab-srs')">🧠 SRS</button>
-    <button class="tab-btn" onclick="switchTab('tab-kanban')">🗂 Vocabulário</button>
-    <button class="tab-btn" onclick="switchTab('tab-reading')">📚 Textos</button>
-    <button class="tab-btn" onclick="switchTab('tab-shadow')">🎧 Shadowing</button>
-  </div>
-
-  <div class="filter-bar" id="filter-bar">
-    <span style="font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;">Coleção:</span>
-    <select id="global-deck-filter" onchange="renderKanban();updateDash();" style="width:170px;"></select>
-    <button class="btn btn-ghost" style="font-size:.74rem;" onclick="abrirLixeira()">🗑️ Palavras</button>
-    <button class="btn btn-ghost" style="font-size:.74rem;" onclick="document.getElementById('import-file').click()">📂 Importar</button>
-    <button class="btn btn-ghost" style="font-size:.74rem;" onclick="exportarAnki()" title="Exportar para Anki (.txt)">🃏 Anki</button>
-    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="processarImport(event)">
-  </div>
-
-  <!-- UNDO TOAST -->
-  <div class="undo-toast" id="undo-toast">
-    <span id="undo-msg">Card movido</span>
-    <button class="btn btn-ghost" style="padding:4px 10px;font-size:.76rem;" onclick="desfazerUltimaAcao()">↩ Desfazer</button>
-  </div>
-
-  <!-- BACKUP WARNING -->
-  <div class="backup-warn" id="backup-warn">
-    <span id="backup-warn-msg">⚠ Último backup há muitos dias</span>
-    <button class="btn btn-ghost" style="padding:4px 10px;font-size:.74rem;" onclick="exportarDados()">💾 Fazer backup agora</button>
-  </div>
-
-  <!-- LATIN NOTICE BANNER (shown only when LA is active) -->
-  <div class="latin-notice" id="latin-notice">
-    🏛️ <span>Latim eclesiástico selecionado. O áudio TTS pode não estar disponível em todos os navegadores — use o campo de contexto para frases da Vulgata e textos litúrgicos.</span>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="tab-dashboard" class="tab-content active">
-    <div class="dash-grid">
-      <div class="dash-card">
-        <div class="dash-label">Para Revisar</div>
-        <div class="dash-value" id="dash-revisoes" style="color:var(--accent);">0</div>
-        <button class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center;font-size:.8rem;" onclick="switchTab('tab-srs')">Estudar Agora</button>
-      </div>
-      <div class="dash-card">
-        <div class="dash-label">Dominadas</div>
-        <div class="dash-value" id="dash-aprendidas" style="color:var(--success);">0</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-label">Vocabulário</div>
-        <div class="dash-value" id="dash-total" style="color:var(--muted2);">0</div>
-      </div>
-      <div class="dash-card streak-card">
-        <div class="dash-label">Streak</div>
-        <div class="dash-value" id="dash-streak" style="color:var(--warn);">
-          <span class="streak-fire">🔥</span><span id="streak-num">0</span>
-        </div>
-        <div class="streak-max" id="streak-max-label">Melhor: 0 dias</div>
-      </div>
-    </div>
-
-
-
-
-
-    <div class="panel" style="display:flex;align-items:center;gap:14px;">
-      <span style="font-size:1.9rem;" id="dash-lang-flag">🇫🇷</span>
       <div>
-        <div style="font-weight:600;margin-bottom:2px;font-size:.95rem;" id="dash-lang-title">Aprendendo Francês</div>
-        <div style="font-size:.82rem;color:var(--muted);">Use o SRS para revisar no momento certo e maximizar a retenção.</div>
+        <label class="field-label">Semana</label>
+        <input type="text" id="editCronoSemana">
       </div>
     </div>
 
-    <!-- CALENDAR 7 DIAS -->
-    <div class="panel" style="margin-top:18px;">
-      <h3 style="font-weight:600;font-size:.9rem;margin-bottom:14px;">📅 Revisões Previstas — Próximos 7 dias</h3>
-      <div class="cal-grid" id="calendar-grid"></div>
-    </div>
-
-    <!-- PROGRESSO AO LONGO DO TEMPO -->
-    <div class="panel" style="margin-top:18px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px;">
-        <h3 style="font-weight:600;font-size:.9rem;">📊 Progresso do Vocabulário</h3>
-        <div style="display:flex;gap:5px;">
-          <button class="srs-mode-btn active" id="chart-btn-30" onclick="renderProgressChart(30)" style="padding:4px 10px;font-size:.72rem;">30d</button>
-          <button class="srs-mode-btn" id="chart-btn-90" onclick="renderProgressChart(90)" style="padding:4px 10px;font-size:.72rem;">90d</button>
-        </div>
+    <div class="row2">
+      <div>
+        <label class="field-label">Data de Execução</label>
+        <input type="date" id="editCronoData">
       </div>
-      <div class="progress-chart-wrap"><canvas id="progress-canvas"></canvas></div>
-      <div class="chart-legend">
-        <span><span class="chart-legend-dot" style="background:#3b82f6;"></span>Total adicionadas</span>
-        <span><span class="chart-legend-dot" style="background:#10b981;"></span>Dominadas</span>
+      <div>
+        <label class="field-label">Tempo Estimado</label>
+        <input type="text" id="editCronoTempo">
       </div>
     </div>
 
-    <!-- DECK STATS -->
-    <div class="panel" style="margin-top:18px;">
-      <h3 style="font-weight:600;font-size:.9rem;margin-bottom:14px;">📚 Estatísticas por Coleção</h3>
-      <div class="deck-stats-grid" id="deck-stats-grid"></div>
-    </div>
-
-    <!-- CLASS STATS -->
-    <div class="panel" style="margin-top:18px;">
-      <h3 style="font-weight:600;font-size:.9rem;margin-bottom:14px;">🏷️ Estatísticas por Classe Gramatical</h3>
-      <div class="deck-stats-grid" id="class-stats-grid"></div>
-    </div>
-  </div>
-
-  <!-- SRS -->
-  <div id="tab-srs" class="tab-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-      <div class="srs-mode-toggle">
-        <button class="srs-mode-btn active" id="srs-mode-normal" onclick="setSrsMode('normal')">🔤 Palavra → Tradução</button>
-        <button class="srs-mode-btn" id="srs-mode-reverse" onclick="setSrsMode('reverse')">🔁 Tradução → Palavra</button>
-      </div>
-      <button class="btn btn-ghost" id="btn-focus" onclick="toggleFocusMode()" style="font-size:.76rem;">🧘 Modo Foco</button>
-    </div>
-    <div class="srs-wrap">
-      <div id="srs-ready" class="srs-ready panel">
-        <h2>Pronto para revisar?</h2>
-        <p id="srs-count" style="color:var(--muted);margin-bottom:28px;">Palavras pendentes: <strong>0</strong></p>
-        <button class="btn btn-primary" style="padding:14px 40px;font-size:.95rem;border-radius:50px;" onclick="iniciarSrs()">Estudar Agora</button>
-      </div>
-      <div id="srs-active" style="display:none;">
-        <div class="srs-card">
-          <div class="srs-prog-row">
-            <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;" id="srs-prog-text">1/0</span>
-            <div class="prog-bar"><div class="prog-fill" id="srs-prog-bar" style="width:0%"></div></div>
-            <button class="icon-btn" id="srs-audio-btn" style="font-size:1rem;">🔊</button>
-          </div>
-          <div class="srs-word" id="srs-word">–</div>
-          <div class="srs-ctx" id="srs-ctx"></div>
-          <button class="btn btn-ghost" style="width:100%;padding:14px;justify-content:center;font-size:.9rem;" id="btn-show-ans" onclick="mostrarResposta()">Mostrar Resposta</button>
-          <div class="srs-answer" id="srs-answer" style="display:none;">
-            <div class="srs-ans-text" id="srs-trans">–</div>
-            <div class="srs-rating">
-              <button class="btn btn-danger" onclick="computarRevisao('erro')">Errei<small>1 min</small></button>
-              <button class="btn" style="background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.2);" onclick="computarRevisao('dificil')">Difícil<small>+1 dia</small></button>
-              <button class="btn btn-success" onclick="computarRevisao('bom')">Bom<small>+3 dias</small></button>
-              <button class="btn btn-primary" onclick="computarRevisao('facil')">Fácil<small>+7 dias</small></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- KANBAN -->
-  <div id="tab-kanban" class="tab-content">
-    <div class="vocab-form">
-      <div style="display:flex;gap:7px;flex:2;min-width:200px;">
-        <input type="text" id="add-word" placeholder="Palavra no idioma alvo" style="flex:1;">
-        <button class="btn btn-ai" onclick="autoCompletarIAGemini()" id="btn-ia">
-          <span id="ia-btn-text">✨ IA</span>
-        </button>
-      </div>
-      <input type="text" id="add-pt" placeholder="Tradução em português">
-      <input list="cat-list" id="add-cat" placeholder="Coleção (Deck)">
-      <datalist id="cat-list"></datalist>
-      <select id="add-class">
-        <option value="Vazio">Classe</option>
-        <option value="Verb">Verb</option><option value="Noun">Noun</option>
-        <option value="Adjective">Adjective</option><option value="Pronoun">Pronoun</option>
-        <option value="Adverb">Adverb</option>
-        <option value="Preposition">Preposition</option><option value="Conjunction">Conjunction</option>
-        <option value="Interjection">Interjection</option>
-      </select>
-      <select id="add-status"></select>
-      <input type="text" id="add-phrase" placeholder="Frase de contexto">
-      <button class="btn btn-primary" onclick="addPalavra()">+ Adicionar</button>
-      <input type="text" id="search-word" placeholder="🔍 Buscar..." oninput="renderKanban()" style="min-width:140px;">
-      <select id="class-filter" onchange="renderKanban()">
-        <option value="ALL">Todas as classes</option>
-        <option value="Verb">Verb</option><option value="Noun">Noun</option>
-        <option value="Adjective">Adjective</option><option value="Pronoun">Pronoun</option>
-        <option value="Adverb">Adverb</option><option value="Preposition">Preposition</option>
-        <option value="Conjunction">Conjunction</option><option value="Interjection">Interjection</option>
-      </select>
-    </div>
-    <div class="kanban-board" id="board-container"></div>
-  </div>
-
-  <!-- READING -->
-  <div id="tab-reading" class="tab-content">
-    <div class="reading-layout">
-      <div class="text-sidebar">
-        <button class="btn btn-primary" style="justify-content:center;" onclick="novoTexto()">+ Novo Texto</button>
-        <button class="btn btn-ghost" style="justify-content:center;font-size:.74rem;" onclick="abrirLixeiraTextos()">🗑️ Lixeira</button>
-        <div id="text-list" style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:60vh;"></div>
-      </div>
-      <div class="text-main">
-        <div class="reading-header">
-          <input type="text" id="reader-title" placeholder="Título" style="font-size:.98rem;font-weight:600;border:none;background:transparent;flex:1;width:auto;min-width:0;" onchange="salvarTextoAtual()">
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn btn-ai" onclick="avaliarTraducaoIAGemini()" id="btn-avaliar">✨ Corrigir</button>
-            <button class="btn btn-ghost" onclick="toggleEditMode()" id="btn-toggle-edit" style="font-size:.76rem;">✏️ Edição</button>
-          </div>
-        </div>
-        <div class="audio-player">
-          <div class="file-upload-wrap">
-            <button class="btn btn-ghost" style="font-size:.74rem;padding:5px 10px;">📁 MP3</button>
-            <input type="file" id="reader-audio-upload" accept="audio/*">
-          </div>
-          <button class="ap-btn" onclick="playPauseAudio('reader-audio','ra-play')" id="ra-play">▶</button>
-          <button class="ap-btn" onclick="rewindAudio('reader-audio')">↺</button>
-          <span class="ap-time" id="ra-cur">00:00</span>
-          <input type="range" class="ap-slider" id="ra-slider" value="0" step="0.1">
-          <span class="ap-time" id="ra-tot">00:00</span>
-          <div style="display:flex;align-items:center;gap:3px;">
-            <button class="ap-btn" style="width:22px;height:22px;font-size:.66rem;border-radius:4px;" onclick="changeSpeed('reader-audio','ra-spd',-.1)">−</button>
-            <span id="ra-spd" style="font-size:.7rem;color:var(--muted);min-width:32px;text-align:center;">100%</span>
-            <button class="ap-btn" style="width:22px;height:22px;font-size:.66rem;border-radius:4px;" onclick="changeSpeed('reader-audio','ra-spd',.1)">+</button>
-          </div>
-        </div>
-        <audio id="reader-audio"></audio>
-        <div class="reader-panels">
-          <div class="reader-panel-wrap">
-            <div class="reader-label" id="reader-label-src">🇫🇷 Original</div>
-            <textarea id="reader-edit-src" class="reader-edit" style="display:none;" onchange="salvarTextoAtual()"></textarea>
-            <div id="reader-view-src" class="reader-view"></div>
-          </div>
-          <div class="reader-panel-wrap">
-            <div class="reader-label">🇧🇷 Sua Tradução</div>
-            <textarea id="reader-edit-pt" class="reader-edit" style="display:none;" onchange="salvarTextoAtual()" placeholder="Escreva sua tradução aqui..."></textarea>
-            <div id="reader-view-pt" class="reader-view" style="color:var(--muted2);"></div>
-          </div>
-        </div>
-        <!-- DICTIONARY PANEL -->
-        <div class="dict-panel" id="dict-panel">
-          <div class="dict-panel-hdr">
-            <div>
-              <span class="dict-word" id="dict-word-display"></span>
-              <span id="dict-word-info" style="font-size:.74rem;color:var(--muted);margin-left:8px;"></span>
-            </div>
-            <button class="icon-btn" onclick="fecharDict()">✕</button>
-          </div>
-          <div id="dict-body" style="color:var(--muted2);font-size:.84rem;margin-bottom:10px;"></div>
-          <div class="dict-links" id="dict-links"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SHADOWING -->
-  <div id="tab-shadow" class="tab-content">
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-        <h3 style="font-weight:600;font-size:.95rem;">🎧 Shadowing — Compreensão Oral</h3>
-      </div>
-      <div class="audio-player" style="margin-bottom:14px;">
-        <div class="file-upload-wrap">
-          <button class="btn btn-ghost" style="font-size:.74rem;padding:5px 10px;">📁 MP3</button>
-          <input type="file" id="shadow-audio-upload" accept="audio/*">
-        </div>
-        <button class="ap-btn" onclick="playPauseAudio('shadow-audio','sa-play')" id="sa-play">▶</button>
-        <button class="ap-btn" onclick="rewindAudio('shadow-audio')">↺</button>
-        <span class="ap-time" id="sa-cur">00:00</span>
-        <input type="range" class="ap-slider" id="sa-slider" value="0" step="0.1">
-        <span class="ap-time" id="sa-tot">00:00</span>
-        <div style="display:flex;align-items:center;gap:3px;">
-          <button class="ap-btn" style="width:22px;height:22px;font-size:.66rem;border-radius:4px;" onclick="changeSpeed('shadow-audio','sa-spd',-.1)">−</button>
-          <span id="sa-spd" style="font-size:.7rem;color:var(--muted);min-width:32px;text-align:center;">100%</span>
-          <button class="ap-btn" style="width:22px;height:22px;font-size:.66rem;border-radius:4px;" onclick="changeSpeed('shadow-audio','sa-spd',.1)">+</button>
-        </div>
-      </div>
-      <audio id="shadow-audio"></audio>
-      <textarea style="height:380px;font-size:.98rem;line-height:1.9;padding:16px;" placeholder="Cole a transcrição do áudio aqui para acompanhar durante a escuta..."></textarea>
+    <div class="modal-actions">
+      <button class="btn ghost small" onclick="closeEditModalDirect()">Cancelar</button>
+      <button class="btn secondary small" onclick="saveCronoEdition()">Salvar Alterações</button>
     </div>
   </div>
 </div>
 
-<!-- MOBILE NAV -->
-<nav class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <button class="mnav-btn active" id="mnav-dashboard" onclick="switchTab('tab-dashboard')"><span class="ni">🏠</span>Hoje</button>
-    <button class="mnav-btn" id="mnav-srs" onclick="switchTab('tab-srs')"><span class="ni">🧠</span>SRS</button>
-    <button class="mnav-btn" id="mnav-kanban" onclick="switchTab('tab-kanban')"><span class="ni">🗂</span>Vocab</button>
-    <button class="mnav-btn" id="mnav-reading" onclick="switchTab('tab-reading')"><span class="ni">📚</span>Textos</button>
-    <button class="mnav-btn" id="mnav-shadow" onclick="switchTab('tab-shadow')"><span class="ni">🎧</span>Shadow</button>
+<!-- GABINETE MODAL — FICHA DE PAÍS -->
+<div id="paisModal" class="modal-overlay" onclick="closePaisModal(event)">
+  <div class="modal-card pais-modal-card" onclick="event.stopPropagation()">
+    <div id="paisModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn ghost small" onclick="closePaisModalDirect()">Fechar</button>
+    </div>
   </div>
-</nav>
+</div>
 
-<script>
-/* ════ LANGUAGE CONFIG ════ */
-const LANG_CFG={
-  fr:{name:'Francês',flag:'🇫🇷',tts:'fr-FR',label:'Français'},
-  en:{name:'English',flag:'🇬🇧',tts:'en-US',label:'English'},
-  es:{name:'Español',flag:'🇪🇸',tts:'es-ES',label:'Español'},
-  la:{name:'Latim',flag:'🏛️',tts:'la',label:'Latina'}
-};
-let currentLang=localStorage.getItem('hub_lang')||'fr';
+<div id="loginGate" class="hidden">
+  <div class="gate-card">
+    <img src="assets/logo-64.png" alt="Chancelaria" class="brand-logo-img">
+    <h1>Chancelaria</h1>
+    <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:16px;">Entrar com Google</button>
+    <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px;"></div>
+  </div>
+</div>
 
-/* ════ MACRON CHARS ════ */
-const MACRON_CHARS=['ā','ē','ī','ō','ū','Ā','Ē','Ī','Ō','Ū','æ','œ','ǣ'];
-let _lastActiveInput=null;
-function setupMacronBar(){
-  const bar=document.getElementById('macron-bar');if(!bar)return;
-  bar.innerHTML=MACRON_CHARS.map(c=>`<button class="macron-key" onclick="insertMacron('${c}')" type="button">${c}</button>`).join('');
-  // Track last focused input inside the modal
-  document.getElementById('modalEdicao').querySelectorAll('input[type=text],textarea').forEach(el=>{
-    el.addEventListener('focus',()=>{_lastActiveInput=el;});
-  });
-}
-function insertMacron(c){
-  const el=_lastActiveInput;if(!el)return;
-  const s=el.selectionStart,e=el.selectionEnd;
-  el.value=el.value.slice(0,s)+c+el.value.slice(e);
-  el.selectionStart=el.selectionEnd=s+1;
-  el.focus();
-}
+  <div id="globalSearchOverlay" class="gsearch-overlay" onclick="if(event.target===this) fecharBuscaGlobal()">
+  <div class="gsearch-box" onclick="event.stopPropagation()">
+    <input type="text" id="globalSearchInput" placeholder="Buscar questões, temas, países..." oninput="executarBuscaGlobal(this.value)">
+    <div class="gsearch-results" id="globalSearchResults"></div>
+  </div>
+</div>
 
-function switchLang(code){
-  currentLang=code;
-  localStorage.setItem('hub_lang',code);
-  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('lang-btn-'+code).classList.add('active');
-  const cfg=LANG_CFG[code];
-  document.getElementById('dash-lang-flag').textContent=cfg.flag;
-  document.getElementById('dash-lang-title').textContent='Aprendendo '+cfg.name;
-  document.getElementById('reader-label-src').textContent=cfg.flag+' Original';
-  document.getElementById('add-word').placeholder='Palavra em '+cfg.label;
-  const notice=document.getElementById('latin-notice');
-  if(notice)notice.classList.toggle('visible',code==='la');
-  renderAll();
-}
+<div class="letterhead">
+  <div class="brand">
+    <img src="assets/logo-96.png" alt="Chancelaria" class="brand-logo-img crest">
+    <h1>Chancelaria</h1>
+    <div class="sub">gabinete pessoal de estudos</div>
+  </div>
+  <div class="top-right-cabinet">
+    <button class="global-search-trigger" onclick="abrirBuscaGlobal()">🔎 Buscar questões, temas, países... <kbd>⌘K</kbd></button>
+    <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Alternar Tema</button>
+    <div class="protocolo mono">
+      <div id="protocoloData">—</div>
+      <div>Processo nº 001/2026</div>
+      <div class="authbox" id="authBox"></div>
+    </div>
+  </div>
+</div>
 
-function getPalavrasAtivas(){return dbWords.filter(w=>(!w.lang||w.lang===currentLang)&&!w.excluida);}
+<main>
+  <section class="view active" id="view-inicio">
+    <p class="intro-line">"Duas frentes, um só processo: a palavra e a mesa de negociação."</p>
 
-/* ════ STUDY LOG & STREAK ════ */
-let studyLog=JSON.parse(localStorage.getItem('hub_study_log'))||{};
-function logStudy(n){const k=new Date().toISOString().slice(0,10);studyLog[k]=(studyLog[k]||0)+n;localStorage.setItem('hub_study_log',JSON.stringify(studyLog));}
-function calcStreak(){
-  let streak=0;const d=new Date();
-  const todayKey=d.toISOString().slice(0,10);
-  const yestKey=new Date(Date.now()-86400000).toISOString().slice(0,10);
-  if(!studyLog[todayKey]&&!studyLog[yestKey])return 0;
-  if(!studyLog[todayKey])d.setDate(d.getDate()-1);
-  while(true){const k=d.toISOString().slice(0,10);if(studyLog[k]){streak++;d.setDate(d.getDate()-1);}else break;}
-  return streak;
-}
-function calcBestStreak(){
-  const keys=Object.keys(studyLog).filter(k=>studyLog[k]>0).sort();
-  if(!keys.length)return 0;
-  let best=1,cur=1;
-  for(let i=1;i<keys.length;i++){
-    const prev=new Date(keys[i-1]),curr=new Date(keys[i]);
-    const diff=(curr-prev)/86400000;
-    if(diff===1){cur++;best=Math.max(best,cur);}else cur=1;
-  }
-  return best;
-}
-
-/* ════ AI GEMINI ════ */
-let iaBusy=false;
-async function autoCompletarIAGemini(){
-  if(iaBusy)return;
-  const btn=document.getElementById('btn-ia'),lbl=document.getElementById('ia-btn-text');
-  const palavra=document.getElementById('add-word').value.trim();
-  if(!palavra){alert('Digite a palavra antes de usar a IA!');return;}
-  iaBusy=true;btn.disabled=true;lbl.innerHTML='<span class="spinner"></span>';
-  // For Latin, ask the AI specifically for ecclesiastical Latin context
-  const langLabel=currentLang==='la'?'Latim eclesiástico (como usado na Vulgata e textos litúrgicos)':LANG_CFG[currentLang].name;
-  const prompt=`Analise a palavra "${palavra}" em ${langLabel}. Retorne SOMENTE um JSON sem markdown: {"pt":"tradução","classe":"Verb/Noun/Adjective/Pronoun/Adverb/Preposition/Conjunction/Interjection","phrase":"frase natural em ${LANG_CFG[currentLang].label}"}`;
-  try{
-    const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
-    if(!r.ok){let m=`Erro ${r.status}`;try{const e=await r.json();m=e.error||m;}catch{}throw new Error(m);}
-    const data=await r.json();
-    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!text)throw new Error('IA sem resposta.');
-    const res=JSON.parse(text.replace(/```json/g,'').replace(/```/g,'').trim());
-    document.getElementById('add-pt').value=res.pt||'';
-    document.getElementById('add-class').value=res.classe||'Vazio';
-    document.getElementById('add-phrase').value=res.phrase||'';
-  }catch(e){alert('Erro na IA: '+e.message);}
-  finally{iaBusy=false;btn.disabled=false;lbl.textContent='✨ IA';}
-}
-async function avaliarTraducaoIAGemini(){
-  if(iaBusy)return;
-  const btn=document.getElementById('btn-avaliar');
-  const src=document.getElementById('reader-edit-src').value.trim();
-  const pt=document.getElementById('reader-edit-pt').value.trim();
-  if(!src||!pt){alert('Preencha o texto original e sua tradução.');return;}
-  iaBusy=true;btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Analisando...';
-  const el=document.getElementById('ai-content');el.textContent='⏳ Analisando...';document.getElementById('aiModal').classList.add('open');
-  const langLabel=currentLang==='la'?'Latim eclesiástico':LANG_CFG[currentLang].name;
-  const prompt=`Avalie a tradução do ${langLabel} para o português. Original: "${src}" | Tradução: "${pt}". Texto puro (sem HTML): 1. NOTA, 2. POSITIVOS, 3. ERROS, 4. SUGESTÃO.`;
-  try{
-    const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
-    if(!r.ok){let m=`Erro ${r.status}`;try{const e=await r.json();m=e.error||m;}catch{}throw new Error(m);}
-    const data=await r.json();
-    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!text)throw new Error('IA sem resposta.');
-    el.style.whiteSpace='pre-wrap';el.textContent=text;
-  }catch(e){el.textContent='Erro: '+e.message;}
-  finally{iaBusy=false;btn.disabled=false;btn.innerHTML='✨ Corrigir';}
-}
-
-/* ════ FIREBASE ════ */
-window.isCloudActive=false;
-const fbCfg={apiKey:"AIzaSyA-LdSk34sspNiABm7wUn0_Jry-Qe2dqok",authDomain:"estudamais-e8a60.firebaseapp.com",projectId:"estudamais-e8a60",storageBucket:"estudamais-e8a60.firebasestorage.app",messagingSenderId:"1030390489355",appId:"1:1030390489355:web:4f09a3c04b6cd61ebe020e",measurementId:"G-HTRQ6RGF38"};
-function initFirebase(){try{firebase.initializeApp(fbCfg);window.isCloudActive=true;firebase.auth().onAuthStateChanged(user=>{if(user){document.getElementById('cloud-status').style.display='inline-flex';document.getElementById('btn-login').textContent='Sair';syncFromCloud(user.uid);}else{document.getElementById('cloud-status').style.display='none';document.getElementById('btn-login').textContent='Login';}});setupChancelariaSSO();}catch(e){console.error('Firebase:',e);}}
-
-/* ════ SSO — login único vindo da Chancelaria (site-mãe) ════ */
-const CHANCELARIA_ORIGINS=['https://diplomacia-two.vercel.app'];
-function setupChancelariaSSO(){
-  if(window.self===window.top) return; // só relevante quando embutido em iframe
-  window.addEventListener('message', e=>{
-    if(!CHANCELARIA_ORIGINS.includes(e.origin)) return;
-    if(!e.data || e.data.type!=='CHANCELARIA_AUTH') return;
-    if(firebase.auth().currentUser) return; // já autenticado, nada a fazer
-    try{
-      const cred=firebase.auth.GoogleAuthProvider.credential(e.data.idToken, e.data.accessToken);
-      firebase.auth().signInWithCredential(cred).catch(err=>console.error('SSO Chancelaria:',err));
-    }catch(err){console.error('SSO Chancelaria:',err);}
-  });
-}
-function abrirLogin(){if(window.isCloudActive&&firebase.auth().currentUser)firebase.auth().signOut();else document.getElementById('authModal').classList.add('open');}
-function simulateGoogleLogin(){if(!window.isCloudActive){closeModals();return;}firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(closeModals).catch(e=>alert(e.message));}
-function syncToCloud(){if(!window.isCloudActive)return;const u=firebase.auth().currentUser;if(!u)return;const db=firebase.firestore();db.collection('users').doc(u.uid).set({words:JSON.stringify(dbWords),xp:userXP,studyLog:JSON.stringify(studyLog),lastSync:firebase.firestore.FieldValue.serverTimestamp()}).catch(console.error);dbTexts.forEach(t=>db.collection('users').doc(u.uid).collection('texts').doc(t.id.toString()).set(t));}
-function syncFromCloud(uid){const db=firebase.firestore();db.collection('users').doc(uid).get().then(doc=>{if(!doc.exists)return;const d=doc.data();if(d.words)dbWords=JSON.parse(d.words);if(d.xp)userXP=d.xp;if(d.studyLog)studyLog=JSON.parse(d.studyLog);db.collection('users').doc(uid).collection('texts').get().then(snap=>{const ct=[];snap.forEach(d=>ct.push(d.data()));if(ct.length>0)dbTexts=ct;saveData();renderAll();});});}
-let _syncTimer=null;function debouncedSync(){clearTimeout(_syncTimer);_syncTimer=setTimeout(syncToCloud,3000);}
-
-/* ════ DATA & INIT ════ */
-let dbWords=[],dbTexts=[],currentTextId=null,queueSrs=[],srsIdx=0;
-let userXP=parseInt(localStorage.getItem('hub_xp'))||0;
-let userLevel=Math.floor(userXP/100)+1;
-let statusConfig=JSON.parse(localStorage.getItem('hub_statuses_v2'))||{'Não começou':{cor:'background:rgba(90,90,90,.2);color:#ccc;'},'Esqueço com frequência':{cor:'background:rgba(139,58,58,.22);color:#fca5a5;'},'Erro de escrita':{cor:'background:rgba(40,85,119,.22);color:#93c5fd;'},'Primeira Tentativa':{cor:'background:rgba(138,75,102,.22);color:#f0abca;'},'Esqueço pouco':{cor:'background:rgba(122,106,51,.22);color:#fcd34d;'},'Esqueço raramente':{cor:'background:rgba(107,74,125,.22);color:#d8b4fe;'},'Jamais esquecerei':{cor:'background:rgba(61,106,79,.22);color:#6ee7b7;'}};
-let statusOrder=JSON.parse(localStorage.getItem('hub_col_order_v2'))||Object.keys(statusConfig);
-
-window.onload=()=>{
-  const w=localStorage.getItem('hub_words_v14')||localStorage.getItem('cacd_hub_words_v13');
-  dbWords=w?JSON.parse(w):[];
-  const t=localStorage.getItem('hub_texts_v14')||localStorage.getItem('cacd_hub_texts_v13');
-  dbTexts=t?JSON.parse(t):[{id:1,title:'Exemplo',src:'Bonjour, comment allez-vous ?',pt:'',deck:'Geral'}];
-  updateDecks();updateStatusSelects();
-  setupAudioPlayer('reader-audio','ra-slider','ra-cur','ra-tot');
-  setupAudioPlayer('shadow-audio','sa-slider','sa-cur','sa-tot');
-  setupFileUploads();
-  switchLang(currentLang);updateXP();initFirebase();renderAll();
-  setupMacronBar();
-  checkBackupWarning();
-  document.getElementById('add-word').addEventListener('keypress',e=>{if(e.key==='Enter')addPalavra();});
-  document.getElementById('add-pt').addEventListener('keypress',e=>{if(e.key==='Enter')addPalavra();});
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
-};
-
-/* ════ BACKUP WARNING ════ */
-function checkBackupWarning(){
-  const last=parseInt(localStorage.getItem('hub_last_backup')||'0');
-  const dias=Math.floor((Date.now()-last)/86400000);
-  const el=document.getElementById('backup-warn');
-  if(!el)return;
-  if(dias>=3){
-    const msg=last===0?'⚠ Nenhum backup feito ainda':'⚠ Último backup há '+dias+' dias';
-    document.getElementById('backup-warn-msg').textContent=msg;
-    el.classList.add('visible');
-  }else{el.classList.remove('visible');}
-}
-
-function saveData(){localStorage.setItem('hub_words_v14',JSON.stringify(dbWords));localStorage.setItem('hub_texts_v14',JSON.stringify(dbTexts));localStorage.setItem('hub_xp',userXP.toString());updateDecks();updateDash();updateXP();if(window.isCloudActive)debouncedSync();}
-function exportarDados(){
-  localStorage.setItem('hub_last_backup',Date.now().toString());
-  checkBackupWarning();
-  const b=new Blob([JSON.stringify({version:'hub_v15',words:dbWords,texts:dbTexts,xp:userXP,studyLog},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='hub-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
-}
-
-/* ════ EXPORT ANKI ════ */
-function exportarAnki(){
-  const palavras=getPalavrasAtivas();
-  if(!palavras.length){alert('Sem palavras para exportar.');return;}
-  const deck=document.getElementById('global-deck-filter').value;
-  const lista=deck==='ALL'?palavras:palavras.filter(w=>w.category===deck);
-  let txt='#separator:semicolon\n#html:false\n#deck:'+( deck==='ALL'?'Hub Linguístico':deck)+'\n';
-  lista.forEach(w=>{
-    const frente=w.fr||w.word||'';
-    const verso=w.pt||'';
-    const extra=[w.phrase,w.classe!=='Vazio'?w.classe:'',w.forms1?w.forms1+' · '+w.forms2+' · '+w.forms3+' · '+w.forms4:''].filter(Boolean).join(' | ');
-    txt+=frente+';'+verso+(extra?';'+extra:'')+'\n';
-  });
-  const b=new Blob([txt],{type:'text/plain'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download='anki-'+(deck==='ALL'?'todas':deck)+'-'+new Date().toISOString().slice(0,10)+'.txt';a.click();
-}
-function processarImport(evt){const file=evt.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.words||!d.texts)throw new Error('Arquivo inválido.');if(confirm('Importar '+d.words.length+' palavras e '+d.texts.length+' textos?')){dbWords=d.words;dbTexts=d.texts;if(d.xp)userXP=d.xp;if(d.studyLog)studyLog=d.studyLog;saveData();renderAll();alert('Importado!');}}catch(err){alert('Erro: '+err.message);}};r.readAsText(file);evt.target.value='';}
-
-function addXP(n){userXP+=n;userLevel=Math.floor(userXP/100)+1;saveData();}
-function updateXP(){document.getElementById('ui-level').textContent='Lvl '+userLevel;const x=userXP%100;document.getElementById('ui-xp-bar').style.width=x+'%';document.getElementById('ui-xp-text').textContent=x+'/100';}
-
-/* ════ AUDIO ════ */
-function setupFileUploads(){document.getElementById('reader-audio-upload').addEventListener('change',e=>{const f=e.target.files[0];if(f)document.getElementById('reader-audio').src=URL.createObjectURL(f);});document.getElementById('shadow-audio-upload').addEventListener('change',e=>{const f=e.target.files[0];if(f)document.getElementById('shadow-audio').src=URL.createObjectURL(f);});}
-function setupAudioPlayer(id,slider,cur,tot){const a=document.getElementById(id);a.addEventListener('timeupdate',()=>{document.getElementById(slider).value=a.currentTime;document.getElementById(cur).textContent=fmtTime(a.currentTime);});a.addEventListener('loadedmetadata',()=>{document.getElementById(slider).max=a.duration;document.getElementById(tot).textContent=fmtTime(a.duration);});document.getElementById(slider).addEventListener('input',e=>a.currentTime=e.target.value);}
-function playPauseAudio(id,btnId){const a=document.getElementById(id),btn=document.getElementById(btnId);if(a.paused){a.play();btn.textContent='⏸';}else{a.pause();btn.textContent='▶';}}
-function rewindAudio(id){document.getElementById(id).currentTime=Math.max(0,document.getElementById(id).currentTime-10);}
-function changeSpeed(id,valId,d){const a=document.getElementById(id);let s=Math.round((a.playbackRate+d)*10)/10;s=Math.max(0.5,Math.min(2,s));a.playbackRate=s;document.getElementById(valId).textContent=Math.round(s*100)+'%';}
-function fmtTime(sec){if(isNaN(sec))return'00:00';return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(Math.floor(sec%60)).padStart(2,'0');}
-
-/* ════ TTS — com fallback para Latim ════
-   O latim não tem voz nativa no Speech Synthesis API dos navegadores.
-   Tentamos encontrar uma voz 'la' ou 'it' (italiano é mais próximo fonologicamente
-   do latim eclesiástico). Se não encontrar, usa a voz padrão do sistema. */
-function tocarTTS(txt,e){
-  if(e)e.stopPropagation();
-  if(!('speechSynthesis' in window))return;
-  window.speechSynthesis.cancel();
-  setTimeout(()=>{
-    const u=new SpeechSynthesisUtterance(txt);
-    const ttsLang=LANG_CFG[currentLang].tts;
-    const voices=window.speechSynthesis.getVoices();
-    if(ttsLang==='la'){
-      // Para latim: tenta voz 'la', depois italiana (eclesiástica similar), depois padrão
-      const voice=voices.find(v=>v.lang.startsWith('la'))
-                ||voices.find(v=>v.lang.startsWith('it'))
-                ||null;
-      u.lang=voice?voice.lang:'it-IT';
-      if(voice)u.voice=voice;
-    }else{
-      u.lang=ttsLang;
-      const voice=voices.find(v=>v.lang.startsWith(ttsLang.split('-')[0]));
-      if(voice)u.voice=voice;
-    }
-    u.rate=parseFloat(document.getElementById('audio-speed').value)||1;
-    window.speechSynthesis.speak(u);
-  },80);
-}
-
-/* ════ FOCUS MODE ════ */
-let focusMode=false;
-function toggleFocusMode(){focusMode=!focusMode;document.body.classList.toggle('focus-mode',focusMode);document.getElementById('btn-focus').textContent=focusMode?'❌ Sair do Foco':'🧘 Modo Foco';}
-
-/* ════ MODAL EDIÇÃO (completo) ════ */
-function abrirModalEdicao(id){
-  const w=dbWords.find(x=>x.id===id);if(!w)return;
-  document.getElementById('edit-word').value=w.fr||w.word||'';
-  document.getElementById('edit-pt').value=w.pt||'';
-  document.getElementById('edit-phrase').value=w.phrase||'';
-  document.getElementById('edit-class').value=w.classe||'Vazio';
-  document.getElementById('edit-cat').value=w.category||'Geral';
-  document.getElementById('edit-status').innerHTML=statusOrder.map(s=>`<option value="${esc(s)}"${w.status===s?' selected':''}>${esc(s)}</option>`).join('');
-  document.getElementById('edit-notes').value=w.notes||'';
-
-  // Latin grammar section
-  const isLatin=currentLang==='la';
-  const latinSection=document.getElementById('edit-latin-section');
-  latinSection.style.display=isLatin?'block':'none';
-  if(isLatin){
-    const classe=w.classe||'Vazio';
-    const isVerb=classe==='Verb';
-    const isNoun=classe==='Noun'||classe==='Adjective';
-    document.getElementById('edit-verb-forms').style.display=isVerb?'block':'none';
-    document.getElementById('edit-noun-forms').style.display=isNoun?'block':'none';
-    // Populate verb forms
-    document.getElementById('edit-form1').value=w.forms1||'';
-    document.getElementById('edit-form2').value=w.forms2||'';
-    document.getElementById('edit-form3').value=w.forms3||'';
-    document.getElementById('edit-form4').value=w.forms4||'';
-    document.getElementById('edit-conj').value=w.conjugacao||'';
-    // Populate noun forms
-    document.getElementById('edit-nom').value=w.nominativo||'';
-    document.getElementById('edit-gen').value=w.genitivo||'';
-    document.getElementById('edit-decl').value=w.declinacao||'';
-    document.getElementById('edit-gender').value=w.genero||'';
-    // Update verb/noun visibility when class changes
-    document.getElementById('edit-class').onchange=function(){
-      const v=this.value;
-      document.getElementById('edit-verb-forms').style.display=v==='Verb'?'block':'none';
-      document.getElementById('edit-noun-forms').style.display=(v==='Noun'||v==='Adjective')?'block':'none';
-    };
-  }
-
-  document.getElementById('btn-excluir').onclick=()=>{if(confirm('Mover para a lixeira?')){w.excluida=true;saveData();renderAll();closeModals();}};
-  document.getElementById('btn-salvar-edicao').onclick=()=>{
-    w.pt=document.getElementById('edit-pt').value.trim();
-    w.phrase=document.getElementById('edit-phrase').value.trim();
-    w.notes=document.getElementById('edit-notes').value.trim();
-    w.classe=document.getElementById('edit-class').value;
-    w.category=document.getElementById('edit-cat').value.trim()||'Geral';
-    w.status=document.getElementById('edit-status').value;
-    if(isLatin){
-      w.forms1=document.getElementById('edit-form1').value.trim();
-      w.forms2=document.getElementById('edit-form2').value.trim();
-      w.forms3=document.getElementById('edit-form3').value.trim();
-      w.forms4=document.getElementById('edit-form4').value.trim();
-      w.conjugacao=document.getElementById('edit-conj').value;
-      w.nominativo=document.getElementById('edit-nom').value.trim();
-      w.genitivo=document.getElementById('edit-gen').value.trim();
-      w.declinacao=document.getElementById('edit-decl').value;
-      w.genero=document.getElementById('edit-gender').value;
-    }
-    saveData();renderAll();closeModals();
-  };
-  document.getElementById('modalEdicao').classList.add('open');
-  // Reset tracked input after modal opens
-  setTimeout(()=>{_lastActiveInput=document.getElementById('edit-pt');},100);
-}
-
-/* ════ LIXEIRA PALAVRAS ════ */
-function abrirLixeira(){
-  const trash=dbWords.filter(w=>(!w.lang||w.lang===currentLang)&&w.excluida);
-  document.getElementById('lixeira-lang').textContent=LANG_CFG[currentLang].name;
-  const c=document.getElementById('lixeira-list');
-  c.innerHTML=trash.length?trash.map(w=>`<div style="background:var(--surf);border:1px solid var(--border);padding:10px 13px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;"><div><strong style="font-size:.88rem;">${esc(w.fr||w.word||'')}</strong><br><span style="font-size:.74rem;color:var(--muted)">${esc(w.pt||'')}</span></div><div style="display:flex;gap:5px;"><button class="icon-btn" onclick="restaurarPalavra(${w.id})" title="Restaurar">🔄</button><button class="icon-btn" onclick="excluirDefinitivo(${w.id})" style="color:var(--danger)" title="Excluir">🗑️</button></div></div>`).join(''):'<p style="color:var(--muted);text-align:center;padding:20px 0;">Lixeira vazia.</p>';
-  document.getElementById('lixeiraModal').classList.add('open');
-}
-function restaurarPalavra(id){const w=dbWords.find(x=>x.id===id);if(w)w.excluida=false;saveData();renderAll();abrirLixeira();}
-function excluirDefinitivo(id){dbWords=dbWords.filter(x=>x.id!==id);saveData();renderAll();abrirLixeira();}
-function esvaziarLixeira(){if(confirm('Apagar PERMANENTEMENTE todas as palavras da lixeira?')){dbWords=dbWords.filter(w=>!((!w.lang||w.lang===currentLang)&&w.excluida));saveData();renderAll();closeModals();}}
-
-/* ════ LIXEIRA TEXTOS ════ */
-function abrirLixeiraTextos(){
-  const trash=dbTexts.filter(t=>t.excluido);
-  const c=document.getElementById('lixeira-textos-list');
-  c.innerHTML=trash.length?trash.map(t=>`<div style="background:var(--surf);border:1px solid var(--border);padding:10px 13px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-size:.88rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(t.title)}</span><div style="display:flex;gap:5px;"><button class="icon-btn" onclick="restaurarTexto(${t.id})" title="Restaurar">🔄</button><button class="icon-btn" onclick="excluirTextoDefinitivo(${t.id})" style="color:var(--danger)" title="Excluir">🗑️</button></div></div>`).join(''):'<p style="color:var(--muted);text-align:center;padding:20px 0;">Lixeira vazia.</p>';
-  document.getElementById('lixeiraTextosModal').classList.add('open');
-}
-function restaurarTexto(id){const t=dbTexts.find(x=>x.id===id);if(t)t.excluido=false;saveData();renderTextList();abrirLixeiraTextos();}
-function excluirTextoDefinitivo(id){dbTexts=dbTexts.filter(x=>x.id!==id);if(currentTextId===id)currentTextId=null;saveData();renderTextList();abrirLixeiraTextos();}
-function esvaziarLixeiraTextos(){if(confirm('Apagar PERMANENTEMENTE todos os textos da lixeira?')){dbTexts=dbTexts.filter(t=>!t.excluido);saveData();renderTextList();closeModals();}}
-
-/* ════ SRS ════ */
-let srsMode='normal'; // 'normal' | 'reverse'
-function setSrsMode(m){
-  srsMode=m;
-  document.getElementById('srs-mode-normal').classList.toggle('active',m==='normal');
-  document.getElementById('srs-mode-reverse').classList.toggle('active',m==='reverse');
-  if(queueSrs.length)carregarSrs();
-}
-function prepararSrs(){const now=Date.now(),deck=document.getElementById('global-deck-filter').value;queueSrs=getPalavrasAtivas().filter(w=>(!w.nextReview||w.nextReview<=now)&&(deck==='ALL'||w.category===deck)).sort(()=>Math.random()-.5);document.getElementById('srs-count').innerHTML='Palavras pendentes: <strong>'+queueSrs.length+'</strong>';}
-function iniciarSrs(){if(!queueSrs.length){alert('Nenhuma palavra para revisar agora!');return;}document.getElementById('srs-ready').style.display='none';document.getElementById('srs-active').style.display='block';srsIdx=0;carregarSrs();}
-function carregarSrs(){
-  if(srsIdx>=queueSrs.length){document.getElementById('srs-active').style.display='none';document.getElementById('srs-ready').style.display='block';prepararSrs();renderCalendar();updateDash();return;}
-  const w=queueSrs[srsIdx];
-  document.getElementById('srs-prog-text').textContent=(srsIdx+1)+'/'+queueSrs.length;
-  document.getElementById('srs-prog-bar').style.width=(srsIdx/queueSrs.length*100)+'%';
-  const isReverse=srsMode==='reverse';
-  const frente=isReverse?(w.pt||''):(w.fr||w.word||'');
-  const verso=isReverse?(w.fr||w.word||''):(w.pt||'');
-  document.getElementById('srs-word').textContent=frente;
-  document.getElementById('srs-trans').textContent=verso;
-  document.getElementById('srs-ctx').textContent=w.phrase?'"'+w.phrase+'"':'';
-  document.getElementById('btn-show-ans').style.display='block';
-  document.getElementById('srs-answer').style.display='none';
-  // Audio plays the target-language word regardless of mode
-  document.getElementById('srs-audio-btn').onclick=()=>tocarTTS(w.fr||w.word||'');
-}
-function mostrarResposta(){document.getElementById('btn-show-ans').style.display='none';document.getElementById('srs-answer').style.display='block';}
-function computarRevisao(q){
-  const w=dbWords.find(x=>x.id===queueSrs[srsIdx].id);if(!w)return;
-  const now=Date.now(),day=86400000;if(!w.interval)w.interval=1;
-  const map={erro:{mult:1,next:600000,status:'Esqueço com frequência',xp:1},dificil:{mult:1.2,next:day,status:'Primeira Tentativa',xp:5},bom:{mult:2,next:w.interval*3*day,status:'Esqueço pouco',xp:10},facil:{mult:2.5,next:w.interval*7*day,status:'Jamais esquecerei',xp:15}};
-  const m=map[q];w.interval=Math.max(1,w.interval*m.mult);w.nextReview=now+(q==='erro'?m.next:w.interval*day);w.status=m.status;addXP(m.xp);
-  logStudy(1);
-  saveData();srsIdx++;carregarSrs();
-}
-
-/* ════ KANBAN ════ */
-function updateDecks(){const decks=new Set(getPalavrasAtivas().map(w=>w.category).filter(c=>c&&c!=='Geral'));let h='<option value="ALL">Todas</option><option value="Geral">Geral</option>';decks.forEach(d=>{h+=`<option value="${esc(d)}">${esc(d)}</option>`;});document.getElementById('global-deck-filter').innerHTML=h;let l='<option value="Geral">Geral</option>';decks.forEach(d=>{l+=`<option value="${esc(d)}">`;});document.getElementById('cat-list').innerHTML=l;}
-function updateDash(){
-  const now=Date.now();
-  document.getElementById('dash-revisoes').textContent=getPalavrasAtivas().filter(w=>!w.nextReview||w.nextReview<=now).length;
-  document.getElementById('dash-aprendidas').textContent=getPalavrasAtivas().filter(w=>w.status==='Jamais esquecerei').length;
-  document.getElementById('dash-total').textContent=getPalavrasAtivas().length;
-  const s=calcStreak(),best=calcBestStreak();
-  document.getElementById('streak-num').textContent=s;
-  document.getElementById('streak-max-label').textContent='Melhor: '+best+' dia'+(best!==1?'s':'');
-  renderDeckStats();
-  renderClassStats();
-}
-
-/* ════ DECK STATS ════ */
-function renderDeckStats(){
-  const grid=document.getElementById('deck-stats-grid');if(!grid)return;
-  const ativas=getPalavrasAtivas();
-  const decksMap={};
-  ativas.forEach(w=>{const d=w.category||'Geral';if(!decksMap[d])decksMap[d]={total:0,dom:0,rev:0};decksMap[d].total++;if(w.status==='Jamais esquecerei')decksMap[d].dom++;if(!w.nextReview||w.nextReview<=Date.now())decksMap[d].rev++;});
-  if(!Object.keys(decksMap).length){grid.innerHTML='<p style="color:var(--muted);font-size:.8rem;">Sem vocabulário ainda.</p>';return;}
-  grid.innerHTML=Object.entries(decksMap).map(([name,d])=>{
-    const pct=d.total>0?Math.round(d.dom/d.total*100):0;
-    return`<div class="deck-stat-card">
-      <div class="deck-stat-name"><span>${esc(name)}</span><span style="color:var(--muted);font-weight:400;">${d.total}</span></div>
-      <div class="deck-stat-bar-wrap"><div class="deck-stat-bar-fill" style="width:${pct}%"></div></div>
-      <div class="deck-stat-nums"><span>${pct}% dominado</span><span style="color:var(--accent);">${d.rev} p/ revisar</span></div>
-    </div>`;
-  }).join('');
-}
-
-/* ════ CLASS STATS ════ */
-function renderClassStats(){
-  const grid=document.getElementById('class-stats-grid');if(!grid)return;
-  const ativas=getPalavrasAtivas();
-  const classMap={};
-  ativas.forEach(w=>{const c=(w.classe&&w.classe!=='Vazio')?w.classe:'Sem classe';if(!classMap[c])classMap[c]={total:0,dom:0,rev:0};classMap[c].total++;if(w.status==='Jamais esquecerei')classMap[c].dom++;if(!w.nextReview||w.nextReview<=Date.now())classMap[c].rev++;});
-  if(!Object.keys(classMap).length){grid.innerHTML='<p style="color:var(--muted);font-size:.8rem;">Sem vocabulário ainda.</p>';return;}
-  grid.innerHTML=Object.entries(classMap).sort((a,b)=>b[1].total-a[1].total).map(([name,d])=>{
-    const pct=d.total>0?Math.round(d.dom/d.total*100):0;
-    return`<div class="deck-stat-card">
-      <div class="deck-stat-name"><span>${esc(name)}</span><span style="color:var(--muted);font-weight:400;">${d.total}</span></div>
-      <div class="deck-stat-bar-wrap"><div class="deck-stat-bar-fill" style="width:${pct}%"></div></div>
-      <div class="deck-stat-nums"><span>${pct}% dominado</span><span style="color:var(--accent);">${d.rev} p/ revisar</span></div>
-    </div>`;
-  }).join('');
-}
-
-/* ════ UNDO KANBAN ════ */
-let _undoStack=null,_undoTimer=null;
-function mostrarUndo(msg,fn){
-  clearTimeout(_undoTimer);_undoStack=fn;
-  const t=document.getElementById('undo-toast');
-  document.getElementById('undo-msg').textContent=msg;
-  t.classList.add('show');
-  _undoTimer=setTimeout(()=>{t.classList.remove('show');_undoStack=null;},5000);
-}
-function desfazerUltimaAcao(){
-  if(_undoStack){_undoStack();_undoStack=null;}
-  clearTimeout(_undoTimer);
-  document.getElementById('undo-toast').classList.remove('show');
-}
-
-function getRiskBadge(w){
-  if(!w.nextReview||w.nextReview===0)return'';
-  const overdue=(Date.now()-w.nextReview)/86400000;
-  if(overdue>7)return'<span class="risk-badge risk-high">⚠ atrasada</span>';
-  if(overdue>2)return'<span class="risk-badge risk-med">⏰ revisar</span>';
-  return'';
-}
-
-function renderKanban(){
-  const q=(document.getElementById('search-word')?.value||'').toLowerCase();
-  const deck=document.getElementById('global-deck-filter').value;
-  const cls=document.getElementById('class-filter')?.value||'ALL';
-  let html='';
-  statusOrder.forEach(status=>{
-    if(!statusConfig[status])return;
-    const words=getPalavrasAtivas().filter(w=>w.status===status&&(deck==='ALL'||w.category===deck)&&(cls==='ALL'||w.classe===cls)&&((w.fr||w.word||'').toLowerCase().includes(q)||(w.pt||'').toLowerCase().includes(q)));
-    const wordStr=w=>w.fr||w.word||'';
-    const cards=words.map(w=>`
-      <div class="word-card fade-in" draggable="true" ondragstart="dragCardStart(event,${w.id})" ondragend="dragCardEnd(event)" onclick="abrirModalEdicao(${w.id})">
-        <div class="w-top">
-          <span class="w-main">${esc(wordStr(w))}${getRiskBadge(w)}</span>
-          <button class="icon-btn" data-word="${esc(wordStr(w))}" onclick="tocarTTS(this.dataset.word,event)">🔊</button>
+    <div class="inicio-split">
+      <div>
+        <div class="dossie" style="--accent:var(--ub-azul);" onclick="goTab('palavras')">
+          <div class="stamp">arquivo ativo</div>
+          <div class="tag">Dossiê I</div>
+          <h2>Palavras</h2>
+          <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
+          <div class="foot">
+            <span class="progress-label" style="color:var(--ub-verde);">conectado ✓</span>
+            <div class="ring" style="--pct:100;"><div class="hole">✒</div></div>
+          </div>
         </div>
-        <div class="w-trans">
-          <span class="${w.blur?'blur-text':''}">${esc(w.pt||'')}</span>
-          <button class="icon-btn" onclick="toggleBlur(${w.id},event)">👁</button>
+
+        <div class="dossie" style="--accent:var(--seal);" onclick="goTab('diplomacia')">
+          <div class="stamp">em andamento</div>
+          <div class="tag">Dossiê II</div>
+          <h2>Diplomacia</h2>
+          <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
+          <div class="foot">
+            <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
+            <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:5px;">
-          <span class="w-badge">${esc(w.category||'Geral')}</span>
-          ${w.classe&&w.classe!=='Vazio'?`<span class="w-badge" style="background:rgba(59,130,246,.12);color:#93c5fd;">${esc(w.classe)}</span>`:''}
+
+        <div class="dossie" style="--accent:var(--ok);" onclick="goTab('biblioteca')">
+          <div class="stamp">acervo pessoal</div>
+          <div class="tag">Dossiê III</div>
+          <h2>Biblioteca</h2>
+          <p>Seu acervo de documentos, fichamentos e leituras — organizado por estantes, buscável e conectado por tema.</p>
+          <div class="foot">
+            <span class="progress-label" id="biblioCountLabel">0 documentos arquivados</span>
+            <div class="ring" style="--pct:100;"><div class="hole">📚</div></div>
+          </div>
         </div>
-        ${w.phrase&&w.phrase!=='Vazio'?`<div class="w-phrase"><span class="${w.blurPhrase!==false?'blur-text':''}">"${esc(w.phrase)}"</span><div style="display:flex;gap:3px;flex-shrink:0;"><button class="icon-btn" data-word="${esc(w.phrase)}" onclick="tocarTTS(this.dataset.word,event)">🔊</button><button class="icon-btn" onclick="toggleBlurPhrase(${w.id},event)">👁</button></div></div>`:''}
-      </div>`).join('');
-    html+=`<div class="kanban-col" draggable="true" ondragstart="dragColStart(event,'${escAttr(status)}')" ondragend="dragColEnd(event)" ondragover="allowDropCol(event)" ondrop="dropCol(event,'${escAttr(status)}')">
-      <div class="col-header" style="${statusConfig[status].cor}">● ${esc(status)} (${words.length})</div>
-      <div class="col-body" ondragover="allowDropCard(event)" ondragleave="dragLeaveCard(event)" ondrop="dropCard(event,'${escAttr(status)}')">${cards}</div>
-    </div>`;
-  });
-  document.getElementById('board-container').innerHTML=html;
-}
 
-let dragId=null,dragCol=null;
-function dragCardStart(e,id){e.stopPropagation();dragId=id;setTimeout(()=>e.target.classList.add('dragging'),0);}
-function dragCardEnd(e){e.target.classList.remove('dragging');dragId=null;}
-function allowDropCard(e){if(dragId){e.preventDefault();e.currentTarget.classList.add('drag-over');}}
-function dragLeaveCard(e){e.currentTarget.classList.remove('drag-over');}
-function dropCard(e,s){
-  e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drag-over');
-  if(dragId){
-    const i=dbWords.findIndex(w=>w.id===dragId);
-    if(i>-1){
-      const prevStatus=dbWords[i].status;
-      const wId=dragId;
-      if(prevStatus!==s){
-        dbWords[i].status=s;saveData();renderKanban();
-        mostrarUndo('Movido para "'+s+'"',()=>{
-          const j=dbWords.findIndex(w=>w.id===wId);
-          if(j>-1){dbWords[j].status=prevStatus;saveData();renderKanban();}
-        });
-      }
-    }
-    dragId=null;
-  }
-}
-function dragColStart(e,s){if(e.target.closest('.word-card'))return;e.stopPropagation();dragCol=s;setTimeout(()=>e.target.classList.add('dragging-col'),0);}
-function dragColEnd(e){e.target.classList.remove('dragging-col');dragCol=null;}
-function allowDropCol(e){if(dragCol)e.preventDefault();}
-function dropCol(e,t){e.preventDefault();e.stopPropagation();if(dragCol&&dragCol!==t){const fi=statusOrder.indexOf(dragCol),ti=statusOrder.indexOf(t);statusOrder.splice(fi,1);statusOrder.splice(ti,0,dragCol);saveData();renderKanban();}dragCol=null;}
-function toggleBlur(id,e){e.stopPropagation();const i=dbWords.findIndex(w=>w.id===id);if(i>-1){dbWords[i].blur=!dbWords[i].blur;saveData();renderKanban();}}
-function toggleBlurPhrase(id,e){e.stopPropagation();const i=dbWords.findIndex(w=>w.id===id);if(i>-1){dbWords[i].blurPhrase=!(dbWords[i].blurPhrase!==false);saveData();renderKanban();}}
-function addPalavra(){const word=document.getElementById('add-word').value.trim();const pt=document.getElementById('add-pt').value.trim();if(!word)return;dbWords.unshift({id:Date.now(),fr:word,word,pt,lang:currentLang,category:document.getElementById('add-cat').value.trim()||document.getElementById('global-deck-filter').value||'Geral',classe:document.getElementById('add-class').value,status:document.getElementById('add-status').value,phrase:document.getElementById('add-phrase').value,date:new Date().toLocaleDateString('pt-BR'),blur:true,blurPhrase:true,interval:0,nextReview:0});['add-word','add-pt','add-phrase'].forEach(id=>document.getElementById(id).value='');document.getElementById('add-class').value='Vazio';saveData();renderAll();}
-function updateStatusSelects(){const opts=statusOrder.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');document.getElementById('add-status').innerHTML=opts;}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escAttr(s){return String(s||'').replace(/'/g,"\\'");}
+        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
+          <div class="stamp">acervo geopolítico</div>
+          <div class="tag">Dossiê IV</div>
+          <h2>Países</h2>
+          <p>Fichas completas de todos os países — capitais, organizações, política externa e mapa-múndi interativo.</p>
+          <div class="foot">
+            <span class="progress-label" id="paisesCountLabel">0 países catalogados</span>
+            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
+          </div>
+        </div>
 
-/* ════ READING ════ */
-let editMode=false;
-function renderTextList(){document.getElementById('text-list').innerHTML=dbTexts.filter(t=>!t.excluido).map(t=>`<div class="text-list-item ${t.id===currentTextId?'active':''}" onclick="abrirTexto(${t.id})"><span>${esc(t.title)}</span><button class="icon-btn" style="flex-shrink:0;min-width:28px;padding:3px 5px;font-size:.75rem;" onclick="excluirTexto(${t.id},event)" title="Lixeira">🗑</button></div>`).join('');}
-function novoTexto(){const n={id:Date.now(),title:'Novo Texto',src:'',pt:'',deck:'Geral'};dbTexts.unshift(n);saveData();renderTextList();abrirTexto(n.id);if(!editMode)toggleEditMode();}
-function excluirTexto(id,e){if(e)e.stopPropagation();if(confirm('Mover este texto para a lixeira?')){const t=dbTexts.find(x=>x.id===id);if(t){t.excluido=true;if(currentTextId===id){currentTextId=null;const next=dbTexts.find(x=>!x.excluido);if(next)abrirTexto(next.id);}saveData();renderTextList();}}}
-function abrirTexto(id){currentTextId=id;const t=dbTexts.find(x=>x.id===id);if(!t||t.excluido)return;document.getElementById('reader-title').value=t.title;document.getElementById('reader-edit-src').value=t.src||t.fr||'';document.getElementById('reader-edit-pt').value=t.pt||'';processarLingq(t.src||t.fr||'');const ptDiv=document.getElementById('reader-view-pt');ptDiv.textContent='';if(t.pt){t.pt.split('\n').forEach(line=>{const p=document.createElement('p');p.style.marginBottom='.7em';p.textContent=line||' ';ptDiv.appendChild(p);});}else ptDiv.innerHTML='<em style="color:var(--muted)">Sem tradução ainda.</em>';renderTextList();}
-function toggleEditMode(){editMode=!editMode;const show=(id,v)=>document.getElementById(id).style.display=v?'block':'none';show('reader-view-src',!editMode);show('reader-view-pt',!editMode);show('reader-edit-src',editMode);show('reader-edit-pt',editMode);document.getElementById('btn-toggle-edit').textContent=editMode?'📖 Leitura':'✏️ Edição';if(!editMode)salvarTextoAtual();}
-function salvarTextoAtual(){if(!currentTextId)return;const i=dbTexts.findIndex(t=>t.id===currentTextId);if(i===-1)return;dbTexts[i].title=document.getElementById('reader-title').value;dbTexts[i].src=document.getElementById('reader-edit-src').value;dbTexts[i].fr=dbTexts[i].src;dbTexts[i].pt=document.getElementById('reader-edit-pt').value;saveData();processarLingq(dbTexts[i].src);renderTextList();}
-function processarLingq(texto){
-  const c=document.getElementById('reader-view-src');c.innerHTML='';if(!texto)return;
-  // Para latim, reconhece também caracteres latinos como j, v, æ, œ
-  const wordPattern=currentLang==='la'?/[a-zA-ZÀ-ÿœŒæÆ]/:/ [a-zA-ZÀ-ÿœŒ]/;
-  texto.split('\n').forEach(line=>{
-    if(!line.trim()){c.appendChild(document.createElement('br'));return;}
-    const row=document.createElement('div');row.className='para-row';
-    const ab=document.createElement('button');ab.className='icon-btn';ab.textContent='🔊';ab.onclick=()=>tocarTTS(line);row.appendChild(ab);
-    const td=document.createElement('div');td.style.flex='1';
-    const tokens=line.split(/(\s+)/);
-    tokens.forEach(tok=>{
-      if(/[a-zA-ZÀ-ÿœŒæÆ]/.test(tok)){
-        const s=document.createElement('span');s.className='clickable-word';s.textContent=tok;s.onclick=()=>abrirLingqModal(tok);td.appendChild(s);
-      }else{td.appendChild(document.createTextNode(tok));}
-    });
-    row.appendChild(td);c.appendChild(row);
-  });
-}
-function salvarLingq(){const word=document.getElementById('lingq-word').value.trim().toLowerCase();const pt=document.getElementById('lingq-trans').value.trim();if(!pt){alert('Digite a tradução.');return;}if(dbWords.some(w=>(w.fr||w.word||'').toLowerCase()===word)){alert('Palavra já existe.');return;}dbWords.unshift({id:Date.now(),fr:word,word,pt,lang:currentLang,category:document.getElementById('global-deck-filter').value||'Geral',phrase:document.getElementById('lingq-context').value,status:'Não começou',interval:0,nextReview:0,blur:true,blurPhrase:true});saveData();renderAll();closeModals();}
+        <div class="dossie" style="--accent:var(--seal-glow);" onclick="goTab('simulados')">
+          <div class="stamp">banco de questões</div>
+          <div class="tag">Dossiê V</div>
+          <h2>Simulados</h2>
+          <p>Resolva provas do CACD direto na plataforma, sem PDFs — por disciplina, ano ou simulado personalizado.</p>
+          <div class="foot">
+            <span class="progress-label">10 questões cadastradas</span>
+            <div class="ring" style="--pct:100;"><div class="hole">📝</div></div>
+          </div>
+        </div>
+      </div>
 
-/* ════ DICTIONARY INLINE ════ */
-function fecharDict(){document.getElementById('dict-panel').classList.remove('visible');}
+      <div class="daily-brief-container">
+        <h3>Despacho do Dia: Agenda & Obrigações</h3>
+        <div id="dailyBriefContent"></div>
+      </div>
+    </div>
 
-function abrirLingqModal(word){
-  tocarTTS(word);
-  document.getElementById('lingq-word').value=word.toLowerCase();
-  document.getElementById('lingq-trans').value='';
-  const full=document.getElementById('reader-edit-src').value;
-  const m=full.match(new RegExp('[^.?!]*\\b'+word+'\\b[^.?!]*[.?!]','i'));
-  document.getElementById('lingq-context').value=m?m[0].trim():'';
-  document.getElementById('btn-lingq-audio').onclick=()=>tocarTTS(word);
-  document.getElementById('btn-lingq-ctx-audio').onclick=()=>tocarTTS(document.getElementById('lingq-context').value);
-  document.getElementById('lingqModal').classList.add('open');
-  setTimeout(()=>document.getElementById('lingq-trans').focus(),80);
-  // Also show dict panel
-  mostrarDict(word);
-}
+    <div class="stats-row">
+      <div class="card stat-card"><div class="n" id="statMaterias">0</div><div class="l">matérias</div></div>
+      <div class="card stat-card"><div class="n" id="statQuestoes">0</div><div class="l">questões</div></div>
+      <div class="card stat-card"><div class="n" id="statNotas">0</div><div class="l">anotações</div></div>
+      <div class="card stat-card"><div class="n" id="statDocs">0</div><div class="l">documentos</div></div>
+      <div class="card stat-card"><div class="n" id="streakCount">0</div><div class="l">dias seguidos</div></div>
+    </div>
+  </section>
 
-function mostrarDict(word){
-  const clean=word.toLowerCase().replace(/[^a-záàâãéêíóôõúüçœæāēīōūǣ]/gi,'');
-  if(!clean)return;
-  const panel=document.getElementById('dict-panel');
-  const wData=dbWords.find(w=>(w.fr||w.word||'').toLowerCase()===clean&&(!w.lang||w.lang===currentLang));
-  document.getElementById('dict-word-display').textContent=clean;
+  <section class="view" id="view-palavras">
+    <div class="dispatch-frame-card">
+      <div class="dispatch-bar">
+        <span class="dispatch-title mono">transmissão segura — hub linguístico</span>
+        <button class="btn ghost small" onclick="window.open('https://estuda-mais-theta.vercel.app/','_blank')">⤢</button>
+      </div>
+      <iframe id="hubFrame" title="Hub Linguístico"></iframe>
+    </div>
+  </section>
 
-  // Build info line from saved data
-  let info='';
-  if(wData){
-    if(wData.classe&&wData.classe!=='Vazio')info+=wData.classe;
-    if(currentLang==='la'){
-      if(wData.declinacao)info+=' · '+wData.declinacao+' decl.';
-      if(wData.genero)info+=' · '+wData.genero+'.';
-      if(wData.conjugacao)info+=' · '+wData.conjugacao+' conj.';
-    }
-  }
-  document.getElementById('dict-word-info').textContent=info;
+  <section class="view" id="view-diplomacia">
+    <h3 class="section-title">Diplomacia — CACD</h3>
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="materias" onclick="goSub('materias')">Matérias</button>
+      <button class="subtab-btn" data-sub="cronograma" onclick="goSub('cronograma')">Cronograma</button>
+      <button class="subtab-btn" data-sub="questoes" onclick="goSub('questoes')">Questões</button>
+      <button class="subtab-btn" data-sub="discursiva" onclick="goSub('discursiva')">Discursiva</button>
+      <button class="subtab-btn" data-sub="atualidades" onclick="goSub('atualidades')">Atualidades</button>
+      <button class="subtab-btn" data-sub="notas" onclick="goSub('notas')">Anotações</button>
+    </div>
 
-  // Body: saved translation + forms + notes
-  let body='';
-  if(wData){
-    if(wData.pt)body+=`<strong style="color:var(--success);">${esc(wData.pt)}</strong>`;
-    if(currentLang==='la'&&wData.forms1){
-      body+=`<div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted2);">${[wData.forms1,wData.forms2,wData.forms3,wData.forms4].filter(Boolean).join(' · ')}</div>`;
-    }
-    if(wData.nominativo&&wData.genitivo){
-      body+=`<div style="margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted2);">${wData.nominativo}, ${wData.genitivo}</div>`;
-    }
-    if(wData.notes){
-      body+=`<div style="margin-top:8px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--border);padding-top:6px;">📝 ${esc(wData.notes)}</div>`;
-    }
-  }else{
-    body='<span style="color:var(--muted);font-size:.8rem;">Palavra não cadastrada. Salve-a para registrar informações.</span>';
-  }
-  document.getElementById('dict-body').innerHTML=body;
+    <div class="subview active" id="sub-materias">
+      <div id="materiasList"></div>
+      <div class="card">
+        <label class="field-label">Nova Matéria</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="novaMateriaInput" placeholder="Ex.: Direito Internacional Privado">
+          <button class="btn secondary small" onclick="addMateria()">Adicionar</button>
+        </div>
+      </div>
+    </div>
 
-  // External dictionary links
-  const enc=encodeURIComponent(clean);
-  const isLatin=currentLang==='la';
-  const links=isLatin?[
-    {label:'Wiktionary (LA)',url:`https://la.wiktionary.org/wiki/${enc}`},
-    {label:'Lewis & Short',url:`https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.04.0059:entry=${enc}`},
-    {label:'Logeion',url:`https://logeion.uchicago.edu/${enc}`},
-  ]:[
-    {label:'Wiktionary',url:`https://${LANG_CFG[currentLang].tts.slice(0,2)}.wiktionary.org/wiki/${enc}`},
-    {label:'Reverso',url:`https://context.reverso.net/translation/${currentLang==='fr'?'french':currentLang==='es'?'spanish':'english'}-portuguese/${enc}`},
-  ];
-  document.getElementById('dict-links').innerHTML=links.map(l=>`<a class="dict-link" href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join('');
-  panel.classList.add('visible');
-}
+    <div class="subview" id="sub-cronograma">
+      <div class="filters" id="cronoFiltroMateria"></div>
+      <div class="filters">
+        <button class="chip active" id="cronoStatusTodasBtn" onclick="setCronoStatusFiltro('todas')">Todas</button>
+        <button class="chip" id="cronoStatusPendentesBtn" onclick="setCronoStatusFiltro('pendentes')">⏳ Pendentes</button>
+        <button class="chip" id="cronoStatusAtrasadosBtn" onclick="setCronoStatusFiltro('atrasados')">🚨 Atrasadas</button>
+        <button class="chip" id="cronoStatusConcluidosBtn" onclick="setCronoStatusFiltro('concluidos')">✓ Concluídas</button>
+      </div>
+      <div class="filters">
+        <button class="chip active" id="cronoViewDiaBtn" onclick="setCronoView('dia')">📅 Por dia</button>
+        <button class="chip" id="cronoViewMateriaBtn" onclick="setCronoView('materia')">Por matéria</button>
+        <button class="chip" id="cronoViewCalBtn" onclick="setCronoView('calendario')">📅 Calendário</button>
+      </div>
+      <div id="calendarioWrap" style="display:none;"><div id="calendarView" class="crono-cal"></div></div>
+      <div id="cronogramaList"></div>
 
-/* ════ PROGRESS CHART ════ */
-let _chartDays=30;
-function renderProgressChart(days){
-  _chartDays=days;
-  document.getElementById('chart-btn-30').classList.toggle('active',days===30);
-  document.getElementById('chart-btn-90').classList.toggle('active',days===90);
-  const canvas=document.getElementById('progress-canvas');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const dpr=window.devicePixelRatio||1;
-  const W=canvas.parentElement.clientWidth||400;
-  const H=140;
-  canvas.width=W*dpr;canvas.height=H*dpr;
-  canvas.style.width=W+'px';canvas.style.height=H+'px';
-  ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,W,H);
+      <div class="card">
+        <label class="field-label">Novo item do cronograma</label>
+        <input type="text" id="cTema" placeholder="Tema (ex.: Guerra do Paraguai)">
+        <textarea id="cEstudar" placeholder="O que estudar..." style="min-height:50px;"></textarea>
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="cMateria"></select></div>
+          <div><label class="field-label">Semana</label><input type="text" id="cSemana" placeholder="Semana 5"></div>
+        </div>
+        <div class="row2">
+          <div><label class="field-label">Data</label><input type="date" id="cData"></div>
+          <div><label class="field-label">Tempo estimado</label><input type="text" id="cTempo" placeholder="2h30"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn secondary" onclick="addCronograma()">Adicionar ao cronograma</button></div>
+      </div>
 
-  // Build data: for each day in range, count words added and dominated
-  const today=new Date();today.setHours(23,59,59,999);
-  const labels=[],totalData=[],domData=[];
-  const words=dbWords.filter(w=>(!w.lang||w.lang===currentLang)&&!w.excluida);
+      <h3 class="section-title" style="margin-top:22px;">Revisão espaçada</h3>
+      <div id="revisaoList"></div>
+      <div class="card">
+        <label class="field-label">Novo item de revisão (manual)</label>
+        <input type="text" id="rTema" placeholder="Tema (ex.: Sintaxe)">
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="rMateria"></select></div>
+          <div><label class="field-label">Data de estudo</label><input type="date" id="rData"></div>
+        </div>
+        <div style="margin-top:12px;"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button></div>
+      </div>
+    </div>
 
-  for(let i=days-1;i>=0;i--){
-    const d=new Date(today);d.setDate(today.getDate()-i);d.setHours(23,59,59,999);
-    const dayStr=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
-    // Total words added up to this day (use word id as timestamp proxy)
-    const total=words.filter(w=>w.id<=d.getTime()).length;
-    const dom=words.filter(w=>w.id<=d.getTime()&&w.status==='Jamais esquecerei').length;
-    labels.push(i===0?'Hoje':(i%Math.floor(days/6)===0?dayStr:''));
-    totalData.push(total);
-    domData.push(dom);
-  }
+    <div class="subview" id="sub-questoes">
+      <div class="card" id="statsAcerto"></div>
+      <div class="card">
+        <label class="field-label">Matéria</label><select id="qMateria" onchange="renderQTopicoOptions()"></select>
+        <label class="field-label">Tópico (opcional)</label><select id="qTopico"><option value="">— nenhum —</option></select>
+        <div class="row2">
+          <div><label class="field-label">Tipo</label><select id="qTipo" onchange="onQTipoChange()"><option value="C/E">Certo/Errado</option><option value="Discursiva">Discursiva</option></select></div>
+          <div><label class="field-label">Ano / fonte</label><input type="text" id="qFonte" placeholder="CACD 2025..."></div>
+        </div>
+        <textarea id="qContexto" placeholder="Texto-base / contexto..." style="margin-top:8px;"></textarea>
+        <div id="qItensWrap"></div>
+        <button class="btn small ghost" type="button" onclick="addItemField()" style="margin-top:8px;">+ item</button>
+        <div style="margin-top:14px;"><button class="btn secondary" onclick="addQuestao()">Guardar questão</button></div>
+      </div>
+      <div class="filters" id="qFiltroMateria"></div>
+      <div id="questoesList"></div>
+    </div>
 
-  const maxVal=Math.max(...totalData,1);
-  const pad={t:10,r:10,b:28,l:36};
-  const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+    <div class="subview" id="sub-discursiva">
+      <div class="card" style="text-align:center;">
+        <div id="cronoDisplay" class="mono" style="font-size:32px; color:var(--ub-azul); margin-bottom:8px;">00:00</div>
+        <button class="btn small secondary" onclick="cronoStart()">Iniciar</button>
+        <button class="btn small ghost" onclick="cronoPause()">Pausar</button>
+        <button class="btn small ghost" onclick="cronoReset()">Zerar</button>
+      </div>
+      <div class="card">
+        <label class="field-label">Nova Discursiva</label>
+        <div class="row2">
+          <div><label class="field-label">Matéria</label><select id="dMateria"></select></div>
+          <div><label class="field-label">Tipo</label>
+            <select id="dTipo">
+              <option>Resumo</option><option>Versão</option><option>Redação</option><option>Tradução</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="dTema" placeholder="Tema ou Enunciado..." style="margin-top:8px;"></textarea>
+        <input type="text" id="dLinhas" placeholder="Extensão (ex: 90 lines)" style="margin-top:8px;">
+        <button class="btn small secondary" onclick="addDiscursiva()" style="margin-top:12px;">Criar Exercício</button>
+      </div>
+      <div id="discursivasList"></div>
+    </div>
 
-  // Grid lines
-  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
-  for(let g=0;g<=4;g++){
-    const y=pad.t+cH*(1-g/4);
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='10px Inter,sans-serif';ctx.textAlign='right';
-    ctx.fillText(Math.round(maxVal*g/4),pad.l-4,y+3);
-  }
+    <div class="subview" id="sub-atualidades">
+      <div class="card">
+        <input type="text" id="aTema" placeholder="Tema">
+        <input type="text" id="aTitulo" placeholder="Título" style="margin-top:8px;">
+        <textarea id="aResumo" placeholder="Resumo..." style="margin-top:8px;"></textarea>
+        <button class="btn small secondary" onclick="addAtualidade()" style="margin-top:12px;">Guardar</button>
+      </div>
+      <div id="atualidadesList"></div>
+    </div>
 
-  // Draw line helper
-  function drawLine(data,color,fill){
-    if(!data.some(v=>v>0))return;
-    ctx.beginPath();
-    data.forEach((v,i)=>{
-      const x=pad.l+i/(days-1)*cW;
-      const y=pad.t+cH*(1-v/maxVal);
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    });
-    if(fill){
-      ctx.lineTo(pad.l+cW,pad.t+cH);ctx.lineTo(pad.l,pad.t+cH);ctx.closePath();
-      ctx.fillStyle=fill;ctx.fill();
-    }
-    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
-  }
+    <div class="subview" id="sub-notas">
+      <div class="card">
+        <input type="text" id="nMateria" placeholder="Matéria">
+        <input type="text" id="nTitulo" placeholder="Título" style="margin-top:8px;">
+        <textarea id="nTexto" placeholder="Texto..." style="margin-top:8px;"></textarea>
+        <button class="btn small secondary" onclick="addNota()" style="margin-top:12px;">Guardar</button>
+      </div>
+      <div id="notasList"></div>
+    </div>
+  </section>
 
-  drawLine(totalData,'#3b82f6','rgba(59,130,246,.08)');
-  drawLine(domData,'#10b981','rgba(16,185,129,.08)');
+  <section class="view" id="view-paises">
+    <h3 class="section-title">Países — Fichas Geopolíticas</h3>
+    <p class="intro-line">Explore informações detalhadas sobre todos os países relevantes para a prova.</p>
 
-  // X labels
-  ctx.fillStyle='rgba(255,255,255,.3)';ctx.font='9px Inter,sans-serif';ctx.textAlign='center';
-  labels.forEach((lbl,i)=>{
-    if(!lbl)return;
-    const x=pad.l+i/(days-1)*cW;
-    ctx.fillText(lbl,x,H-4);
-  });
-}
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')">📇 Lista</button>
+      <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')">🗺️ Mapa-múndi</button>
+      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();">⚖️ Comparar</button>
+    </div>
 
-/* ════ CALENDAR ════ */
-function renderCalendar(){
-  const cg=document.getElementById('calendar-grid');if(!cg)return;
-  const today=new Date();today.setHours(0,0,0,0);
-  const ativas=getPalavrasAtivas();
-  const dias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  let html='';
-  for(let i=0;i<7;i++){
-    const dia=new Date(today);dia.setDate(today.getDate()+i);
-    const next=new Date(dia);next.setDate(dia.getDate()+1);
-    let count=i===0
-      ?ativas.filter(w=>!w.nextReview||w.nextReview<=next.getTime()).length
-      :ativas.filter(w=>w.nextReview>dia.getTime()&&w.nextReview<=next.getTime()).length;
-    const nome=i===0?'Hoje':dias[dia.getDay()];
-    const data=dia.getDate().toString().padStart(2,'0')+'/'+(dia.getMonth()+1).toString().padStart(2,'0');
-    const bg=count>0?(i===0?'background:rgba(59,130,246,.15);border-color:var(--accent);':'background:rgba(255,255,255,.05);'):'';
-    const cor=count>0?(i===0?'color:var(--accent);':'color:var(--text);'):'color:var(--muted);';
-    html+=`<div class="cal-day" style="border:1px solid var(--border);${bg}"><div class="cal-day-name">${nome}</div><div class="cal-day-count" style="${cor}">${count}</div><div class="cal-day-date">${data}</div></div>`;
-  }
-  cg.innerHTML=html;
-}
+    <div class="subview active" id="sub-paisesLista">
+      <div id="paisesListaWrap">
+        <div class="paises-toolbar">
+          <input type="text" id="paisesSearch" placeholder="Buscar por país, capital, idioma, moeda ou organização..." oninput="renderPaises()">
+          <div class="filters" id="paisesFiltroContinente"></div>
+          <div class="paises-filtros-avancados">
+            <select id="paisesFiltroIdioma" onchange="setPaisesFiltroIdioma(this.value)"></select>
+            <select id="paisesFiltroMoeda" onchange="setPaisesFiltroMoeda(this.value)"></select>
+            <select id="paisesFiltroGoverno" onchange="setPaisesFiltroGoverno(this.value)"></select>
+            <select id="paisesFiltroOrganizacaoSelect" onchange="setPaisesFiltroOrganizacao(this.value)"></select>
+          </div>
+          <div class="filters">
+            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()">★ Favoritos</button>
+            <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
+            <span class="mono" id="paisesCountLabel" style="font-size:11px; color:var(--text-muted); align-self:center; margin-left:auto;"></span>
+          </div>
+        </div>
+        <div class="paises-grid" id="paisesGrid"></div>
+      </div>
+      <div id="paisesDetalheWrap" style="display:none;"></div>
+    </div>
 
-/* ════ POMODORO ════ */
-function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));}
-function modalOutsideClick(e){if(e.target.classList.contains('modal'))closeModals();}
-function switchTab(id){
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn,.mnav-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelector(`.tab-btn[onclick="switchTab('${id}')"]`)?.classList.add('active');
-  const tabKey=id.replace('tab-','');
-  const mnavBtn=document.getElementById('mnav-'+tabKey);
-  if(mnavBtn)mnavBtn.classList.add('active');
-  if(id==='tab-srs')prepararSrs();
-}
-function renderAll(){updateDash();renderKanban();prepararSrs();renderCalendar();setTimeout(()=>renderProgressChart(_chartDays),50);if(dbTexts.length){renderTextList();if(!currentTextId){const first=dbTexts.find(t=>!t.excluido);if(first)abrirTexto(first.id);}}}
+    <div class="subview" id="sub-paisesMapaView">
+      <div class="paises-toolbar" style="margin-bottom:10px;">
+        <input type="text" id="paisesMapaSearch" placeholder="Buscar país no mapa..." oninput="renderPaisesMapa()">
+      </div>
+      <div class="mapa-mundi-wrap">
+        <div class="mapa-mundi" id="paisesMapaSvgWrap"></div>
+      </div>
+      <p class="mapa-hint">Clique em um marcador para abrir a ficha completa do país.</p>
+    </div>
 
-/* ════ POMODORO ════ */
-let timerInt,tLeft=25*60,tRun=false;
-function updateTimerDisp(){document.getElementById('timer-display').textContent=String(Math.floor(tLeft/60)).padStart(2,'0')+':'+String(tLeft%60).padStart(2,'0');}
-function toggleTimer(){const btn=document.getElementById('timer-btn');if(tRun){clearInterval(timerInt);btn.textContent='▶';tRun=false;}else{timerInt=setInterval(()=>{if(tLeft<=0){clearInterval(timerInt);alert('Sessão Pomodoro concluída! ⏱');tLeft=25*60;updateTimerDisp();btn.textContent='▶';tRun=false;}else{tLeft--;updateTimerDisp();}},1000);btn.textContent='⏸';tRun=true;}}
-</script>
+    <div class="subview" id="sub-paisesComparar">
+      <div class="card">
+        <label class="field-label">País A</label>
+        <select id="compararSelectA" onchange="setCompararPais('a', this.value)"></select>
+        <label class="field-label" style="margin-top:12px;">País B</label>
+        <select id="compararSelectB" onchange="setCompararPais('b', this.value)"></select>
+      </div>
+      <div class="card" id="compararResultado"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-organizacoes">
+    <h3 class="section-title">Organizações Internacionais</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: ONU, OMC, BRICS, OTAN e outras, com fichas completas e questões relacionadas.</div></div>
+  </section>
+
+  <section class="view" id="view-tratados">
+    <h3 class="section-title">Tratados</h3>
+    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: tratados internacionais relevantes para o CACD, ligados às questões dos Simulados.</div></div>
+  </section>
+
+  <section class="view" id="view-flashcards">
+    <h3 class="section-title">Flashcards</h3>
+    <div class="card"><div class="biblio-empty">Central de flashcards em construção. Por enquanto, os flashcards automáticos de cada país já estão disponíveis dentro da ficha de cada país, em Países.</div></div>
+  </section>
+
+  <section class="view" id="view-configuracoes">
+    <h3 class="section-title">Configurações</h3>
+    <div class="card">
+      <label class="field-label">Tema</label>
+      <button class="btn secondary small" onclick="toggleTheme()">🌓 Alternar tema claro/escuro</button>
+      <label class="field-label" style="margin-top:16px;">Conta</label>
+      <div id="authBoxConfig"></div>
+    </div>
+    <div class="card">
+      <label class="field-label">Ordem do menu lateral</label>
+      <p class="intro-line" style="margin:4px 0 12px;">Use as setas para reorganizar a ordem das páginas na barra lateral.</p>
+      <div id="configNavOrderList"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-simulados">
+    <h3 class="section-title">Simulados</h3>
+    <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
+
+    
+    <div id="simuladosPanelHome">
+      <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
+
+      <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
+      <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:start;">
+        <div class="sim-modos-grid" id="simuladosModos"></div>
+        <div>
+          <div class="card dash-side-panel">
+            <h4 style="font-size:13px; margin-bottom:10px;">Desempenho por disciplina</h4>
+            <div id="simuladosDesempenhoDisciplina"></div>
+          </div>
+          <div class="card dash-side-panel">
+            <h4 style="font-size:13px; margin-bottom:10px;">Atividade recente</h4>
+            <div id="simuladosAtividadeRecente"></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:24px;">Provas disponíveis</h3>
+      <div class="dash-provas-grid" id="simuladosProvasDisponiveis"></div>
+
+      <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
+          <div id="simuladosGraficoEvolucao"></div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px;">Sequência de estudos</h4>
+          <div class="dash-streak-days" id="simuladosStreakDias"></div>
+        </div>
+        <div class="card">
+          <h4 style="font-size:13px; margin-bottom:10px; text-align:center;">Meta mensal</h4>
+          <div id="simuladosMetaMensal"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h4 style="font-size:13px; margin-bottom:10px;">Temas mais cobrados</h4>
+        <div id="simuladosTemasCobrados"></div>
+      </div>
+    </div>
+
+    <div id="simuladosPanelConfig" style="display:none;">
+      <div id="simuladosConfigWrap"></div>
+    </div>
+
+    <div id="simuladosPanelProva" style="display:none;">
+      <div id="simuladosProvaWrap"></div>
+    </div>
+
+    <div id="simuladosPanelResultado" style="display:none;">
+      <div id="simuladosResultadoWrap"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-biblioteca">
+    <h3 class="section-title">Biblioteca</h3>
+    <p class="intro-line">Seu acervo pessoal: documentos, fichamentos e leituras — organizados e conectados por tema.</p>
+
+    <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Fraunces',serif; font-size:15px; color:var(--text-main);">🔁 Revisão espaçada</div>
+        <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
+      </div>
+      <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
+    </div>
+
+    <input type="text" id="biblioSearch" class="biblio-search" placeholder="Buscar por título, autor, tag ou conteúdo..." oninput="renderBiblioSearch()">
+    <div id="biblioSearchResults"></div>
+
+    <div class="biblio-layout" id="biblioMainLayout">
+      <aside class="biblio-sidebar">
+        <h4>Estantes</h4>
+        <ul class="biblio-tree" id="biblioTree"></ul>
+        <div class="biblio-add-row">
+          <input type="text" id="novaAreaInput" placeholder="Nova estante (ex.: Direito)">
+          <button class="btn ghost small" onclick="addPastaBiblio(null)">+</button>
+        </div>
+      </aside>
+
+      <div class="biblio-main">
+        <div id="biblioListView">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <h4 id="biblioCurrentPastaLabel" style="font-family:'Fraunces',serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
+            <div style="display:flex; gap:6px;">
+              <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
+              <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
+            </div>
+          </div>
+          <div class="biblio-doc-list" id="biblioDocList"></div>
+        </div>
+
+        <div id="biblioViewMode" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <button class="btn ghost small" onclick="fecharDocumento()">← Voltar</button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn secondary small" onclick="editarDocumentoAtual()">✏️ Editar</button>
+              <button class="btn ghost small" onclick="deleteDocumentoAtual()">🗑️ Excluir</button>
+            </div>
+          </div>
+          <div class="card" style="padding:22px 20px;">
+            <div style="display:flex; align-items:baseline; gap:10px;">
+              <span id="viewIcon" style="font-size:22px;">📄</span>
+              <h2 id="viewTitulo" style="font-family:'Fraunces',serif; font-size:22px; color:var(--text-main);"></h2>
+            </div>
+            <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
+            <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
+            <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(180,145,75,.1); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
+              <span>🔁 Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
+            </div>
+            <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;"></div>
+            <div id="viewConteudo" class="biblio-body-editable" style="margin-top:18px; border:none; background:none; padding:0;"></div>
+            <div id="viewObservacoesWrap" style="display:none; margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+              <label class="field-label">Observações</label>
+              <p id="viewObservacoes" style="font-size:13px; color:var(--text-light); white-space:pre-wrap; line-height:1.55;"></p>
+            </div>
+          </div>
+          <div class="biblio-related" style="margin-top:16px;">
+            <h4>Relacionados por tag</h4>
+            <div class="biblio-related-list" id="biblioRelatedListView"></div>
+          </div>
+        </div>
+
+        <div id="biblioReviewMode" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <button class="btn ghost small" onclick="encerrarRevisao()">← Encerrar revisão</button>
+            <span class="mono" id="reviewProgress" style="font-size:11px; color:var(--text-muted);"></span>
+          </div>
+          <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
+            <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
+            <h2 id="reviewTitulo" style="font-family:'Fraunces',serif; font-size:21px; color:var(--text-main);"></h2>
+            <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
+            <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
+              <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">❌ Não lembrei</button>
+              <button class="btn ghost small" style="flex:1; min-width:120px;" onclick="rateReview('hard')">😐 Mais ou menos</button>
+              <button class="btn secondary small" style="flex:1; min-width:120px;" onclick="rateReview('good')">✅ Lembrei bem</button>
+            </div>
+          </div>
+          <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
+            <div style="font-size:32px; margin-bottom:10px;">🎉</div>
+            <div style="font-family:'Fraunces',serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
+            <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
+          </div>
+        </div>
+
+        <div id="biblioEditorView" style="display:none;">
+          <div class="biblio-breadcrumb">
+            <button class="btn ghost small" onclick="fecharDocumento()">← Biblioteca</button>
+            <span class="bc-sep">/</span>
+            <span class="bc-item" id="bcPastaLabel">Sem pasta</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-item bc-current" id="bcTituloLabel">Novo documento</span>
+          </div>
+
+          <div class="biblio-editor-shell">
+            <div class="biblio-editor-col">
+              <div class="biblio-tags-input" id="docTagsInput" onclick="document.getElementById('docTagNovo').focus()">
+                <input type="text" id="docTagNovo" placeholder="+ Adicionar tags e Enter" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTagDoc();}">
+              </div>
+
+              <input type="text" id="docTitulo" placeholder="Título do documento" class="biblio-title-input" oninput="atualizarBreadcrumbTitulo()">
+              <input type="text" id="docDescricao" placeholder="Descrição breve (opcional)..." class="biblio-desc-input">
+
+              <div class="biblio-meta-row">
+                <span class="mono" id="docMetaCriado">Criada agora</span>
+                <span class="mono" id="docMetaEditado"></span>
+                <button type="button" class="biblio-fav-toggle" id="docFavBtn" onclick="toggleDocFavorita()">☆ Favorita</button>
+                <select id="docPrioridade" class="biblio-priority-select" onchange="save('__noop__',null)">
+                  <option value="">Sem prioridade</option>
+                  <option value="baixa">🔹 Prioridade: Baixa</option>
+                  <option value="media">🔶 Prioridade: Média</option>
+                  <option value="alta">🔺 Prioridade: Alta</option>
+                </select>
+              </div>
+
+              <div id="docConteudoWrap">
+                <div class="biblio-editor-toolbar" id="docToolbar">
+                  <button type="button" title="Desfazer" onclick="fmt('undo')">↺</button>
+                  <button type="button" title="Refazer" onclick="fmt('redo')">↻</button>
+                  <span class="toolbar-sep"></span>
+                  <select title="Estilo de parágrafo" onchange="if(this.value){fmt('formatBlock', this.value);} this.selectedIndex=0;">
+                    <option value="">Texto normal ▾</option>
+                    <option value="P">Parágrafo</option>
+                    <option value="H1">Título 1</option>
+                    <option value="H2">Título 2</option>
+                    <option value="H3">Título 3</option>
+                    <option value="H4">Rótulo</option>
+                  </select>
+                  <span class="toolbar-sep"></span>
+                  <button type="button" title="Negrito (Ctrl+B)" onclick="fmt('bold')"><b>B</b></button>
+                  <button type="button" title="Itálico (Ctrl+I)" onclick="fmt('italic')"><i>I</i></button>
+                  <button type="button" title="Sublinhado (Ctrl+U)" onclick="fmt('underline')"><u>S</u></button>
+                  <button type="button" title="Tachado" onclick="fmt('strikeThrough')"><s>T</s></button>
+                  <button type="button" title="Código inline" onclick="fmt('formatBlock','PRE')">{ }</button>
+                  <span class="toolbar-sep"></span>
+                  <input type="color" title="Cor do texto" value="#e3c481" oninput="fmt('foreColor', this.value)">
+                  <button type="button" title="Alinhar à esquerda" onclick="fmt('justifyLeft')">≡</button>
+                  <select title="Listas" onchange="if(this.value==='ul')fmt('insertUnorderedList'); else if(this.value==='ol')fmt('insertOrderedList'); this.selectedIndex=0;">
+                    <option value="">Listas ▾</option>
+                    <option value="ul">• Lista com marcadores</option>
+                    <option value="ol">1. Lista numerada</option>
+                  </select>
+                  <select title="Blocos" onchange="if(this.value==='check')insertChecklist(); else if(this.value==='toggle')insertToggleBlock(); this.selectedIndex=0;">
+                    <option value="">☑ Blocos ▾</option>
+                    <option value="check">☑ Checklist</option>
+                    <option value="toggle">▸ Bloco recolhível</option>
+                  </select>
+                  <button type="button" title="Link" onclick="fmtLink()">🔗</button>
+                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️</button>
+                  <button type="button" title="Inserir tabela" onclick="insertTable()">▦</button>
+                  <select title="Caixa de destaque" onchange="if(this.value) insertCallout(this.value); this.selectedIndex=0;">
+                    <option value="">⚠ Destaque ▾</option>
+                    <option value="info">ℹ️ Informação</option>
+                    <option value="atencao">⚠️ Atenção</option>
+                    <option value="importante">🔴 Importante</option>
+                  </select>
+                  <button type="button" title="Linha divisória" onclick="fmt('insertHorizontalRule')">―</button>
+                  <span class="toolbar-fs-spacer"></span>
+                  <button type="button" title="Tela cheia" onclick="toggleEditorFullscreen()">⛶</button>
+                </div>
+                <input type="file" id="docImgFileInput" accept="image/*" style="display:none" onchange="handleImageFile(event)">
+                <div class="biblio-body-editable" id="docConteudo" contenteditable="true"></div>
+              </div>
+
+              <div class="biblio-editor-footer">
+                <div class="biblio-footer-stats mono">
+                  <span id="docWordCount">0 palavras</span>
+                  <span id="docCharCount">0 caracteres</span>
+                  <span id="docReadTime">~0 min de leitura</span>
+                </div>
+                <div class="biblio-footer-autosave mono" id="docAutosaveLabel"></div>
+              </div>
+
+              <div class="biblio-editor-actions">
+                <button class="btn secondary" onclick="saveDocumento()">Salvar</button>
+                <button class="btn ghost" onclick="deleteDocumentoAtual()">Excluir</button>
+              </div>
+
+              <div class="biblio-ai-actions">
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Assistente de IA')">✨ Assistente de IA</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar flashcards')">🔁 Gerar flashcards</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar questões')">❓ Gerar questões</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Mapa mental')">🕸️ Mapa mental</button>
+              </div>
+            </div>
+
+            <aside class="biblio-panel">
+              <div class="biblio-panel-tabs">
+                <button class="bp-tab active" data-ptab="painel" onclick="setBiblioPanelTab('painel')">Painel</button>
+                <button class="bp-tab" data-ptab="propriedades" onclick="setBiblioPanelTab('propriedades')">Propriedades</button>
+              </div>
+
+              <div class="bp-content" id="bpPainel">
+                <div class="panel-section">
+                  <div class="panel-section-title">Revisão</div>
+                  <label class="field-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
+                    <input type="checkbox" id="docSrsAtivo" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
+                    <span style="font-size:12.5px;">Incluir na revisão espaçada</span>
+                  </label>
+                  <div id="docSrsControles" style="margin-top:10px;">
+                    <div class="row2">
+                      <div><label class="field-label">Próxima revisão</label><input type="date" id="docSrsData"></div>
+                      <div><label class="field-label">Horário</label><input type="time" id="docSrsHora" value="09:00"></div>
+                    </div>
+                    <label class="field-label" style="margin-top:8px;">Intervalo</label>
+                    <select id="docSrsPreset" onchange="aplicarIntervaloPreset(this.value)">
+                      <option value="">Personalizado</option>
+                      <option value="1">Amanhã</option>
+                      <option value="3">3 dias</option>
+                      <option value="7" selected>7 dias</option>
+                      <option value="15">15 dias</option>
+                      <option value="30">30 dias</option>
+                    </select>
+                    <label class="field-label" style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
+                      <input type="checkbox" id="docSrsAutomatico" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
+                      <span style="font-size:12px;">✨ Usar revisão espaçada automática</span>
+                    </label>
+                    <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:6px;"></div>
+                  </div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Conexões</div>
+                  <div id="painelConexoes"></div>
+                  <button class="btn ghost small" style="width:100%; margin-top:8px;" onclick="abrirTodasConexoes()">Ver todas as conexões</button>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Relacionados</div>
+                  <div id="painelRelacionados"></div>
+                </div>
+
+                <div class="panel-section">
+                  <div class="panel-section-title">Estatísticas</div>
+                  <div class="panel-stat-row"><span>Palavras</span><span class="mono" id="statPalavras">0</span></div>
+                  <div class="panel-stat-row"><span>Caracteres</span><span class="mono" id="statCaracteres">0</span></div>
+                  <div class="panel-stat-row"><span>Tempo de leitura</span><span class="mono" id="statTempoLeitura">0 min</span></div>
+                </div>
+              </div>
+
+              <div class="bp-content" id="bpPropriedades" style="display:none;">
+                <div class="panel-section">
+                  <label class="field-label">Tipo</label>
+                  <select id="docTipo">
+                    <option value="📄">📄 Documento</option>
+                    <option value="📝">📝 Texto longo</option>
+                    <option value="📚">📚 Resumo</option>
+                    <option value="🗂️">🗂️ Fichamento</option>
+                    <option value="🧠">🧠 Mapa mental</option>
+                    <option value="📜">📜 Legislação</option>
+                    <option value="📰">📰 Atualidade</option>
+                    <option value="🌐">🌐 Link</option>
+                  </select>
+                  <label class="field-label">Pasta / Estante</label><select id="docPasta" onchange="atualizarBreadcrumbTitulo()"></select>
+                  <label class="field-label">Autor</label><input type="text" id="docAutor">
+                  <label class="field-label">Fonte</label><input type="text" id="docFonte">
+                  <label class="field-label">Matéria relacionada</label><select id="docMateria"><option value="">— nenhuma —</option></select>
+                  <label class="field-label">Data</label><input type="date" id="docData">
+                  <label class="field-label" style="margin-top:14px;">Observações</label>
+                  <textarea id="docObservacoes" style="min-height:60px;"></textarea>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="tabbar">
+  <div class="sidebar-nav-scroll" id="sidebarNavScroll"></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
+    <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     Scripts — a ordem importa: cada módulo depende dos anteriores estarem
+     carregados (variáveis e funções globais compartilhadas). app.js é
+     sempre o último, pois orquestra a renderização inicial de tudo.
+     ========================================================================== -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/theme-auth.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/materias.js"></script>
+<script src="js/cronograma.js"></script>
+<script src="js/revisao.js"></script>
+<script src="js/questoes.js"></script>
+<script src="js/discursiva.js"></script>
+<script src="js/atualidades.js"></script>
+<script src="js/notas.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="js/paises.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/simulados.js"></script>
+<script src="js/biblioteca-pastas.js"></script>
+<script src="js/biblioteca-documentos.js"></script>
+<script src="js/biblioteca-editor.js"></script>
+<script src="js/biblioteca-revisao.js"></script>
+<script src="js/biblioteca-busca.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
