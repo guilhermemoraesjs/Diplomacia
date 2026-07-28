@@ -96,6 +96,7 @@ function goTab(tab) {
   if (tab === 'palavras') connectHub();
   if (tab === 'paises') initPaisesTab();
   if (tab === 'simulados') initSimuladosTab();
+  if (tab === 'flashcards') initFlashcardsTab();
   if (tab === 'configuracoes') renderConfigNavOrder();
 }
 
