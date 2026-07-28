@@ -328,9 +328,10 @@ function renderPainelRelacionados(d) {
   const questoesRelacionadas = (typeof simuladosQuestoesIndex !== 'undefined')
     ? simuladosQuestoesIndex.filter(q => tags.some(t => q.tema.toLowerCase().includes(t.toLowerCase())))
     : [];
+  const flashcardsRelacionados = d && typeof flashcardsDaAnotacao === 'function' ? flashcardsDaAnotacao(d.id) : [];
   el.innerHTML = `
     <div class="panel-conn-row"><span>❓ Questões relacionadas</span><span class="mono">${questoesRelacionadas.length}</span></div>
-    <div class="panel-conn-row disabled"><span>🔁 Flashcards relacionados</span><span class="mono">em breve</span></div>
+    <div class="panel-conn-row" onclick="${d ? `flashAbrirFlashcardsDaAnotacao('${d.id}')` : ''}"><span>🔁 Flashcards relacionados</span><span class="mono">${flashcardsRelacionados.length}</span></div>
     <div class="panel-conn-row disabled"><span>📰 Notícias relacionadas</span><span class="mono">em breve</span></div>
     <div class="panel-conn-row" onclick="document.querySelector('.biblio-related')?.scrollIntoView({behavior:'smooth'})"><span>📄 Outras anotações</span><span class="mono">${outrasNotas.length}</span></div>
   `;
