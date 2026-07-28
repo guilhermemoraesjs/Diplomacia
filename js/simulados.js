@@ -398,6 +398,7 @@ function renderSimuladoProva() {
       <div class="sim-alternativas">${altsHtml}</div>
       ${avisoAnulado}
       ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? '✅ Correto!' : '❌ Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
+      ${mostrarFeedback && !resposta.correta && !q.anulado ? `<button class="btn ghost small" style="margin-top:10px;" onclick="flashCriarDeErro('${q.id}')">🔁 Criar flashcard do erro</button>` : ''}
       <label class="field-label" style="margin-top:14px;">Sua anotação</label>
       <textarea onchange="salvarAnotacaoQuestao('${q.id}', this.value)" placeholder="Anote algo sobre esta questão...">${simuladosProgresso.anotacoes[q.id] || ''}</textarea>
       ${(q.paisesRelacionados || []).length ? `<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">${q.paisesRelacionados.map(pid => `
