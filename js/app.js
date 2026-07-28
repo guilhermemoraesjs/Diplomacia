@@ -12,6 +12,11 @@ function reloadStateFromLocalStorage() {
   renderDiscursivas(); renderAtualidades(); renderNotas();
   renderPaisesModule();
   renderBiblioTree(); renderBiblioDocList(); renderBiblioReviewBar();
+  flashCards = load(FLASH_KEY, []);
+  flashStreakDias = load(FLASH_STREAK_KEY, []);
+  flashTempos = load(FLASH_TEMPOS_KEY, []);
+  flashRebuildIndex();
+  if (document.getElementById('view-flashcards')?.classList.contains('active')) initFlashcardsTab();
   refreshStats();
 }
 
