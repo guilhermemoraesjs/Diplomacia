@@ -382,7 +382,250 @@
 
   <section class="view" id="view-flashcards">
     <h3 class="section-title">Flashcards</h3>
-    <div class="card"><div class="biblio-empty">Central de flashcards em construção. Por enquanto, os flashcards automáticos de cada país já estão disponíveis dentro da ficha de cada país, em Países.</div></div>
+    <p class="intro-line">Revisão espaçada dedicada ao CACD — 100% local, sem inteligência artificial nesta versão.</p>
+
+    <div class="subtabs" id="flashSubtabs">
+      <button class="subtab-btn active" data-fsub="dashboard" onclick="flashShowPanel('dashboard')">📊 Painel</button>
+      <button class="subtab-btn" data-fsub="revisar" onclick="flashShowPanel('revisar')">🔁 Revisar</button>
+      <button class="subtab-btn" data-fsub="lista" onclick="flashShowPanel('lista')">🗂️ Meus Cards</button>
+      <button class="subtab-btn" data-fsub="criar" onclick="flashShowPanel('criar')">➕ Criar</button>
+      <button class="subtab-btn" data-fsub="estatisticas" onclick="flashShowPanel('estatisticas')">📈 Estatísticas</button>
+    </div>
+
+    <!-- ================= PAINEL: DASHBOARD ================= -->
+    <div id="flashPanelDashboard" class="flash-panel">
+      <div class="dash-provas-grid" id="flashDashStats" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));"></div>
+      <div style="margin-top:16px;" id="flashDashGridSecondary"></div>
+      <div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="font-family:'Cinzel',serif; font-size:15px; color:var(--text-main, var(--text-light));" id="flashHojeTitulo">Carregando…</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="flashHojeSub"></div>
+        </div>
+        <button class="btn secondary" id="flashIniciarBtn" onclick="flashIniciarRevisaoDashboard()">Iniciar Revisão</button>
+      </div>
+    </div>
+
+    <!-- ================= PAINEL: REVISAR ================= -->
+    <div id="flashPanelRevisar" class="flash-panel" style="display:none;">
+      <div class="card" id="flashRevisarFiltrosWrap">
+        <div class="panel-section-title">Revisar com filtros</div>
+        <div class="flash-field-row" style="margin-top:10px;">
+          <div>
+            <label class="field-label">Disciplina</label>
+            <select id="flashRevFiltroDisciplina" onchange="flashAtualizarTemasRevisar()"></select>
+          </div>
+          <div>
+            <label class="field-label">Tema</label>
+            <select id="flashRevFiltroTema" onchange="flashAtualizarContagemRevisar()"></select>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <label class="field-label">Dificuldade</label>
+          <select id="flashRevFiltroDificuldade" onchange="flashAtualizarContagemRevisar()" style="max-width:220px;">
+            <option value="">Todas</option>
+            <option value="facil">Fácil</option>
+            <option value="media">Média</option>
+            <option value="dificil">Difícil</option>
+          </select>
+        </div>
+        <div style="margin-top:12px;">
+          <label class="field-label">Estado do cartão</label>
+          <div class="filters" id="flashRevFiltroEstados" style="margin-top:6px;"></div>
+        </div>
+        <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <span class="mono" id="flashRevFiltroContagem" style="color:var(--text-muted); font-size:12.5px;"></span>
+          <button class="btn secondary" id="flashRevIniciarFiltradoBtn" onclick="flashIniciarRevisaoFiltrada()">Iniciar sessão</button>
+        </div>
+      </div>
+
+      <div id="flashSessaoWrap" style="display:none;">
+        <div class="card flash-review-card" id="flashReviewCardWrap">
+          <div class="flash-review-topbar">
+            <span class="mono" id="flashReviewProgress" style="color:var(--text-muted); font-size:12.5px;"></span>
+            <span id="flashReviewTipoBadge"></span>
+          </div>
+          <div class="flash-review-meta" id="flashReviewMeta"></div>
+          <div class="flash-review-body">
+            <div id="flashReviewFrente" class="flash-face flash-face-front"></div>
+            <div id="flashReviewVersoWrap" class="flash-face flash-face-back" style="display:none;">
+              <div class="flash-divider"></div>
+              <div id="flashReviewVerso"></div>
+            </div>
+          </div>
+          <div class="flash-review-actions">
+            <button class="btn secondary" id="flashMostrarBtn" onclick="flashRevisaoRevelar()">Mostrar resposta <span class="kbd">Espaço</span></button>
+            <div class="flash-rate-row" id="flashRateRow" style="display:none;">
+              <button class="btn ghost small flash-rate-btn rate-again" onclick="flashRevisaoAvaliar('again')">Errei <span class="kbd">1</span><span class="flash-rate-hint" id="flashHint_again"></span></button>
+              <button class="btn ghost small flash-rate-btn rate-hard" onclick="flashRevisaoAvaliar('hard')">Difícil <span class="kbd">2</span><span class="flash-rate-hint" id="flashHint_hard"></span></button>
+              <button class="btn secondary small flash-rate-btn rate-good" onclick="flashRevisaoAvaliar('good')">Bom <span class="kbd">3</span><span class="flash-rate-hint" id="flashHint_good"></span></button>
+              <button class="btn secondary small flash-rate-btn rate-easy" onclick="flashRevisaoAvaliar('easy')">Fácil <span class="kbd">4</span><span class="flash-rate-hint" id="flashHint_easy"></span></button>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="flashReviewDone" style="display:none; text-align:center; padding:40px 20px;">
+          <div style="font-size:32px; margin-bottom:8px;">🎉</div>
+          <div style="font-family:'Cinzel',serif; font-size:16px; color:var(--text-main, var(--text-light));">Sessão concluída</div>
+          <div class="mono" id="flashReviewDoneStats" style="color:var(--text-muted); font-size:13px; margin-top:6px;"></div>
+          <button class="btn ghost small" style="margin-top:16px;" onclick="flashEncerrarRevisao()">Voltar aos filtros</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAINEL: MEUS CARDS ================= -->
+    <div id="flashPanelLista" class="flash-panel" style="display:none;">
+      <div class="flash-filtros-bar">
+        <input type="text" id="flashListaBusca" placeholder="🔎 Buscar por conteúdo, tema ou tag…" oninput="flashOnBuscaLista()">
+        <select id="flashListaFiltroDisciplina" onchange="flashAplicarFiltrosLista()"></select>
+        <select id="flashListaFiltroDificuldade" onchange="flashAplicarFiltrosLista()">
+          <option value="">Qualquer dificuldade</option>
+          <option value="facil">Fácil</option>
+          <option value="media">Média</option>
+          <option value="dificil">Difícil</option>
+        </select>
+        <span class="mono" id="flashListaContagem" style="color:var(--text-muted); font-size:12.5px; margin-left:auto;"></span>
+      </div>
+      <div class="filters" id="flashListaFiltroEstados" style="margin-bottom:16px;"></div>
+      <div class="flash-cards-grid" id="flashListaGrid"></div>
+      <div style="text-align:center; margin-top:18px;">
+        <button class="btn ghost" id="flashCarregarMaisBtn" onclick="flashCarregarMais()" style="display:none;">Carregar mais</button>
+      </div>
+    </div>
+
+    <!-- ================= PAINEL: CRIAR ================= -->
+    <div id="flashPanelCriar" class="flash-panel" style="display:none;">
+      <div class="card">
+        <div class="panel-section-title" id="flashCriarTituloPanel">Criar novo flashcard</div>
+
+        <div class="flash-tipo-selector" style="margin-top:12px;">
+          <div class="flash-tipo-chip active" data-tipo="basico" onclick="flashSetCriarTipo('basico')"><div class="ttl">📇 Básico</div><div class="sub">Pergunta e resposta.</div></div>
+          <div class="flash-tipo-chip" data-tipo="cloze" onclick="flashSetCriarTipo('cloze')"><div class="ttl">🕳️ Cloze</div><div class="sub">Oculta trechos do texto.</div></div>
+          <div class="flash-tipo-chip" data-tipo="comparacao" onclick="flashSetCriarTipo('comparacao')"><div class="ttl">⚖️ Comparação</div><div class="sub">Dois conceitos lado a lado.</div></div>
+          <div class="flash-tipo-chip" data-tipo="discursivo" onclick="flashSetCriarTipo('discursivo')"><div class="ttl">✍️ Discursivo</div><div class="sub">Resposta curta, estilo CACD.</div></div>
+          <div class="flash-tipo-chip" data-tipo="imagem" onclick="flashSetCriarTipo('imagem')"><div class="ttl">🖼️ Mapa/Imagem</div><div class="sub">Imagem na frente e/ou verso.</div></div>
+        </div>
+
+        <!-- Básico -->
+        <div id="flashCampoBasico">
+          <label class="field-label">Frente (pergunta)</label>
+          <textarea id="flashFrenteBasico" rows="2" placeholder="Ex.: Em que ano foi assinado o Tratado de Assunção?"></textarea>
+          <label class="field-label" style="margin-top:10px;">Verso (resposta)</label>
+          <textarea id="flashVersoBasico" rows="3" placeholder="Ex.: 1991."></textarea>
+        </div>
+
+        <!-- Cloze -->
+        <div id="flashCampoCloze" style="display:none;">
+          <label class="field-label">Texto com lacunas — use {{c1::palavra}}, {{c2::outra}}...</label>
+          <textarea id="flashClozeTexto" rows="3" placeholder="Ex.: O Tratado de {{c1::Assunção}} foi assinado em {{c2::1991}}." oninput="flashAtualizarClozePreview()"></textarea>
+          <div class="mono" id="flashClozeInfo" style="font-size:12px; color:var(--text-muted); margin-top:6px;"></div>
+          <div class="flash-cloze-text" id="flashClozePreview" style="margin-top:10px; font-size:15px;"></div>
+        </div>
+
+        <!-- Comparação -->
+        <div id="flashCampoComparacao" style="display:none;">
+          <label class="field-label">Pergunta-guia (opcional)</label>
+          <input type="text" id="flashCompPrompt" placeholder="Ex.: ONU × OMC">
+          <div class="flash-compare-inputs" style="margin-top:10px;">
+            <div class="col">
+              <label class="field-label">Conceito A — título</label>
+              <input type="text" id="flashCompTituloA" placeholder="Ex.: ONU">
+              <label class="field-label" style="margin-top:8px;">Conceito A — conteúdo</label>
+              <textarea id="flashCompConteudoA" rows="4"></textarea>
+            </div>
+            <div class="col">
+              <label class="field-label">Conceito B — título</label>
+              <input type="text" id="flashCompTituloB" placeholder="Ex.: OMC">
+              <label class="field-label" style="margin-top:8px;">Conceito B — conteúdo</label>
+              <textarea id="flashCompConteudoB" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discursivo -->
+        <div id="flashCampoDiscursivo" style="display:none;">
+          <label class="field-label">Pergunta discursiva</label>
+          <textarea id="flashDiscFrente" rows="2" placeholder="Ex.: Explique, em até 5 linhas, o princípio da não intervenção."></textarea>
+          <label class="field-label" style="margin-top:10px;">Resposta-modelo (3 a 5 linhas)</label>
+          <textarea id="flashDiscVerso" rows="4"></textarea>
+        </div>
+
+        <!-- Imagem -->
+        <div id="flashCampoImagem" style="display:none;">
+          <label class="field-label">Texto da frente (opcional)</label>
+          <textarea id="flashImgFrenteTexto" rows="2" placeholder="Ex.: Identifique a organização representada neste mapa."></textarea>
+          <div class="flash-image-upload-row">
+            <input type="file" accept="image/*" id="flashImgFrenteFile" onchange="flashUploadImagem(this,'flashImgFrentePreview')">
+            <div id="flashImgFrentePreview"></div>
+          </div>
+          <label class="field-label" style="margin-top:14px;">Texto do verso (opcional)</label>
+          <textarea id="flashImgVersoTexto" rows="2"></textarea>
+          <div class="flash-image-upload-row">
+            <input type="file" accept="image/*" id="flashImgVersoFile" onchange="flashUploadImagem(this,'flashImgVersoPreview')">
+            <div id="flashImgVersoPreview"></div>
+          </div>
+        </div>
+
+        <div class="flash-divider"></div>
+
+        <div class="flash-field-row">
+          <div>
+            <label class="field-label">Disciplina</label>
+            <input type="text" id="flashCDisciplina" list="flashDisciplinaDatalist" placeholder="Ex.: História do Brasil">
+            <datalist id="flashDisciplinaDatalist"></datalist>
+          </div>
+          <div>
+            <label class="field-label">Tema</label>
+            <input type="text" id="flashCTema" list="flashTemaDatalist" placeholder="Ex.: Era Vargas">
+            <datalist id="flashTemaDatalist"></datalist>
+          </div>
+        </div>
+        <div class="flash-field-row" style="margin-top:10px;">
+          <div>
+            <label class="field-label">Subtema</label>
+            <input type="text" id="flashCSubtema" placeholder="Opcional">
+          </div>
+          <div>
+            <label class="field-label">Dificuldade</label>
+            <select id="flashCDificuldade">
+              <option value="facil">Fácil</option>
+              <option value="media" selected>Média</option>
+              <option value="dificil">Difícil</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <label class="field-label">Fonte</label>
+          <input type="text" id="flashCFonte" placeholder="Ex.: CACD 2022, aula X, livro Y…">
+        </div>
+        <div style="margin-top:10px;">
+          <label class="field-label">Tags</label>
+          <div class="biblio-tags-input" id="flashTagsInput">
+            <input type="text" id="flashTagNovo" placeholder="digite e tecle Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();flashAdicionarTag();}">
+          </div>
+        </div>
+
+        <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+          <button class="btn ghost" onclick="flashLimparFormCriar()">Limpar</button>
+          <button class="btn secondary" onclick="flashSalvarCriar()">💾 Salvar flashcard</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAINEL: ESTATÍSTICAS ================= -->
+    <div id="flashPanelEstatisticas" class="flash-panel" style="display:none;">
+      <div class="dash-provas-grid" id="flashStatsGrid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));"></div>
+      <div class="card" style="margin-top:16px;">
+        <div class="panel-section-title">Revisões nos últimos 7 dias</div>
+        <div id="flashStatsGrafico" style="margin-top:10px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="panel-section-title">Por tipo de cartão</div>
+        <div id="flashStatsPorTipo" style="margin-top:10px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="panel-section-title">Por disciplina</div>
+        <div id="flashStatsPorDisciplina" style="margin-top:10px;"></div>
+      </div>
+    </div>
   </section>
 
   <section class="view" id="view-configuracoes">
@@ -500,7 +743,10 @@
         <div id="biblioViewMode" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <button class="btn ghost small" onclick="fecharDocumento()">← Voltar</button>
-            <div style="display:flex; gap:6px;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('basico')" title="Criar flashcard básico a partir desta anotação">📇 Flashcard</button>
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('cloze')" title="Criar flashcard cloze a partir desta anotação">🕳️ Cloze</button>
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('discursivo')" title="Criar flashcard discursivo a partir desta anotação">✍️ Discursivo</button>
               <button class="btn secondary small" onclick="editarDocumentoAtual()">✏️ Editar</button>
               <button class="btn ghost small" onclick="deleteDocumentoAtual()">🗑️ Excluir</button>
             </div>
@@ -770,6 +1016,12 @@
 <script src="js/biblioteca-editor.js"></script>
 <script src="js/biblioteca-revisao.js"></script>
 <script src="js/biblioteca-busca.js"></script>
+<script src="js/flashcards-data.js"></script>
+<script src="js/flashcards-srs.js"></script>
+<script src="js/flashcards-stats.js"></script>
+<script src="js/flashcards-review.js"></script>
+<script src="js/flashcards-ui.js"></script>
+<script src="js/flashcards-integracao.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/app.js"></script>
 </body>
