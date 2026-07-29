@@ -12,9 +12,9 @@
 }
 
 body[data-theme="light"] {
-  --ink:#F5F5F5;
-  --ink-2:#FFFFFF;
-  --ink-3:#EAEAEC;
+  --ink:#EDEEF0;
+  --ink-2:#F7F8FA;
+  --ink-3:#E3E5E8;
   --parchment:#0F172A;
   --parchment-2:#1A2235;
   --text-dark:#F5F5F5;
@@ -937,5 +937,10 @@ body.editor-fullscreen-active{ overflow:hidden; }
   opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:9999;
 }
 .flash-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+/* ==========================================================================
+   CORREÇÃO: dropdowns nativos (<select>) ficavam com texto invisível no
+   tema escuro (o popup de opções ignora nosso CSS e usa fundo branco por
+   padrão) — forçamos o esquema de cores nativo a acompanhar o tema do app.
+   ========================================================================== */
 body[data-theme="dark"] select{ color-scheme: dark; }
 body[data-theme="light"] select{ color-scheme: light; }
