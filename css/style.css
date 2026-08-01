@@ -76,7 +76,29 @@ body::after{
     repeating-linear-gradient(0deg, rgba(180,145,75,.02) 0px, rgba(180,145,75,.02) 1px, transparent 1px, transparent 72px),
     repeating-linear-gradient(90deg, rgba(180,145,75,.02) 0px, rgba(180,145,75,.02) 1px, transparent 1px, transparent 72px);
 }
-.letterhead, main, .tabbar, #loginGate{ position:relative; z-index:1; }
+.letterhead, main, .tabbar{ position:relative; z-index:1; }
+
+/* ===== Utilitário genérico de visibilidade ===== */
+.hidden{ display:none !important; }
+
+/* ===== Portão de login (bloqueia o app até logar) =====
+   Antes faltava esta regra: o gate nunca virava um overlay de fato,
+   só ficava "solto" no fluxo normal da página, empurrando o resto do
+   conteúdo para baixo (e sem nunca sumir, já que .hidden não existia). */
+#loginGate{
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(6,10,20,.92); backdrop-filter:blur(6px);
+  padding:20px;
+}
+.gate-card{
+  width:100%; max-width:360px; text-align:center;
+  background:var(--ink-2); border:1px solid var(--border-color);
+  border-radius:var(--radius-ui); padding:34px 26px; box-shadow:var(--shadow-lg);
+}
+.gate-card .brand-logo-img{ height:56px; margin:0 auto 14px; }
+.gate-card h1{ font-size:21px; color:var(--text-main); letter-spacing:.05em; text-transform:uppercase; }
+
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
 }
@@ -109,6 +131,13 @@ button{font-family:inherit; cursor:pointer;}
 .letterhead .sub{font-size:11px; color:var(--text-muted); margin-top:3px; font-style:italic; font-family:'Cinzel', serif;}
 
 .top-right-cabinet { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+@media (max-width:859px){
+  .letterhead{ flex-wrap:wrap; gap:14px; }
+  .top-right-cabinet{ width:100%; align-items:stretch; }
+  .global-search-trigger{ min-width:0; width:100%; }
+  .protocolo{ text-align:left; }
+  .authbox{ justify-content:flex-start; }
+}
 .theme-toggle-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 500; transition: var(--transition); }
 .theme-toggle-btn:hover { border-color: var(--ub-azul); }
 
@@ -329,8 +358,9 @@ label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06
 iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
 
 /* ===== Sidebar Barra de Navegação Lateral Fixa ===== */
-.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; }
-.tabbar button { flex: 1; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; padding: 6px 2px; transition: color .15s; border-left: 3px solid transparent; }
+.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.tabbar::-webkit-scrollbar{ display:none; }
+.tabbar button { flex: 0 0 auto; min-width:62px; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; padding: 6px 8px; transition: color .15s; border-left: 3px solid transparent; white-space:nowrap; }
 .tabbar button .ic { font-size: 17px; }
 .tabbar button.active { color: var(--brass-light); font-weight: 700; }
 
