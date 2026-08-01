@@ -248,7 +248,13 @@
         <input type="text" id="rTema" placeholder="Tema (ex.: Sintaxe)">
         <div class="row2">
           <div><label class="field-label">Matéria</label><select id="rMateria"></select></div>
-          <div><label class="field-label">Data de estudo</label><input type="date" id="rData"></div>
+          <div><label class="field-label">Data de estudo</label><input type="date" id="rData" onchange="sugerirDatasRevisao()"></div>
+        </div>
+        <label class="field-label" style="margin-top:14px;">Datas das revisões (você pode ajustar cada uma)</label>
+        <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
+          <div><label class="field-label">1ª revisão</label><input type="date" id="r1Data"></div>
+          <div><label class="field-label">2ª revisão</label><input type="date" id="r2Data"></div>
+          <div><label class="field-label">3ª revisão</label><input type="date" id="r3Data"></div>
         </div>
         <div style="margin-top:12px;"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button></div>
       </div>
