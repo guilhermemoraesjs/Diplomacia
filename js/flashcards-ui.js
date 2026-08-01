@@ -349,6 +349,7 @@ function flashLimparFormCriar() {
   document.getElementById('flashCSubtema').value = '';
   document.getElementById('flashCDificuldade').value = 'media';
   document.getElementById('flashCFonte').value = '';
+  document.getElementById('flashCProximaRevisao').value = '';
   flashRenderTagsInput();
   flashSetCriarTipo('basico');
 }
@@ -407,6 +408,19 @@ function flashCamposComuns() {
   };
 }
 
+/* Se o usuário escolheu uma data em "Data da 1ª revisão", ela sobrescreve
+   card.srs.proximaRevisao (sem mexer no resto do histórico de SRS). Deixando
+   em branco, o cartão segue com a data padrão (hoje, para um cartão novo). */
+function flashAplicarDataRevisaoEscolhida(idsCards) {
+  const data = document.getElementById('flashCProximaRevisao').value;
+  if (!data) return;
+  idsCards.forEach(id => {
+    const c = flashGetById(id);
+    if (c) c.srs.proximaRevisao = data;
+  });
+  flashSaveAll();
+}
+
 function flashSalvarCriar() {
   const comuns = flashCamposComuns();
   const tipo = flashCriarTipoAtual;
@@ -414,7 +428,8 @@ function flashSalvarCriar() {
   if (tipo === 'cloze') {
     const texto = document.getElementById('flashClozeTexto').value.trim();
     if (!flashParseClozeNumeros(texto).length) { alert('Marque ao menos uma lacuna, no formato {{c1::palavra}}.'); return; }
-    flashSalvarNotaCloze(texto, comuns, flashCriarEditandoGrupoCloze);
+    const criados = flashSalvarNotaCloze(texto, comuns, flashCriarEditandoGrupoCloze);
+    flashAplicarDataRevisaoEscolhida(criados.map(c => c.id));
     flashToast(flashCriarEditandoGrupoCloze ? 'Cartões cloze atualizados.' : 'Cartões cloze criados.');
   } else {
     let campos = Object.assign({ tipo }, comuns);
@@ -438,8 +453,10 @@ function flashSalvarCriar() {
       campos.imagemVersoUrl = document.getElementById('flashImgVersoPreview').dataset.url || (flashCriarEditandoId ? flashGetById(flashCriarEditandoId)?.imagemVersoUrl || '' : '');
       if (!campos.imagemFrenteUrl && !campos.frente) { alert('Adicione ao menos uma imagem ou texto na frente.'); return; }
     }
-    if (flashCriarEditandoId) flashAtualizarCard(flashCriarEditandoId, campos);
-    else flashCriarCard(campos);
+    let cardsAlvo;
+    if (flashCriarEditandoId) { flashAtualizarCard(flashCriarEditandoId, campos); cardsAlvo = [flashCriarEditandoId]; }
+    else { const novo = flashCriarCard(campos); cardsAlvo = [novo.id]; }
+    flashAplicarDataRevisaoEscolhida(cardsAlvo);
     flashToast(flashCriarEditandoId ? 'Flashcard atualizado.' : 'Flashcard criado.');
   }
 
@@ -462,6 +479,7 @@ function flashAbrirEdicaoCard(id) {
   document.getElementById('flashCSubtema').value = c.subtema || '';
   document.getElementById('flashCDificuldade').value = c.dificuldade || 'media';
   document.getElementById('flashCFonte').value = c.fonte || '';
+  document.getElementById('flashCProximaRevisao').value = c.srs?.proximaRevisao || '';
   flashRenderTagsInput();
   flashSetCriarTipo(c.tipo);
   if (c.tipo === 'basico') {
