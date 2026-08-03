@@ -358,8 +358,14 @@ label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06
 iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
 
 /* ===== Sidebar Barra de Navegação Lateral Fixa ===== */
-.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-.tabbar::-webkit-scrollbar{ display:none; }
+.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border-color); display: flex; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20; }
+/* Os botões ficam dentro de #sidebarNavScroll, não direto em .tabbar — sem
+   isto, no mobile cada botão (já é display:flex por conta própria) virava
+   um bloco empilhado, criando aquele "menu gigante" cobrindo a tela toda. */
+.tabbar .sidebar-nav-scroll{ display:flex; flex-direction:row; flex:1; min-width:0; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; gap:2px; }
+.tabbar .sidebar-nav-scroll::-webkit-scrollbar{ display:none; }
+/* No mobile, o rodapé de streak/meta só faz sentido na sidebar do desktop */
+.tabbar .sidebar-footer{ display:none; }
 .tabbar button { flex: 0 0 auto; min-width:62px; background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; padding: 6px 8px; transition: color .15s; border-left: 3px solid transparent; white-space:nowrap; }
 .tabbar button .ic { font-size: 17px; }
 .tabbar button.active { color: var(--brass-light); font-weight: 700; }
@@ -369,6 +375,8 @@ iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
   .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
   main{ margin-left:var(--sidebar-w); margin-top:96px; }
   .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
+  .tabbar .sidebar-nav-scroll{ flex-direction:column; overflow-x:visible; overflow-y:auto; min-height:0; padding-right:4px; }
+  .tabbar .sidebar-footer{ display:flex; }
   .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:12px 22px; font-size:13.5px; border-radius: 8px; margin-bottom: 4px; }
   .tabbar button.active { border-left-color: var(--brass-light); background: rgba(255,255,255,0.03); color: var(--brass-light); }
   .inicio-split { grid-template-columns: 1.2fr 1fr; }
@@ -796,16 +804,12 @@ body.editor-fullscreen-active{ overflow:hidden; }
 .dash-streak-dot{ width:24px; height:24px; border-radius:50%; background:var(--ink-3); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:11px; }
 .dash-streak-dot.active{ background:rgba(46,196,182,.25); border-color:var(--ub-verde); color:var(--ub-verde); }
 /* ==========================================================================
-   ADIÇÕES — menu lateral rolável + tela de reordenar em Configurações.
+   ADIÇÕES — barra de rolagem fina da sidebar no desktop.
    ========================================================================== */
 @media (min-width:860px) {
-  .tabbar{ display:flex; flex-direction:column; }
-  .sidebar-nav-scroll{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; padding-right:4px; }
   .sidebar-nav-scroll::-webkit-scrollbar{ width:5px; }
   .sidebar-nav-scroll::-webkit-scrollbar-thumb{ background:rgba(180,145,75,.25); border-radius:10px; }
 }
-/* No mobile o menu continua horizontal na parte de baixo; a rolagem lateral
-   já existe nativamente ali, então só ajusta o desktop acima. */
 
 .nav-reorder-item{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05); }
 .nav-reorder-ic{ font-size:16px; width:22px; text-align:center; }
