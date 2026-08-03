@@ -156,7 +156,7 @@ button{font-family:inherit; cursor:pointer;}
 /* ===== Ajuste de Iframe de Palavras Dinâmico Sem Margens Cortes ===== */
 main{padding:18px 16px var(--tabbar-space); max-width:1200px; margin:0 auto;}
 body[data-active-tab="palavras"] main { max-width: 100vw; padding-left: 0; padding-right: 0; padding-top: 0; }
-body[data-active-tab="palavras"] .dispatch-frame { height: calc(100vh - 92px); }
+body[data-active-tab="palavras"] .dispatch-frame-card { height: calc(100vh - var(--letterhead-h, 92px) - 24px); }
 
 .view{display:none; animation:fadeIn .35s ease;}
 .view.active{display:block;}
@@ -352,7 +352,7 @@ label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06
 .revisao .rchecks input { width: 15px; height: 15px; accent-color: var(--seal-light); cursor: pointer; }
 .revisao .rdel { background: none; border: none; color: #7a5a58; font-size: 11px; margin-top: 8px; text-decoration: underline; grid-column: 1 / -1; justify-self: start; cursor: pointer; }
 
-.dispatch-frame-card { background: var(--parchment); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 0; overflow: hidden; height: calc(100vh - 140px); }
+.dispatch-frame-card { background: var(--parchment); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 0; overflow: hidden; height: calc(100vh - var(--letterhead-h, 140px) - 24px); }
 .dispatch-bar { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--ink-2); border-bottom: 1px solid var(--border-color); }
 .dispatch-title { font-size: 10px; text-transform: uppercase; color: var(--text-muted); flex: 1; letter-spacing: 0.05em; }
 iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
@@ -371,18 +371,15 @@ iframe { width: 100%; height: 100%; border: none; background: var(--ink); }
 .tabbar button.active { color: var(--brass-light); font-weight: 700; }
 
 @media (min-width:860px) {
-  :root{ --tabbar-space:0px; --sidebar-w:224px; }
+  :root{ --tabbar-space:0px; --sidebar-w:224px; --letterhead-h:160px; }
   .letterhead{ position:fixed; top:0; left:var(--sidebar-w); right:0; z-index:15; }
-  main{ margin-left:var(--sidebar-w); margin-top:96px; }
-  .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:118px 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
-  .tabbar .sidebar-nav-scroll{ flex-direction:column; overflow-x:visible; overflow-y:auto; min-height:0; padding-right:4px;
-    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 22px), transparent 100%);
-            mask-image: linear-gradient(to bottom, black calc(100% - 22px), transparent 100%);
-  }
+  main{ margin-left:var(--sidebar-w); margin-top:var(--letterhead-h); }
+  .tabbar{ top:0; bottom:0; right:auto; width:var(--sidebar-w); flex-direction:column; justify-content:flex-start; align-items:stretch; padding:calc(var(--letterhead-h) + 22px) 16px 20px; border-top:none; border-right:1px solid var(--border-color); }
+  .tabbar .sidebar-nav-scroll{ flex-direction:column; overflow-x:visible; overflow-y:auto; flex:1; min-height:0; padding-right:4px; }
   .tabbar .sidebar-nav-scroll::-webkit-scrollbar{ width:6px; }
   .tabbar .sidebar-nav-scroll::-webkit-scrollbar-thumb{ background:rgba(180,145,75,.45); border-radius:10px; }
-  .tabbar .sidebar-footer{ display:flex; }
-  .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:10px 20px; font-size:13.5px; border-radius: 8px; margin-bottom: 3px; }
+  .tabbar .sidebar-footer{ display:none; } /* redundante com o painel do Início; tirar libera espaço pros 15 itens caberem sem rolagem */
+  .tabbar button { flex:none; flex-direction:row; justify-content:flex-start; gap:12px; padding:9px 20px; font-size:13px; border-radius: 8px; margin-bottom: 2px; }
   .tabbar button.active { border-left-color: var(--brass-light); background: rgba(255,255,255,0.03); color: var(--brass-light); }
   .inicio-split { grid-template-columns: 1.2fr 1fr; }
   .biblio-layout{ grid-template-columns:270px 1fr; }
