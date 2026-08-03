@@ -24,6 +24,10 @@ function flashIsVencido(card) {
   return !!card.srs && card.srs.ultimaRevisao && card.srs.proximaRevisao < todayISO();
 }
 
+/* Intervalos fixos definidos pelo usuário (dias). Substitui o cálculo
+   progressivo do SM-2 por uma agenda fixa por qualidade de resposta. */
+const FLASH_INTERVALOS_FIXOS = { again: 7, hard: 15, good: 30, easy: 60 };
+
 /* Recalcula intervalo, fator de facilidade, repetições, acertos/erros e a
    próxima data de revisão a partir da qualidade escolhida pelo usuário:
    'again' (Errei) · 'hard' (Difícil) · 'good' (Bom) · 'easy' (Fácil). */
@@ -33,22 +37,13 @@ function flashRate(card, qualidade) {
     s.erros++;
     s.repeticoes = 0;
     s.fatorFacilidade = Math.max(FLASH_EASE_MIN, s.fatorFacilidade - 0.2);
-    s.intervalo = 1;
   } else {
     s.acertos++;
-    if (qualidade === 'hard') {
-      s.fatorFacilidade = Math.max(FLASH_EASE_MIN, s.fatorFacilidade - 0.15);
-      s.intervalo = s.repeticoes === 0 ? 1 : Math.max(1, Math.round(s.intervalo * 1.2));
-    } else if (qualidade === 'easy') {
-      s.fatorFacilidade = s.fatorFacilidade + 0.15;
-      s.intervalo = s.repeticoes === 0 ? 4 : Math.max(1, Math.round(s.intervalo * s.fatorFacilidade * 1.3));
-    } else { // 'good'
-      if (s.repeticoes === 0) s.intervalo = 1;
-      else if (s.repeticoes === 1) s.intervalo = 6;
-      else s.intervalo = Math.max(1, Math.round(s.intervalo * s.fatorFacilidade));
-    }
+    if (qualidade === 'hard') s.fatorFacilidade = Math.max(FLASH_EASE_MIN, s.fatorFacilidade - 0.15);
+    else if (qualidade === 'easy') s.fatorFacilidade = s.fatorFacilidade + 0.15;
     s.repeticoes++;
   }
+  s.intervalo = FLASH_INTERVALOS_FIXOS[qualidade];
   s.ultimaRevisao = todayISO();
   s.proximaRevisao = addDaysISO(todayISO(), s.intervalo);
   s.estado = flashState(card);
