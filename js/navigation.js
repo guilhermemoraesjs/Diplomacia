@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { id: 'flashcards', icone: '🧠', label: 'Flashcards' },
   { id: 'simulados', icone: '📝', label: 'Simulados' },
   { id: 'questoes', icone: '❓', label: 'Questões' },
+  { id: 'materias', icone: '📖', label: 'Matérias' },
   { id: 'notas', icone: '🗒️', label: 'Notas' },
   { id: 'cronograma', icone: '📅', label: 'Cronograma' },
   { id: 'palavras', icone: '✒️', label: 'Palavras' },
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
    funcionalidade nenhuma. */
 const NAV_ROTAS_REUTILIZADAS = {
   questoes: { tab: 'diplomacia', sub: 'questoes' },
+  materias: { tab: 'diplomacia', sub: 'materias' },
   notas: { tab: 'diplomacia', sub: 'notas' },
   cronograma: { tab: 'diplomacia', sub: 'cronograma' },
   discursivas: { tab: 'diplomacia', sub: 'discursiva' },
