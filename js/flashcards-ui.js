@@ -25,7 +25,7 @@ function initFlashcardsTab() {
 }
 
 function flashShowPanel(panel) {
-  ['dashboard', 'revisar', 'lista', 'criar', 'estatisticas'].forEach(p => {
+  ['dashboard', 'revisar', 'calendario', 'lista', 'criar', 'estatisticas'].forEach(p => {
     const el = document.getElementById('flashPanel' + p.charAt(0).toUpperCase() + p.slice(1));
     if (el) el.style.display = p === panel ? 'block' : 'none';
   });
@@ -34,6 +34,7 @@ function flashShowPanel(panel) {
   if (panel === 'lista') flashRenderListaFiltros();
   if (panel === 'estatisticas') flashRenderEstatisticas();
   if (panel === 'revisar' && !flashReviewAtiva) flashRenderRevisarFiltros();
+  if (panel === 'calendario') flashRenderCalendario();
 }
 
 function flashPopularDatalists() {
@@ -290,6 +291,83 @@ function flashCardItemHTML(c) {
         <button class="btn ghost small" onclick="flashConfirmarExclusao('${c.id}')">🗑️ Excluir</button>
       </div>
     </div>`;
+}
+
+/* ==========================================================================
+   CALENDÁRIO DE REVISÃO — mostra em quais dias do mês há cartões agendados
+   (card.srs.proximaRevisao) e, ao clicar num dia, lista exatamente quais.
+   ========================================================================== */
+let flashCalMes = new Date().getMonth();
+let flashCalAno = new Date().getFullYear();
+let flashCalDiaSelecionado = null; // ISO 'YYYY-MM-DD' ou null
+
+function flashCalMudarMes(delta) {
+  flashCalMes += delta;
+  if (flashCalMes < 0) { flashCalMes = 11; flashCalAno--; }
+  else if (flashCalMes > 11) { flashCalMes = 0; flashCalAno++; }
+  flashRenderCalendario();
+}
+
+function flashCalIsoDoDia(dia) {
+  return `${flashCalAno}-${String(flashCalMes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+function flashRenderCalendario() {
+  const grid = document.getElementById('flashCalGrid'); if (!grid) return;
+  const label = document.getElementById('flashCalMesLabel');
+  const mesesNomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  if (label) label.textContent = `${mesesNomes[flashCalMes]} de ${flashCalAno}`;
+
+  const primeiroDiaSemana = new Date(flashCalAno, flashCalMes, 1).getDay();
+  const totalDiasMes = new Date(flashCalAno, flashCalMes + 1, 0).getDate();
+  const hojeIso = todayISO();
+
+  // Conta quantos cartões vencem em cada dia do mês exibido
+  const porDia = {};
+  flashCards.forEach(c => {
+    const prox = c.srs && c.srs.proximaRevisao; if (!prox) return;
+    if (prox.slice(0, 7) === `${flashCalAno}-${String(flashCalMes + 1).padStart(2, '0')}`) {
+      porDia[prox] = (porDia[prox] || 0) + 1;
+    }
+  });
+
+  let html = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(d => `<div class="cal-weekday">${d}</div>`).join('');
+  for (let i = 0; i < primeiroDiaSemana; i++) html += `<div class="cal-day empty-cell"></div>`;
+
+  for (let dia = 1; dia <= totalDiasMes; dia++) {
+    const iso = flashCalIsoDoDia(dia);
+    const n = porDia[iso] || 0;
+    const classes = [
+      iso === hojeIso ? 'today' : '',
+      iso === flashCalDiaSelecionado ? 'active-filter' : ''
+    ].join(' ');
+    const dot = n ? `<div class="cal-day-dot" title="${n} cartão(ões)" style="${iso < hojeIso ? 'background:var(--bad);' : ''}"></div>` : '';
+    html += `<div class="cal-day ${classes}" onclick="flashCalSelecionarDia('${iso}')"><span class="cal-day-num">${dia}</span>${dot}</div>`;
+  }
+  grid.innerHTML = html;
+
+  if (flashCalDiaSelecionado && flashCalDiaSelecionado.slice(0, 7) === `${flashCalAno}-${String(flashCalMes + 1).padStart(2, '0')}`) {
+    flashCalRenderListaDia();
+  } else {
+    document.getElementById('flashCalDiaTitulo').textContent = 'Selecione um dia no calendário';
+    document.getElementById('flashCalDiaLista').innerHTML = '';
+  }
+}
+
+function flashCalSelecionarDia(iso) {
+  flashCalDiaSelecionado = (flashCalDiaSelecionado === iso) ? null : iso;
+  flashRenderCalendario();
+}
+
+function flashCalRenderListaDia() {
+  const titulo = document.getElementById('flashCalDiaTitulo');
+  const lista = document.getElementById('flashCalDiaLista');
+  if (!flashCalDiaSelecionado) { titulo.textContent = 'Selecione um dia no calendário'; lista.innerHTML = ''; return; }
+  const cards = flashCards.filter(c => c.srs && c.srs.proximaRevisao === flashCalDiaSelecionado);
+  titulo.textContent = `${isoToBR(flashCalDiaSelecionado)} — ${cards.length} cartão(ões) para revisar`;
+  lista.innerHTML = cards.length
+    ? `<div class="flash-cards-grid">${cards.map(flashCardItemHTML).join('')}</div>`
+    : `<div class="empty" style="padding:12px 0; color:var(--text-muted);">Nenhum cartão agendado para este dia.</div>`;
 }
 
 function flashConfirmarExclusao(id) {
