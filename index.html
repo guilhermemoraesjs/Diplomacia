@@ -211,6 +211,9 @@
     </div>
 
     <div class="subview" id="sub-cronograma">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+        <button class="btn danger small" onclick="limparCronogramaTudo()">🗑️ Excluir todo o cronograma</button>
+      </div>
       <div class="filters" id="cronoFiltroMateria"></div>
       <div class="filters">
         <button class="chip active" id="cronoStatusTodasBtn" onclick="setCronoStatusFiltro('todas')">Todas</button>
@@ -242,6 +245,9 @@
       </div>
 
       <h3 class="section-title" style="margin-top:22px;">Revisão espaçada</h3>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+        <button class="btn danger small" onclick="limparRevisaoTudo()">🗑️ Excluir toda a revisão espaçada</button>
+      </div>
       <div id="revisaoList"></div>
       <div class="card">
         <label class="field-label">Novo item de revisão (manual)</label>
@@ -393,6 +399,7 @@
     <div class="subtabs" id="flashSubtabs">
       <button class="subtab-btn active" data-fsub="dashboard" onclick="flashShowPanel('dashboard')">📊 Painel</button>
       <button class="subtab-btn" data-fsub="revisar" onclick="flashShowPanel('revisar')">🔁 Revisar</button>
+      <button class="subtab-btn" data-fsub="calendario" onclick="flashShowPanel('calendario')">📅 Calendário</button>
       <button class="subtab-btn" data-fsub="lista" onclick="flashShowPanel('lista')">🗂️ Meus Cards</button>
       <button class="subtab-btn" data-fsub="criar" onclick="flashShowPanel('criar')">➕ Criar</button>
       <button class="subtab-btn" data-fsub="estatisticas" onclick="flashShowPanel('estatisticas')">📈 Estatísticas</button>
@@ -475,6 +482,20 @@
           <button class="btn ghost small" style="margin-top:16px;" onclick="flashEncerrarRevisao()">Voltar aos filtros</button>
         </div>
       </div>
+    </div>
+
+    <!-- ================= PAINEL: CALENDÁRIO DE REVISÃO ================= -->
+    <div id="flashPanelCalendario" class="flash-panel" style="display:none;">
+      <div class="card" style="max-width:520px; margin:0 auto 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <button class="btn ghost small" onclick="flashCalMudarMes(-1)">‹</button>
+          <span id="flashCalMesLabel" style="font-family:'Cinzel',serif; color:var(--brass-light); font-size:14px;"></span>
+          <button class="btn ghost small" onclick="flashCalMudarMes(1)">›</button>
+        </div>
+        <div class="crono-cal" id="flashCalGrid"></div>
+      </div>
+      <h3 class="section-title" id="flashCalDiaTitulo">Selecione um dia no calendário</h3>
+      <div id="flashCalDiaLista"></div>
     </div>
 
     <!-- ================= PAINEL: MEUS CARDS ================= -->
