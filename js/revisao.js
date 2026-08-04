@@ -39,6 +39,13 @@ function addRevisao() {
 }
 function toggleRevisaoCheck(id, campo) { const r = revisao.find(x => x.id === id); r[campo] = !r[campo]; save(REVISAO_KEY, revisao); renderRevisao(); }
 function delRevisao(id) { if (!confirm('Remover revisão?')) return; revisao = revisao.filter(x => x.id !== id); save(REVISAO_KEY, revisao); renderRevisao(); }
+function limparRevisaoTudo() {
+  if (!revisao.length) { alert('A revisão espaçada já está vazia.'); return; }
+  if (!confirm(`Isso vai excluir permanentemente todos os ${revisao.length} itens de revisão espaçada. Essa ação não pode ser desfeita. Confirma?`)) return;
+  revisao = [];
+  save(REVISAO_KEY, revisao);
+  renderRevisao();
+}
 function renderRevisao() {
   const el = document.getElementById('revisaoList'); if (!el) return;
   el.innerHTML = revisao.length ? revisao.map(r => {
