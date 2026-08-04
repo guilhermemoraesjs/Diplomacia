@@ -125,6 +125,17 @@ function setCronoStatusFiltro(status) {
 }
 function setCronoFiltroMateria(n) { renderCronograma(); }
 
+function limparCronogramaTudo() {
+  if (!cronograma.length) { alert('O cronograma já está vazio.'); return; }
+  if (!confirm(`Isso vai excluir permanentemente todos os ${cronograma.length} itens do cronograma. Essa ação não pode ser desfeita. Confirma?`)) return;
+  cronograma = [];
+  save('diplo_cronograma', cronograma);
+  calendarFilterDate = null;
+  renderCronograma();
+  if (cronoViewMode === 'calendario') renderCalendarStructure();
+  refreshStats();
+}
+
 function addCronograma() {
   const tema = document.getElementById('cTema').value.trim();
   const estudar = document.getElementById('cEstudar').value.trim();
