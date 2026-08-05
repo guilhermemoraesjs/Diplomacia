@@ -58,6 +58,27 @@
   </div>
 </div>
 
+<!-- GABINETE MODAL — CONTEÚDO DO DIA (aberto ao clicar em um dia do calendário) -->
+<div id="cronoDayModal" class="modal-overlay" onclick="closeCronoDayModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3 id="cronoDayModalTitle">Dia</h3>
+
+    <div id="cronoDayModalList" class="day-modal-list"></div>
+
+    <label class="field-label" style="margin-top:14px;">Deixar uma matéria neste dia</label>
+    <div class="day-modal-add-row">
+      <span id="cronoDayModalMateriaSwatch" class="day-modal-materia-swatch"></span>
+      <select id="cronoDayModalMateria" onchange="updateCronoDayModalSwatch()"></select>
+    </div>
+    <input type="text" id="cronoDayModalTema" placeholder="O que vai estudar? (ex.: Guerra do Paraguai)" onkeydown="if(event.key==='Enter')addCronoFromDayModal()">
+
+    <div class="modal-actions">
+      <button class="btn ghost small" onclick="closeCronoDayModalDirect()">Fechar</button>
+      <button class="btn secondary small" onclick="addCronoFromDayModal()">Adicionar ao dia</button>
+    </div>
+  </div>
+</div>
+
 <!-- GABINETE MODAL — FICHA DE PAÍS -->
 <div id="paisModal" class="modal-overlay" onclick="closePaisModal(event)">
   <div class="modal-card pais-modal-card" onclick="event.stopPropagation()">
