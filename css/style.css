@@ -313,14 +313,46 @@ label.field-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06
 
 /* ===== Grade do Calendário Mensal ===== */
 .crono-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 22px; background: var(--ink-2); border: 1px solid var(--border-color); border-radius: var(--radius-ui); padding: 14px; }
+.crono-cal-header { grid-column: 1/-1; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
+.cal-month-label { font-weight: 600; color: var(--brass-light); min-width: 140px; text-align: center; }
+.cal-nav-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-main); width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+.cal-nav-btn:hover { border-color: var(--ub-azul); }
+.cal-today-btn { background: var(--ink-3); border: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; padding: 5px 10px; border-radius: 20px; cursor: pointer; transition: var(--transition); margin-left: 4px; }
+.cal-today-btn:hover { border-color: var(--ub-azul); color: var(--text-main); }
 .cal-weekday { text-align: center; font-size: 10px; font-family: 'IBM Plex Mono'; color: var(--text-muted); text-transform: uppercase; padding-bottom: 6px; }
-.cal-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: var(--ink-3); border-radius: 6px; padding: 6px; cursor: pointer; transition: var(--transition); }
+.cal-day { min-height: 78px; display: flex; flex-direction: column; align-items: stretch; background: var(--ink-3); border: 1px solid transparent; border-radius: 6px; padding: 5px; cursor: pointer; transition: var(--transition); overflow: hidden; }
 .cal-day:hover { border-color: var(--ub-azul); }
 .cal-day.empty-cell { background: transparent; cursor: default; pointer-events: none; }
 .cal-day.today { border-color: var(--ub-verde); background: rgba(46,196,182,0.06); }
-.cal-day.active-filter { background: var(--ub-azul); }
-.cal-day-num { font-size: 11px; font-family: 'IBM Plex Mono'; font-weight: 600; color: var(--text-main); }
-.cal-day-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--seal-glow); }
+.cal-day-num { font-size: 11px; font-family: 'IBM Plex Mono'; font-weight: 600; color: var(--text-main); align-self: flex-end; flex-shrink: 0; }
+.cal-day-events { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; overflow: hidden; }
+.cal-event-pill { font-size: 9.5px; line-height: 1.5; padding: 1px 5px; border-radius: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.cal-event-pill:hover { filter: brightness(1.12); }
+.cal-event-pill.feito { opacity: .5; text-decoration: line-through; }
+.cal-event-more { font-size: 9.5px; color: var(--text-muted); cursor: pointer; padding: 1px 3px; }
+.cal-event-more:hover { color: var(--text-main); }
+
+@media (min-width: 860px) { .cal-day { min-height: 96px; } .cal-event-pill { font-size: 11px; padding: 2px 6px; } }
+
+/* Modal "conteúdo do dia" */
+.day-modal-list { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+.day-modal-item { display: flex; align-items: flex-start; gap: 9px; padding: 9px 10px; background: var(--ink-3); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+.day-modal-item:hover { background: var(--card-hover-bg); }
+.day-modal-item.feito .day-modal-item-materia, .day-modal-item.feito .day-modal-item-tema { opacity: .55; text-decoration: line-through; }
+.day-modal-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.day-modal-item-body { min-width: 0; }
+.day-modal-item-materia { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 600; }
+.day-modal-item-tema { font-size: 13.5px; color: var(--text-main); margin-top: 2px; }
+.day-modal-add-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.day-modal-add-row select { flex: 1; }
+.day-modal-materia-swatch { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--border-color); }
+
+/* Cor por matéria (seletor no cabeçalho da matéria e chips de filtro) */
+.m-title-wrap { display: flex; align-items: center; gap: 9px; }
+.materia-color-swatch { width: 18px; height: 18px; border: none; border-radius: 50%; padding: 0; background: none; cursor: pointer; flex-shrink: 0; }
+.materia-color-swatch::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+.materia-color-swatch::-webkit-color-swatch { border: 1px solid var(--border-color); border-radius: 50%; }
+.crono-materia-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 
 .day-group{margin-bottom:22px;}
 .day-group-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border-color);}
