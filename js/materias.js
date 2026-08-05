@@ -5,6 +5,11 @@
 
 const MATERIAS_KEY = 'diplo_materias';
 
+/* Paleta de cores usada para identificar cada matéria no Cronograma/Calendário.
+   Atribuída automaticamente por matéria (na ordem de criação) e editável
+   pelo usuário via o seletor de cor no cabeçalho de cada matéria. */
+const MATERIA_COLOR_PALETTE = ['#EF4444', '#F59E0B', '#22C55E', '#0EA5E9', '#6366F1', '#EC4899', '#14B8A6', '#A855F7', '#84CC16', '#F97316', '#3B82F6', '#E11D48'];
+
 function materiasDefault() {
   const t = (nome) => ({ id: uid(), nome, feito: false, subtopicos: [] });
   return [
@@ -17,15 +22,40 @@ function materiasDefault() {
     { id: uid(), nome: '⚖️ Direito Interno', topicos: [t('Constitucional'), t('Administrativo')] },
     { id: uid(), nome: '💼 Direito Internacional', topicos: [t('Tratados Públicos'), t('Organizações')] },
     { id: uid(), nome: '📈 Economia', topicos: [t('Microeconomia'), t('Macroeconomia')] }
-  ];
+  ].map((m, i) => ({ ...m, cor: MATERIA_COLOR_PALETTE[i % MATERIA_COLOR_PALETTE.length] }));
 }
 let materias = load(MATERIAS_KEY, null) || materiasDefault();
 
+/* Garante que toda matéria (inclusive as criadas antes da existência de
+   cores, ou importadas de backups antigos) tenha uma cor atribuída. */
+function ensureMateriaColors() {
+  let changed = false;
+  materias.forEach((m, i) => { if (!m.cor) { m.cor = MATERIA_COLOR_PALETTE[i % MATERIA_COLOR_PALETTE.length]; changed = true; } });
+  if (changed) save(MATERIAS_KEY, materias);
+}
+ensureMateriaColors();
+
+function getMateriaColor(nome) { const m = materias.find(x => x.nome === nome); return (m && m.cor) || '#8A8F98'; }
+function setMateriaColor(id, cor) {
+  const m = materias.find(x => x.id === id); if (!m) return;
+  m.cor = cor; save(MATERIAS_KEY, materias);
+  renderMaterias();
+  if (typeof cronoViewMode !== 'undefined' && cronoViewMode === 'calendario' && typeof renderCalendarStructure === 'function') renderCalendarStructure();
+  if (typeof renderCronograma === 'function') renderCronograma();
+}
+
 function renderMaterias() {
+  ensureMateriaColors();
   const el = document.getElementById('materiasList'); if (!el) return;
   el.innerHTML = materias.map(m => `
     <details class="card materia-card" ${m.open ? 'open' : ''}>
-      <summary onclick="toggleOpen('${m.id}')"><span class="m-title">${m.nome}</span><span class="m-pct mono">${pctMateria(m)}%</span></summary>
+      <summary onclick="toggleOpen('${m.id}')">
+        <span class="m-title-wrap">
+          <input type="color" class="materia-color-swatch" value="${m.cor || '#8A8F98'}" title="Cor desta matéria no cronograma/calendário" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setMateriaColor('${m.id}', this.value)">
+          <span class="m-title">${m.nome}</span>
+        </span>
+        <span class="m-pct mono">${pctMateria(m)}%</span>
+      </summary>
       <div class="bar"><span style="width:${pctMateria(m)}%; background:var(--ub-verde);"></span></div>
       <div style="margin-top:12px;">
         ${m.topicos.map(t => { const subs = t.subtopicos || []; return `
@@ -91,11 +121,20 @@ function renderCMateriaSelect() {
 function renderMateriaOptions() {
   populateMateriaSelect('qMateria');
   const filt = document.getElementById('qFiltroMateria'); if (filt) filt.innerHTML = ['todas', ...materias.map(m => m.nome)].map(n => `<button class="chip" onclick="setFiltroMateria('${n}')">${n}</button>`).join('');
-  const filtC = document.getElementById('cronoFiltroMateria'); if (filtC) filtC.innerHTML = ['todas', ...materias.map(m => m.nome)].map(n => `<button class="chip" onclick="setCronoFiltroMateria('${n}')">${n}</button>`).join('');
+  const filtC = document.getElementById('cronoFiltroMateria');
+  if (filtC) filtC.innerHTML = ['todas', ...materias.map(m => m.nome)].map(n => {
+    const dot = n === 'todas' ? '' : `<span class="crono-materia-dot" style="background:${getMateriaColor(n)}"></span>`;
+    return `<button class="chip" onclick="setCronoFiltroMateria('${n.replace(/'/g, "\\'")}')">${dot}${n}</button>`;
+  }).join('');
   renderCMateriaSelect();
   renderDocMateriaOptions();
 }
 
-function addMateria() { const input = document.getElementById('novaMateriaInput'); const nome = input.value.trim(); if (!nome) return; materias.push({ id: uid(), nome, topicos: [], open: true }); input.value = ''; save(MATERIAS_KEY, materias); renderMaterias(); renderMateriaOptions(); }
+function addMateria() {
+  const input = document.getElementById('novaMateriaInput'); const nome = input.value.trim(); if (!nome) return;
+  const cor = MATERIA_COLOR_PALETTE[materias.length % MATERIA_COLOR_PALETTE.length];
+  materias.push({ id: uid(), nome, topicos: [], open: true, cor });
+  input.value = ''; save(MATERIAS_KEY, materias); renderMaterias(); renderMateriaOptions();
+}
 
 function pctGeral() { const total = materias.reduce((a, m) => a + m.topicos.length, 0); const feitos = materias.reduce((a, m) => a + m.topicos.filter(t => t.feito).length, 0); return total ? Math.round(100 * feitos / total) : 0; }
