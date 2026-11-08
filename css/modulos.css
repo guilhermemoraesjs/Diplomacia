@@ -144,3 +144,9 @@ img, svg, video { max-width:100%; }
 .cr-semana { grid-template-columns:1fr; } @media (min-width:700px) { .cr-semana { grid-template-columns:repeat(2,minmax(0,1fr)); } } @media (min-width:1200px) { .cr-semana { grid-template-columns:repeat(4,minmax(0,1fr)); } } @media (min-width:1700px) { .cr-semana { grid-template-columns:repeat(7,minmax(0,1fr)); } }
 .cr-semana .cr-item { flex-wrap:wrap; } .cr-semana .cr-body { flex:1 1 calc(100% - 44px); } .cr-semana .cr-actions { flex-direction:row; flex-basis:100%; justify-content:flex-end; margin-top:-2px; }
 .qb-filtros-grid { grid-template-columns:1fr; } @media (min-width:520px) { .qb-filtros-grid { grid-template-columns:repeat(2,1fr); } } @media (min-width:900px) { .qb-filtros-grid { grid-template-columns:repeat(3,1fr); } }
+
+/* Layouts que eram grids inline fixos (quebravam no celular) */
+.sim-layout2, .sim-layout3 { display:grid; grid-template-columns:1fr; gap:16px; align-items:start; } .sim-layout3 { margin-top:20px; }
+@media (min-width:900px) { .sim-layout2 { grid-template-columns:2fr 1fr; } .sim-layout3 { grid-template-columns:2fr 1fr 1fr; } }
+.ct-cols > *, .ct-grid5 > *, .grid-2 > * { min-width:0; } .ct-desp { min-width:0; } .ct-desp b, .ct-desp small { overflow-wrap:anywhere; }
+.view.active, .view.active .card { min-width:0; } .view.active { overflow-wrap:break-word; }

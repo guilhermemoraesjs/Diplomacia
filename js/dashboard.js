@@ -78,6 +78,10 @@ function buildSearchIndex() {
   (materias || []).forEach(m => { idx.push({ tipo: 'Matéria', label: m.nome, sub: 'Diplomacia', acao: () => { goTab('diplomacia'); goSub('materias'); } });
     (m.topicos || []).forEach(t => idx.push({ tipo: 'Tópico', label: t.nome, sub: m.nome, acao: () => { goTab('diplomacia'); goSub('materias'); } })); });
   (typeof simuladosQuestoesIndex !== 'undefined' ? simuladosQuestoesIndex : []).forEach(q => idx.push({ tipo: 'Questão', label: q.tema, sub: q.disciplina + ' · ' + q.ano, acao: () => { goTab('simulados'); } }));
+  (atualidades || []).forEach(a => idx.push({ tipo: 'Atualidade', label: a.titulo, sub: isoToBR(a.data), acao: () => { goTab('atualidades'); } }));
+  (kbItens || []).forEach(e => idx.push({ tipo: KB_TIPOS[e.tipo] ? KB_TIPOS[e.tipo][0] : 'Ficha', label: e.nome + (e.sigla ? ' (' + e.sigla + ')' : ''), sub: 'Base de conhecimento', acao: () => { goTab('conhecimento'); kbAbrir(e.id); } }));
+  (questoes || []).forEach(q => idx.push({ tipo: 'Questão', label: q.enunciado.slice(0, 90), sub: [q.materia, q.assunto].filter(Boolean).join(' · '), acao: () => { goTab('questoes'); qResolverUma(q.id); } }));
+  (biblioDocs || []).forEach(d => idx.push({ tipo: 'Documento', label: d.titulo || '(sem título)', sub: 'Biblioteca', acao: () => { goTab('biblioteca'); abrirDocumento(d.id); } }));
   return idx;
 }
 async function abrirBuscaGlobal() {
@@ -95,8 +99,8 @@ function executarBuscaGlobal(q) {
   const results = buildSearchIndex().filter(r => r.label.toLowerCase().includes(query) || (r.sub || '').toLowerCase().includes(query)).slice(0, 12);
   el.innerHTML = results.length ? results.map((r, i) => `
     <div class="gsearch-item" onclick="acionarResultadoBusca(${i})">
-      <span class="gsearch-tipo">${r.tipo}</span>
-      <div><div class="gsearch-label">${r.label}</div><div class="gsearch-sub">${r.sub || ''}</div></div>
+      <span class="gsearch-tipo">${escHtml(r.tipo)}</span>
+      <div><div class="gsearch-label">${escHtml(r.label)}</div><div class="gsearch-sub">${escHtml(r.sub || '')}</div></div>
     </div>`).join('') : '<div class="biblio-empty">Nenhum resultado encontrado.</div>';
   window._gsearchResults = results;
 }

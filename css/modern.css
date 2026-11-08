@@ -269,3 +269,12 @@ input[type=checkbox], input[type=radio] { width:auto; accent-color:var(--brass);
 
 /* Overlays do atalho */
 .kbd, kbd.kbd { font-family:'IBM Plex Mono',monospace; font-size:10.5px; border:1px solid var(--line); border-radius:5px; padding:1px 6px; background:var(--ink-3); color:var(--text-muted); }
+
+/* Acessibilidade e iOS (PWA na tela inicial) */
+.skip-link { position:fixed; left:12px; top:-60px; z-index:300; background:var(--brass); color:#0A1329; padding:10px 16px; border-radius:10px; font-weight:650; transition:top .15s; }
+.skip-link:focus { top:12px; }
+main:focus { outline:none; }
+.topbar { padding-top:env(safe-area-inset-top, 0px); height:calc(var(--topbar-h) + env(safe-area-inset-top, 0px)); padding-left:max(14px, env(safe-area-inset-left, 0px)); padding-right:max(14px, env(safe-area-inset-right, 0px)); }
+@media (min-width:900px) { .topbar { padding-left:28px; padding-right:28px; } }
+.bottomnav { padding-left:env(safe-area-inset-left, 0px); padding-right:env(safe-area-inset-right, 0px); }
+@media (prefers-reduced-motion:reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }

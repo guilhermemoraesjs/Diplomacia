@@ -62,7 +62,8 @@
   <div class="authbox" id="authBox"></div>
 </header>
 
-<main>
+<a class="skip-link" href="#mainContent">Ir para o conteúdo</a>
+<main id="mainContent" tabindex="-1">
   <section class="view active" id="view-inicio">
     <div id="centralRoot"><div class="loading">Carregando sua central de estudos…</div></div>
   </section>
@@ -115,7 +116,7 @@
           <div><label class="field-label">Data de estudo</label><input type="date" id="rData" onchange="sugerirDatasRevisao()"></div>
         </div>
         <label class="field-label" style="margin-top:14px;">Datas das revisões (você pode ajustar cada uma)</label>
-        <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="row3">
           <div><label class="field-label">1ª revisão</label><input type="date" id="r1Data"></div>
           <div><label class="field-label">2ª revisão</label><input type="date" id="r2Data"></div>
           <div><label class="field-label">3ª revisão</label><input type="date" id="r3Data"></div>
@@ -497,7 +498,7 @@
       <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
 
       <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
-      <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:start;">
+      <div class="sim-layout2">
         <div class="sim-modos-grid" id="simuladosModos"></div>
         <div>
           <div class="card dash-side-panel">
@@ -514,7 +515,7 @@
       <h3 class="section-title" style="margin-top:24px;">Provas disponíveis</h3>
       <div class="dash-provas-grid" id="simuladosProvasDisponiveis"></div>
 
-      <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
+      <div class="sim-layout3">
         <div class="card">
           <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
           <div id="simuladosGraficoEvolucao"></div>

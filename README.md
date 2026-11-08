@@ -1,60 +1,52 @@
-Chancelaria — Gabinete de Estudos
-Refatoração do app original (arquivo único `.html`) em uma estrutura de
-projeto organizada, sem alterar funcionalidade, comportamento ou design.
-Estrutura de pastas
+# Chancelaria — Gabinete de Estudos
+
+Plataforma pessoal de estudos para o CACD. Site **estático** (HTML + CSS + JavaScript puro, sem build),
+com login Google e sincronização via Firebase (Auth + Firestore). Funciona offline depois da primeira visita
+(Service Worker) e pode ser instalada na tela inicial do iPhone/Android.
+
+**Versão atual:** definida em [`version.json`](version.json) (fonte única). Veja [`CHANGELOG.md`](CHANGELOG.md).
+
+## Módulos
+
+| Área | Arquivos | O que faz |
+|---|---|---|
+| Central de Estudos | `central.js`, `stats.js` | Resumo do dia, indicadores, **Despacho do Dia**, acesso rápido |
+| Cronograma | `cronograma.js`, `estudo-log.js` | Semana/mês/lista/matéria/histórico; planejado × estudado; reagendar; cronômetro |
+| Revisão espaçada | `srs-core.js`, `revisao-hub.js`, `revisao.js` | Motor único (inspirado no FSRS) para flashcards, Biblioteca e revisões manuais |
+| Questões | `questoes.js` | Banco próprio (C/E, múltipla, discursiva), resolução, histórico, desempenho |
+| Discursivas | `discursiva.js` | Propostas, editor com autosave/cronômetro/limite de linhas, versões, avaliação por critérios |
+| Atualidades / Base de conhecimento | `atualidades.js`, `conhecimento.js` | Acontecimentos e fichas (organizações, tratados, acordos, conflitos, temas) ligadas a países |
+| Biblioteca | `biblioteca-*.js` | Estantes, editor, tags, relacionados, SRS + destaques, fichamento, vínculo com edital |
+| Flashcards, Simulados, Países, Matérias | `flashcards-*.js`, `simulados.js`, `paises.js`, `materias.js` | Já existentes (preservados) |
+| Atualizador | `updater.js`, `sw.js`, `version.json`, `scripts/sync-version.js` | Ver [`docs/ATUALIZACAO.md`](docs/ATUALIZACAO.md) |
+| Infra | `utils.js`, `backup.js`, `migrations.js`, `theme-auth.js`, `navigation.js`, `icons.js`, `config.js` | Datas locais, escape de HTML, backup/snapshots, sync, menu |
+
+## Ordem de carregamento (scripts globais, sem bundler)
+
+`version → config → utils → icons → backup → migrations → theme-auth → navigation → srs-core → materias → estudo-log →
+cronograma → revisao → questoes → discursiva → atualidades → conhecimento → notas → (d3, topojson) → paises → dashboard →
+simulados → biblioteca-* → flashcards-* → revisao-hub → central → stats → configuracoes → app → updater`
+
+Cada arquivo só usa o que foi definido antes dele. `app.js` e `updater.js` são sempre os últimos. O teste
+`tests/versao.test.js` valida essa ordem. Detalhes em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+
+## Publicar uma nova versão
+
+```bash
+node scripts/sync-version.js --bump patch --note "o que mudou"   # ou minor / major
+npm test                                                           # unitários + consistência de versão
+git add -A && git commit -m "vX.Y.Z — ..." && git push             # o host publica; os usuários recebem o aviso
 ```
-chancelaria/
-├── index.html                    # Apenas marcação (HTML) + <link>/<script> externos
-├── css/
-│   └── style.css                 # Todo o CSS original, inalterado
-└── js/
-    ├── config.js                 # Config do Firebase + constantes globais (HUB_ORIGIN)
-    ├── utils.js                  # Helpers genéricos: uid, load/save, datas
-    ├── theme-auth.js             # Tema claro/escuro + autenticação Firebase
-    ├── navigation.js             # Troca de abas (tabbar) e sub-abas (subtabs)
-    ├── materias.js                # Diplomacia → Matérias (edital em árvore)
-    ├── cronograma.js              # Diplomacia → Cronograma (+ calendário + modal)
-    ├── revisao.js                 # Diplomacia → Revisão espaçada (manual, D+1/D+7/D+30)
-    ├── questoes.js                # Diplomacia → Questões
-    ├── discursiva.js              # Diplomacia → Discursiva (+ cronômetro)
-    ├── atualidades.js             # Diplomacia → Atualidades
-    ├── notas.js                   # Diplomacia → Anotações
-    ├── biblioteca-pastas.js       # Biblioteca → Estantes (árvore, drag & drop)
-    ├── biblioteca-documentos.js  # Biblioteca → Documentos (CRUD, tags, relacionados)
-    ├── biblioteca-editor.js      # Biblioteca → Editor de texto rico (toolbar)
-    ├── biblioteca-revisao.js     # Biblioteca → Revisão espaçada (SRS de fichamentos)
-    ├── biblioteca-busca.js       # Biblioteca → Busca
-    ├── stats.js                   # Início → estatísticas e Despacho do Dia
-    └── app.js                     # Bootstrap: orquestra a renderização inicial
-```
-Ordem de carregamento dos scripts
-Os módulos usam escopo global compartilhado (sem bundler/módulos ES), então
-a ordem em `index.html` importa: cada arquivo pode usar funções/variáveis
-definidas nos arquivos carregados antes dele. `app.js` é sempre o
-último, pois é o único que dispara a renderização inicial
-(`reloadStateFromLocalStorage()`), momento em que todas as funções já
-existem no escopo global.
-O que foi feito na refatoração
-Separação de camadas: HTML (marcação), CSS (apresentação) e JS
-(comportamento) agora vivem em arquivos próprios.
-Modularização por domínio: cada aba/sub-aba da aplicação tem seu
-próprio arquivo JS, ao invés de um único bloco de +1500 linhas.
-Eliminação de duplicação: a função `populateMateriaSelect(id)` em
-`materias.js` centraliza o preenchimento dos `<select>` de matéria
-(usados em Cronograma, Revisão, Discursiva e Questões), que antes tinha
-lógica repetida em mais de um lugar.
-Nenhuma mudança de funcionalidade ou design: todo o CSS foi mantido
-byte a byte; toda a lógica JS foi preservada função por função, apenas
-reorganizada em arquivos.
-Preparado para expansão futura
-Novos módulos (ex.: uma futura aba "Simulados") podem ser adicionados
-como um novo arquivo `js/simulados.js`, incluído no `index.html` na
-posição correta da cadeia de dependências.
-Como cada domínio (Matérias, Cronograma, Biblioteca, etc.) já é isolado
-em seu próprio arquivo, é possível evoluir cada um independentemente —
-por exemplo, trocar o armazenamento local (`localStorage`) por Firestore
-primeiro em um módulo, sem tocar nos demais.
-Caso o projeto cresça o suficiente para justificar um bundler (Vite,
-esbuild) ou módulos ES (`import`/`export`), a divisão atual em arquivos
-por responsabilidade já está pronta para virar `import`s nomeados sem
-necessidade de reescrever a lógica interna de cada módulo.
+
+Passo a passo completo (e o que fazer se algo der errado) em [`docs/ATUALIZACAO.md`](docs/ATUALIZACAO.md).
+
+## Testes
+
+`npm test` (Node puro, sem dependências) e os testes E2E em `tests/e2e/` (Playwright). Veja [`docs/TESTES.md`](docs/TESTES.md).
+
+## Segurança e dados
+
+- Nada de credencial privada no repositório: a configuração do Firebase Web (`config.js`) é pública por design;
+  a proteção real são as **regras do Firestore** (ver `docs/ARQUITETURA.md`).
+- Backup: Configurações → Dados (exportar/importar JSON e pontos de restauração automáticos).
+- Backup do código antes da modernização: tag `backup-pre-modernizacao` (commit `8e640a9`) e `diplomacia.zip`.
