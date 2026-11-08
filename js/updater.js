@@ -48,7 +48,7 @@ async function checkUpdate(opts) {
   if (!pub.ok) res = { status: pub.motivo === 'offline' ? 'offline' : 'erro', motivo: pub.motivo, checadoEm: agora };
   else if (pub.info.build > APP_INFO.build) { UPD.nova = pub.info; res = { status: 'nova', info: pub.info, checadoEm: agora }; }
   else { UPD.nova = null; res = { status: 'atual', info: pub.info, checadoEm: agora }; }
-  UPD.ultimoResultado = res;
+  UPD.ultimoResultado = res; UPD.avisoManual = !!opts.manual;
   const meta = updLerJSON('chancelaria_version_info') || {};
   meta.checadoEm = agora; if (pub.ok) meta.publicada = { version: pub.info.version, build: pub.info.build };
   updGravar('chancelaria_version_info', meta);
@@ -56,8 +56,27 @@ async function checkUpdate(opts) {
   return res;
 }
 
+/* ---- Service Worker: versão e estados ---- */
+function swVersao(worker, ms) {
+  return new Promise(res => {
+    if (!worker) return res(null);
+    const rm = () => navigator.serviceWorker.removeEventListener('message', h), t = setTimeout(() => { rm(); res(null); }, ms || 3000);
+    const h = e => { if (e.data && e.data.type === 'VERSION') { clearTimeout(t); rm(); res(e.data); } };
+    navigator.serviceWorker.addEventListener('message', h); try { worker.postMessage({ type: 'GET_VERSION' }); } catch (e) { clearTimeout(t); rm(); res(null); }
+  });
+}
+/* Espera o worker chegar a 'installed'/'activated' (ok) ou 'redundant' (instalação falhou). */
+function swAguardar(worker, ms) {
+  return new Promise(res => {
+    const fim = s => { clearTimeout(t); worker.removeEventListener('statechange', h); res(s); };
+    const h = () => { if (['installed', 'activating', 'activated', 'redundant'].includes(worker.state)) fim(worker.state); };
+    const t = setTimeout(() => fim('timeout'), ms || 30000); worker.addEventListener('statechange', h); h();
+  });
+}
+function updFalhaRecente(build) { const f = updLerJSON('chancelaria_upd_fail'); return !!(f && f.build === build && Date.now() - f.em < 30 * 60 * 1000); }
+
 /* ---- Aviso visual ---- */
-function updDispensado() { const d = updLerJSON('chancelaria_upd_dismissed'); return !!(d && UPD.nova && d.build === UPD.nova.build && Date.now() - d.em < UPD_DISPENSA_MS); }
+function updDispensado() { const d = updLerJSON('chancelaria_upd_dismissed'); return !!(UPD.nova && ((d && d.build === UPD.nova.build && Date.now() - d.em < UPD_DISPENSA_MS) || (!UPD.avisoManual && updFalhaRecente(UPD.nova.build)))); }
 function updMostrarBanner(msgOcupado) {
   let el = document.getElementById('updBanner');
   if (!UPD.nova && !msgOcupado) { if (el) el.remove(); return; }
@@ -85,6 +104,13 @@ function updAtualizarUI(manual) {
 /* ---- Aplicar atualização ---- */
 function updAguardar(cond, ms) { return new Promise(res => { const ini = Date.now(); (function t() { if (cond() || Date.now() - ini > ms) return res(cond()); setTimeout(t, 150); })(); }); }
 
+/* Falha segura: nada foi ativado nem recarregado; a versão atual continua funcionando. */
+function updFalhar(alvo, motivo) {
+  console.error('Atualização não concluída:', motivo); UPD.ocupado = false; updGravar('chancelaria_upd_fail', { build: alvo.build, em: Date.now(), motivo: String(motivo) });
+  const el = document.getElementById('updBanner') || Object.assign(document.createElement('div'), { id: 'updBanner' }); el.className = 'upd-banner erro'; el.setAttribute('role', 'alert'); document.body.appendChild(el);
+  el.innerHTML = `<div class="upd-body"><strong>Não foi possível instalar a nova versão</strong><span>${escHtml(motivo)} Nada foi alterado: você continua na v${escHtml(APP_INFO.version)} e seus dados estão seguros.</span></div><div class="upd-actions"><button class="btn secondary small" onclick="applyUpdate()">Tentar novamente</button><button class="btn ghost small" onclick="updDispensar()">Depois</button></div>`;
+  updAtualizarUI();
+}
 async function applyUpdate() {
   if (UPD.ocupado) return; UPD.ocupado = true;
   const alvo = UPD.nova || (UPD.ultimoResultado && UPD.ultimoResultado.info) || { version: '?', build: APP_INFO.build + 1 };
@@ -100,22 +126,28 @@ async function applyUpdate() {
       const reg = await navigator.serviceWorker.getRegistration();
       if (reg) {
         await reg.update().catch(() => {});
-        await updAguardar(() => !reg.installing, 25000);                       // espera terminar de instalar
-        if (reg.waiting) {
+        const novo = reg.installing || reg.waiting;
+        if (novo) {
+          const estado = await swAguardar(novo, 30000);                                   // instalação atômica: ou baixou tudo, ou falhou
+          if (estado === 'redundant' || estado === 'timeout') return updFalhar(alvo, estado === 'timeout' ? 'O download dos arquivos demorou demais.' : 'Falha ao baixar todos os arquivos da nova versão (a instalação foi recusada).');
           updMostrarBanner('Ativando a nova versão…');
-          const mudou = new Promise(res => navigator.serviceWorker.addEventListener('controllerchange', () => res(true), { once: true }));
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          trocou = await Promise.race([mudou, new Promise(r => setTimeout(() => r(false), 10000))]);
+          const ctl = new Promise(res => navigator.serviceWorker.addEventListener('controllerchange', () => res(true), { once: true }));
+          const w = reg.waiting || novo; if (w.state === 'installed') w.postMessage({ type: 'SKIP_WAITING' });
+          trocou = await Promise.race([ctl, new Promise(r => setTimeout(() => r(false), 10000))]);
+          if (!trocou) { try { (reg.active || w).postMessage({ type: 'CLAIM' }); } catch (e) {} await new Promise(r => setTimeout(r, 1500)); }   // recuperação: pede para assumir o controle
+          const v = await swVersao(navigator.serviceWorker.controller || reg.active, 3000);
+          if (v && v.build < alvo.build) return updFalhar(alvo, `O Service Worker ativo ainda é o da v${v.version}.`);
+        } else {
+          const v = await swVersao(reg.active, 3000);                                      // nenhum worker novo: o ativo já é o alvo?
+          if (v && v.build < alvo.build) return updFalhar(alvo, 'O navegador não encontrou a nova versão do Service Worker (talvez o site ainda esteja sendo publicado).');
         }
       }
     }
-    updGravar('chancelaria_upd_target', { build: alvo.build, version: alvo.version, em: Date.now(), tentativas: (updLerJSON('chancelaria_upd_target') || {}).tentativas || 0 });
+    const t = updLerJSON('chancelaria_upd_target') || {};
+    updGravar('chancelaria_upd_target', { build: alvo.build, version: alvo.version, em: Date.now(), tentativas: t.build === alvo.build ? t.tentativas || 0 : 0 });
     updMostrarBanner('Recarregando…');
     setTimeout(() => location.reload(), trocou ? 200 : 400);
-  } catch (e) {
-    console.error('Falha ao atualizar', e); UPD.ocupado = false;
-    toast('Não foi possível concluir a atualização. Seus dados estão intactos. Tente novamente.', 'erro'); updAtualizarUI();
-  }
+  } catch (e) { updFalhar(alvo, 'Erro inesperado: ' + (e && e.message || e)); }
 }
 
 /* Último recurso (iPhone preso em versão antiga): remove SÓ o Service Worker e os
@@ -145,6 +177,18 @@ function updVerificarPosAtualizacao() {
   document.body.appendChild(el);
 }
 
+/* Coerência código × Service Worker: se o SW é mais novo que o código carregado, esta página está
+   desatualizada (HTML/JS vieram do cache). Se há SW mas ele não controla a página, pede para assumir. */
+async function updDiagnosticar() {
+  try {
+    const reg = await navigator.serviceWorker.getRegistration(); if (!reg || !reg.active) return;
+    if (!navigator.serviceWorker.controller) { reg.active.postMessage({ type: 'CLAIM' }); }
+    const v = await swVersao(reg.active, 3000); UPD.sw = v;
+    if (v && v.build > APP_INFO.build) { UPD.nova = { version: v.version, build: v.build }; UPD.obsoleta = true; updAtualizarUI(); }
+    renderVersionPanel();
+  } catch (e) {}
+}
+
 /* ---- Painel de informações da versão (Configurações) ---- */
 function renderVersionPanel() {
   const el = document.getElementById('versionPanel'); if (!el) return;
@@ -160,7 +204,7 @@ function renderVersionPanel() {
   const fmt = ms => ms ? new Date(ms).toLocaleString('pt-BR') : '—';
   el.innerHTML = `
     <div class="vp-grid">
-      <div><span class="vp-l">Versão instalada</span><b class="vp-v">v${escHtml(APP_INFO.version)}</b><small>build ${APP_INFO.build} · publicada em ${escHtml(isoToBR(APP_INFO.date))}</small></div>
+      <div><span class="vp-l">Versão instalada</span><b class="vp-v">v${escHtml(APP_INFO.version)}</b><small>build ${APP_INFO.build} · publicada em ${escHtml(isoToBR(APP_INFO.date))}${UPD.sw ? ' · Service Worker v' + escHtml(UPD.sw.version) : ''}</small></div>
       <div><span class="vp-l">Instalada neste aparelho em</span><b class="vp-v2">${fmt(visto.em)}</b></div>
       <div><span class="vp-l">Última verificação</span><b class="vp-v2">${fmt(meta.checadoEm)}</b></div>
     </div>
@@ -179,6 +223,7 @@ function renderVersionPanel() {
   if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(e => console.warn('Service Worker não registrado:', e));
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (!UPD.ocupado) checkUpdate({ manual: false }); });
+  setTimeout(() => updDiagnosticar(), 4000);
   setTimeout(() => checkUpdate(), 3000);
   setInterval(() => checkUpdate(), UPD_INTERVALO_MS);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });

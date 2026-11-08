@@ -115,8 +115,8 @@ function renderConfigNavOrder() {
 /* Inicializadores por aba (os dados podem ter mudado em outro módulo) */
 const NAV_AO_ABRIR = {
   inicio: () => typeof renderCentral === 'function' && renderCentral(),
-  revisao: () => typeof renderRevisaoHub === 'function' && renderRevisaoHub(),
-  conhecimento: () => typeof renderKB === 'function' && renderKB(),
+  revisao: () => { if (typeof rvSessao !== 'undefined' && rvSessao && rvSessao.i >= rvSessao.fila.length) rvSessao = null; return typeof renderRevisaoHub === 'function' && renderRevisaoHub(); },
+  conhecimento: () => { if (typeof kbEstado !== 'undefined') { kbEstado.tipo = ''; kbEstado.aberto = null; } return typeof renderKB === 'function' && renderKB(); },
   configuracoes: () => { renderConfigNavOrder(); if (typeof renderConfiguracoes === 'function') renderConfiguracoes(); if (typeof checkUpdate === 'function') checkUpdate({ manual: false }); },
   palavras: () => connectHub(),
   paises: () => initPaisesTab(),
@@ -140,6 +140,7 @@ function goTab(tab) {
     if (r.kb && typeof kbDefinirFiltro === 'function') kbDefinirFiltro(r.kb);
     document.body.setAttribute('data-active-tab', tab);
     renderSidebar();
+    try { sessionStorage.setItem('chancelaria_tab', tab); } catch (e) {}
     return;
   }
   document.body.setAttribute('data-active-tab', tab);
@@ -149,6 +150,7 @@ function goTab(tab) {
   renderSidebar();
   window.scrollTo({ top: 0 });
   if (NAV_AO_ABRIR[tab]) NAV_AO_ABRIR[tab]();
+  try { sessionStorage.setItem('chancelaria_tab', tab); } catch (e) {}
 }
 
 function goSub(sub) {

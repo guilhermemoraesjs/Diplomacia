@@ -72,13 +72,27 @@ const PRECACHE = [
 /* @generated:end */
 const CACHE_DATA = 'chancelaria-data-v1';   // JSON de dados + bibliotecas externas (preservado entre versões)
 
+/* INSTALAÇÃO ATÔMICA: todos os arquivos essenciais precisam ser baixados (HTTP ok) antes da instalação ser
+   considerada bem-sucedida. Qualquer falha (404, rede, versão misturada) derruba a instalação: o Service
+   Worker novo vira "redundant", a versão anterior continua ativa e NADA incompleto é ativado.
+   Ícones em assets/ são opcionais (não bloqueiam). */
+const OPCIONAL = u => u.startsWith('assets/');
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const c = await caches.open(CACHE_APP);
-    // cache:'reload' ignora o cache HTTP do navegador: garante arquivos NOVOS no pré-cache
-    await Promise.all(PRECACHE.map(async url => {
-      try { const r = await fetch(new Request(url, { cache: 'reload' })); if (r.ok) await c.put(url === './' ? 'index.html' : url, r); } catch (err) { /* offline na instalação: segue */ }
-    }));
+    try {
+      await Promise.all(PRECACHE.map(async url => {
+        const chave = url === './' ? 'index.html' : url;
+        try {
+          const r = await fetch(new Request(url, { cache: 'reload' }));      // ignora o cache HTTP: garante arquivos NOVOS
+          if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
+          await c.put(chave, r);
+        } catch (err) { if (!OPCIONAL(url)) throw err; }
+      }));
+      // coerência: o js/version.js baixado precisa ser do MESMO build deste Service Worker (evita deploy pela metade)
+      const v = await c.match('js/version.js'), txt = v ? await v.text() : '';
+      if (!new RegExp('build: ' + APP_BUILD + '\\b').test(txt)) throw new Error('versão inconsistente: js/version.js não é do build ' + APP_BUILD);
+    } catch (err) { await caches.delete(CACHE_APP); throw err; }
   })());
 });
 
@@ -93,6 +107,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('message', e => {
   const d = e.data || {};
   if (d.type === 'SKIP_WAITING') self.skipWaiting();
+  if (d.type === 'CLAIM') self.clients.claim();
   if (d.type === 'GET_VERSION' && e.source) e.source.postMessage({ type: 'VERSION', version: APP_VERSION, build: APP_BUILD });
 });
 

@@ -1,20 +1,18 @@
-// Utilitários dos testes E2E (Playwright). Uso: ver tests/e2e/README.md
-const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
-const STUB = fs.readFileSync(path.join(__dirname, 'firebase-stub.js'), 'utf8');
+// Ambiente padrão dos testes funcionais: navegador real + Firebase EMULATOR (Auth e Firestore reais, locais).
+// Cada teste usa um usuário próprio, para isolar os dados. Veja docs/TESTES.md.
+const E = require('./emu');
+const { check, resumo, sleep } = E;
+let contador = 0;
 async function abrir(opts) {
-  opts = opts || {}; const b = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  const ctx = await b.newContext(Object.assign({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1, serviceWorkers: 'allow' }, opts.context || {}));
-  await ctx.route('**/firebasejs/**', r => r.fulfill({ contentType: 'application/javascript', body: r.request().url().includes('app-compat') ? STUB : '' }));
-  await ctx.route(/fonts\.g(oogleapis|static)\.com/, r => r.abort());
-  const p = await ctx.newPage(); const erros = [];
-  p.on('pageerror', e => erros.push('PAGEERROR ' + e.message + ' @ ' + ((e.stack || '').split('\n')[1] || '').trim()));
-  p.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED|net::|favicon/.test(m.text())) erros.push('CONSOLE ' + m.text()); });
-  p.on('dialog', d => d.dismiss());
-  if (opts.url !== false) { await p.goto(opts.url || 'http://localhost:8123/index.html'); await p.waitForFunction(() => document.querySelector('#centralRoot .ct-head') || document.querySelector('#loginGate:not(.hidden)'), null, { timeout: 15000 }); }
-  return { b, ctx, p, erros };
+  opts = opts || {}; const sub = opts.sub || ('t' + Date.now().toString(36) + (contador++));
+  const d = await E.novoAparelho({ context: opts.context, url: opts.url });
+  if (opts.login !== false) { const ok = await E.login(d, sub); if (!ok) throw new Error('login no emulador não estabilizou'); }
+  d.sub = sub; d.uid = await d.p.evaluate(() => currentUid); return d;
 }
-let ok = 0, fail = 0; const falhas = [];
-function check(cond, nome, extra) { if (cond) { ok++; console.log('  ✓ ' + nome); } else { fail++; falhas.push(nome); console.log('  ✗ ' + nome + (extra ? ' → ' + extra : '')); } }
-function resumo() { console.log(`\n${ok} passaram, ${fail} falharam`); if (fail) console.log('Falhas:\n - ' + falhas.join('\n - ')); return fail ? 1 : 0; }
-async function confirmarModal(p, sel) { await p.click(sel || '.confirm-overlay [data-r="1"]'); }
-module.exports = { abrir, check, resumo, confirmarModal };
+/* Recarrega e espera a Central aparecer com o login já restaurado e o motor de sincronização ocioso. */
+async function recarregar(p) { await p.reload(); await p.waitForFunction(() => document.querySelector('#centralRoot .ct-head') && typeof currentUid !== 'undefined' && currentUid && !_sync.draining, null, { timeout: 20000 }); await sleep(400); }
+const ir = async (p, id) => { await p.evaluate(i => goTab(i), id); await sleep(200); };
+const ls = (p, k) => p.evaluate(k => JSON.parse(localStorage.getItem(k)), k);
+async function emuOuSair() { if (!await E.emuDisponivel()) { console.log('EMULADOR INDISPONÍVEL — esta suíte precisa do Firebase Emulator Suite (npm run test:e2e). Nada foi executado.'); process.exit(3); } }
+const semErros = (d, ignorar) => d.erros.filter(e => !(ignorar && ignorar.test(e)));
+module.exports = Object.assign({}, E, { abrir, recarregar, ir, ls, emuOuSair, semErros });

@@ -124,7 +124,11 @@ function _aplicarBackup(b) {
     locais.forEach(k => localStorage.setItem(k, JSON.stringify(b.local[k])));
     for (const k of chaves) { const lido = JSON.parse(localStorage.getItem(k)); if (!deepEqual(lido, b.dados[k])) throw new Error('verificação falhou em ' + k); }
     for (const k of locais) { const lido = JSON.parse(localStorage.getItem(k)); if (!deepEqual(lido, b.local[k])) throw new Error('verificação falhou em ' + k); }
-  } catch (e) { desfazer(); return { ok: false, erro: String(e && e.message || e) }; }
+  } catch (e) {
+    desfazer();
+    const falhaRollback = Object.keys(anterior).filter(k => localStorage.getItem(k) !== anterior[k]);   // o rollback também é verificado
+    return { ok: false, erro: String(e && e.message || e), rollbackIncompleto: falhaRollback };
+  }
   return { ok: true, aplicadas: chaves, locais };
 }
 async function restaurarBackup(b, origem, opts) {
@@ -135,7 +139,7 @@ async function restaurarBackup(b, origem, opts) {
   if (!seg) { toast('Não foi possível criar o backup de segurança do estado atual. Restauração cancelada.', 'erro'); return { ok: false, etapa: 'seguranca' }; }
   if (!opts.semConfirmar && !await _modalRestauracao(v, _resumoDiff(b), origem || 'arquivo')) return { ok: false, etapa: 'cancelado' };   // 5
   const r = _aplicarBackup(b);                                                        // 6–7
-  if (!r.ok) { toast('A restauração falhou e foi desfeita automaticamente (' + r.erro + '). Seus dados atuais foram mantidos.', 'erro'); return { ok: false, etapa: 'aplicacao', erro: r.erro }; }
+  if (!r.ok) { if (r.rollbackIncompleto && r.rollbackIncompleto.length) toast('A restauração falhou e NÃO foi possível desfazer por completo (' + r.rollbackIncompleto.join(', ') + '). Restaure o ponto "antes-de-restaurar" em Backup e segurança.', 'erro'); else toast('A restauração falhou e foi desfeita automaticamente (' + r.erro + '). Seus dados atuais foram mantidos.', 'erro'); return { ok: false, etapa: 'aplicacao', erro: r.erro, rollbackIncompleto: r.rollbackIncompleto || [] }; }
   r.aplicadas.forEach(k => syncKeyToCloud(k, b.dados[k]));                            // vira edição mais recente: sobe para a nuvem
   toast('Backup restaurado e verificado (' + r.aplicadas.length + ' grupos). Recarregando…'); if (!opts.semRecarregar) setTimeout(() => location.reload(), 1200);
   return { ok: true, aplicadas: r.aplicadas, segurancaId: seg };

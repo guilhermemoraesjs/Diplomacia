@@ -22,7 +22,7 @@ async function novoAparelho(opts) {
   await ctx.route(/fonts\.g(oogleapis|static)\.com/, r => r.abort());
   await ctx.addInitScript(() => { window.__FIREBASE_EMULATOR__ = { firestore: '127.0.0.1:8080', auth: 'http://127.0.0.1:9099' }; });
   const p = await ctx.newPage(), erros = []; p.on('pageerror', e => erros.push('PAGEERROR ' + e.message)); p.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED|net::|favicon|Falha ao sincronizar|WebChannel|transport errored|Failed to load resource|\[code=/.test(m.text())) erros.push('CONSOLE ' + m.text()); });
-  await p.goto(URL); await p.waitForFunction(() => window.__EMU_ACTIVE === true, null, { timeout: 15000 });
+  await p.goto(opts.url || URL); await p.waitForFunction(() => window.__EMU_ACTIVE === true, null, { timeout: 15000 });
   return { b, ctx, p, erros };
 }
 async function estavel(p, fn) { for (let i = 0; i < 40; i++) { try { if (await p.evaluate(fn) && await (async () => { await sleep(350); return p.evaluate(fn); })()) return true; } catch (e) { await sleep(300); } } return false; }
