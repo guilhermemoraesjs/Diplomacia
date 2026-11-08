@@ -101,41 +101,55 @@ function _aplicarConflito(key, local, remoto, tLocal, tRemoto, tRemotoMeta) {
 function _ref() { return firebase.firestore().collection('chancelaria_users').doc(currentUid); }
 const _comTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('tempo esgotado ao falar com a nuvem')), ms))]);
 
-/* Envia UMA chave (transação). Retorna 'ok' | 'conflito' | 'superado' | 'nada'. */
-async function _enviarChave(key) {
-  const stamp = getDirty()[key]; if (!stamp) return 'nada';
-  const raw = localStorage.getItem(key); if (raw == null) { clearDirty(key, stamp); return 'nada'; }
-  const value = JSON.parse(raw), ref = _ref(), dev = deviceId(); let res = 'ok', remotoVal, remotoT = 0;
+/* Envia um LOTE de chaves em UMA transação (uma ida e volta ao servidor em vez de uma por chave).
+   Cada chave é avaliada separadamente: 'ok' | 'igual' | 'superado' | 'conflito'. A transação é atômica; se ela falhar
+   (ex.: documento grande demais), _drenar reenvia chave a chave para isolar a que falha. */
+async function _enviarLote(keys) {
+  const pend = {}; keys.forEach(k => { const stamp = getDirty()[k], raw = localStorage.getItem(k); if (!stamp) return; if (raw == null) { clearDirty(k, stamp); return; } pend[k] = { stamp, value: JSON.parse(raw) }; });
+  const ks = Object.keys(pend); if (!ks.length) return {};
+  const ref = _ref(), dev = deviceId(); let res = {}, remoto = {};
   await _comTimeout(firebase.firestore().runTransaction(async tx => {
-    const snap = await tx.get(ref), data = snap.exists ? snap.data() : {}, rm = (data.__meta || {})[key];
-    remotoT = rm ? rm.t : 0; remotoVal = data[key];
-    if (rm && rm.d === dev && rm.t > stamp) { res = 'superado'; return; }                 // gravação antiga: já existe uma mais nova deste aparelho
-    const base = getSyncBase()[key] || 0;
-    if (remotoT > base && remotoVal !== undefined && !deepEqual(remotoVal, value)) { res = 'conflito'; return; }   // outro aparelho mudou desde a última sincronização
-    if (remotoVal !== undefined && deepEqual(remotoVal, value)) { res = 'igual'; return; }
-    tx.set(ref, { [key]: value, __meta: { [key]: { t: stamp, d: dev } } }, { merge: true });
+    res = {}; remoto = {};                                                               // a função pode ser reexecutada pelo SDK
+    const snap = await tx.get(ref), data = snap.exists ? snap.data() : {}, meta = data.__meta || {}, base = getSyncBase(), upd = {}, novos = {};
+    for (const k of ks) {
+      const { stamp, value } = pend[k], rm = meta[k], rt = rm ? rm.t : 0, rv = data[k]; remoto[k] = { t: rt, v: rv };
+      if (rm && rm.d === dev && rt > stamp) res[k] = 'superado';                          // gravação antiga: já existe uma mais nova deste aparelho
+      else if (rt > (base[k] || 0) && rv !== undefined && !deepEqual(rv, value)) res[k] = 'conflito';   // outro aparelho mudou desde a última sincronização
+      else if (rv !== undefined && deepEqual(rv, value)) res[k] = 'igual';
+      else { res[k] = 'ok'; upd[k] = value; novos[k] = { t: stamp, d: dev }; }
+    }
+    if (Object.keys(upd).length) tx.set(ref, Object.assign({}, upd, { __meta: novos }), { merge: true });
   }), SYNC_TIMEOUT_MS);
-  if (res === 'conflito') { _aplicarConflito(key, value, remotoVal, stamp, remotoT, remotoT); return 'conflito'; }
-  const base = getSyncBase(); base[key] = res === 'ok' ? stamp : Math.max(remotoT, base[key] || 0); setSyncBase(base);
-  clearDirty(key, stamp);               // só limpa se não houve edição mais nova durante o voo
-  return res === 'superado' ? 'superado' : 'ok';
+  const base = getSyncBase();
+  for (const k of ks) {
+    const { stamp, value } = pend[k], r = res[k];
+    if (r === 'conflito') { _aplicarConflito(k, value, remoto[k].v, stamp, remoto[k].t, remoto[k].t); continue; }
+    base[k] = r === 'ok' ? stamp : Math.max(remoto[k].t, base[k] || 0); clearDirty(k, stamp);   // só limpa se não houve edição mais nova durante o voo
+  }
+  setSyncBase(Object.assign(getSyncBase(), Object.fromEntries(Object.entries(base).filter(([k]) => res[k] && res[k] !== 'conflito'))));
+  return res;
 }
+async function _enviarChave(key) { const r = (await _enviarLote([key]))[key]; return r === undefined ? 'nada' : r; }
 
 async function _drenar() {
   if (_sync.draining || !currentUid || typeof firebase === 'undefined') return;
   _sync.draining = true; let falhou = false;
   try {
-    for (let guard = 0; guard < 200; guard++) {
+    for (let guard = 0; guard < 100; guard++) {
       const keys = Object.keys(getDirty()).filter(k => CLOUD_KEYS.includes(k)); if (!keys.length) break;
-      let avancou = false;
-      for (const k of keys) {
-        if (navigator.onLine === false) { falhou = true; break; }
-        _sync.inflight = k; _syncNotify();
-        try { const r = await _enviarChave(k); avancou = true; _sync.ultimoOk = Date.now(); _sync.ultimoErro = null; if (r === 'conflito') _syncNotificarConflito(k); }
-        catch (e) { falhou = true; _sync.ultimoErro = String(e && e.message || e); console.error('Falha ao sincronizar', k, e); break; }
-        finally { _sync.inflight = null; }
+      if (navigator.onLine === false) { falhou = true; break; }
+      _sync.inflight = keys.length === 1 ? keys[0] : keys.length + ' grupos'; _syncNotify(); let progresso = false;
+      try { const r = await _enviarLote(keys); progresso = true; _sync.ultimoOk = Date.now(); _sync.ultimoErro = null; Object.entries(r).forEach(([k, v]) => { if (v === 'conflito') _syncNotificarConflito(k); }); }
+      catch (e) {
+        if (keys.length === 1) { falhou = true; _sync.ultimoErro = String(e && e.message || e); console.error('Falha ao sincronizar', keys[0], e); }
+        else for (const k of keys) {                                                       // isola a chave problemática: as demais continuam sincronizando
+          try { const r = await _enviarLote([k]); progresso = true; _sync.ultimoOk = Date.now(); if (r[k] === 'conflito') _syncNotificarConflito(k); }
+          catch (e2) { falhou = true; _sync.ultimoErro = `${k}: ${String(e2 && e2.message || e2)}`; console.error('Falha ao sincronizar', k, e2); }
+        }
+        if (!falhou) _sync.ultimoErro = null;
       }
-      if (falhou || !avancou) break;
+      finally { _sync.inflight = null; }
+      if (falhou || !progresso) break;
     }
   } finally { _sync.draining = false; _sync.inflight = null; }
   if (falhou || pendingSyncCount()) _agendarRetentativa(); else { _sync.retryMs = 0; clearTimeout(_sync.retryTimer); }

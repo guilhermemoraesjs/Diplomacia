@@ -79,6 +79,8 @@ function updFalhaRecente(build) { const f = updLerJSON('chancelaria_upd_fail'); 
 function updDispensado() { const d = updLerJSON('chancelaria_upd_dismissed'); return !!(UPD.nova && ((d && d.build === UPD.nova.build && Date.now() - d.em < UPD_DISPENSA_MS) || (!UPD.avisoManual && updFalhaRecente(UPD.nova.build)))); }
 function updMostrarBanner(msgOcupado) {
   let el = document.getElementById('updBanner');
+  if (UPD.erroBanner && !msgOcupado) return;                // não apaga a mensagem de erro com o aviso padrão
+  if (el && msgOcupado) el.className = 'upd-banner';
   if (!UPD.nova && !msgOcupado) { if (el) el.remove(); return; }
   if (!el) { el = document.createElement('div'); el.id = 'updBanner'; el.className = 'upd-banner'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
   if (msgOcupado) { el.innerHTML = `<div class="upd-ico">${typeof icon === 'function' ? icon('refresh') : ''}</div><div class="upd-body"><strong>${escHtml(msgOcupado)}</strong><span>Não feche nem recarregue esta página.</span></div>`; return; }
@@ -88,7 +90,7 @@ function updMostrarBanner(msgOcupado) {
       <span class="upd-vers">Versão instalada: <b>v${escHtml(APP_INFO.version)}</b> · Nova versão: <b>v${escHtml(UPD.nova.version)}</b></span></div>
     <div class="upd-actions"><button class="btn secondary small" onclick="applyUpdate()">Atualizar agora</button><button class="btn ghost small" onclick="updDispensar()">Depois</button></div>`;
 }
-function updDispensar() { if (UPD.nova) updGravar('chancelaria_upd_dismissed', { build: UPD.nova.build, em: Date.now() }); const el = document.getElementById('updBanner'); if (el) el.remove(); updAtualizarUI(); }
+function updDispensar() { UPD.erroBanner = false; if (UPD.nova) updGravar('chancelaria_upd_dismissed', { build: UPD.nova.build, em: Date.now() }); const el = document.getElementById('updBanner'); if (el) el.remove(); updAtualizarUI(); }
 function updAtualizarUI(manual) {
   document.body.classList.toggle('has-update', !!UPD.nova);
   if (UPD.nova && !updDispensado()) updMostrarBanner(); else if (!UPD.ocupado) { const el = document.getElementById('updBanner'); if (el && !UPD.nova) el.remove(); }
@@ -106,13 +108,13 @@ function updAguardar(cond, ms) { return new Promise(res => { const ini = Date.no
 
 /* Falha segura: nada foi ativado nem recarregado; a versão atual continua funcionando. */
 function updFalhar(alvo, motivo) {
-  console.error('Atualização não concluída:', motivo); UPD.ocupado = false; updGravar('chancelaria_upd_fail', { build: alvo.build, em: Date.now(), motivo: String(motivo) });
+  console.error('Atualização não concluída:', motivo); UPD.ocupado = false; UPD.erroBanner = true; updGravar('chancelaria_upd_fail', { build: alvo.build, em: Date.now(), motivo: String(motivo) });
   const el = document.getElementById('updBanner') || Object.assign(document.createElement('div'), { id: 'updBanner' }); el.className = 'upd-banner erro'; el.setAttribute('role', 'alert'); document.body.appendChild(el);
   el.innerHTML = `<div class="upd-body"><strong>Não foi possível instalar a nova versão</strong><span>${escHtml(motivo)} Nada foi alterado: você continua na v${escHtml(APP_INFO.version)} e seus dados estão seguros.</span></div><div class="upd-actions"><button class="btn secondary small" onclick="applyUpdate()">Tentar novamente</button><button class="btn ghost small" onclick="updDispensar()">Depois</button></div>`;
-  updAtualizarUI();
+  document.body.classList.add('has-update'); renderVersionPanel();
 }
 async function applyUpdate() {
-  if (UPD.ocupado) return; UPD.ocupado = true;
+  if (UPD.ocupado) return; UPD.ocupado = true; UPD.erroBanner = false;
   const alvo = UPD.nova || (UPD.ultimoResultado && UPD.ultimoResultado.info) || { version: '?', build: APP_INFO.build + 1 };
   try {
     updMostrarBanner('Salvando seus dados…');

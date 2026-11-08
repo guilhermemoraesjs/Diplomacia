@@ -42,11 +42,18 @@ Passo a passo completo (e o que fazer se algo der errado) em [`docs/ATUALIZACAO.
 
 ## Testes
 
-`npm test` (Node puro, sem dependências) e os testes E2E em `tests/e2e/` (Playwright). Veja [`docs/TESTES.md`](docs/TESTES.md).
+```bash
+npm install && npx playwright install chromium
+npm test            # unitários + consistência de versão (sem navegador)
+npm run test:e2e    # suítes de navegador contra o Firebase Emulator (precisa de Java)
+```
+Detalhes, comandos por área e limites do que é real × simulado em [`docs/TESTES.md`](docs/TESTES.md).
+Sincronização e plano para o limite do Firestore: [`docs/SINCRONIZACAO.md`](docs/SINCRONIZACAO.md).
+Relatório da segunda auditoria: [`docs/RELATORIO_SEGUNDA_AUDITORIA.md`](docs/RELATORIO_SEGUNDA_AUDITORIA.md).
 
 ## Segurança e dados
 
 - Nada de credencial privada no repositório: a configuração do Firebase Web (`config.js`) é pública por design;
   a proteção real são as **regras do Firestore** (ver `docs/ARQUITETURA.md`).
-- Backup: Configurações → Dados (exportar/importar JSON e pontos de restauração automáticos).
+- Backup: Configurações → **Backup e segurança** (exportar/importar JSON validado, pontos de restauração, integridade, estado da sincronização).
 - Backup do código antes da modernização: tag `backup-pre-modernizacao` (commit `8e640a9`) e `diplomacia.zip`.

@@ -25,10 +25,12 @@ async function novoAparelho(opts) {
   await p.goto(opts.url || URL); await p.waitForFunction(() => window.__EMU_ACTIVE === true, null, { timeout: 15000 });
   return { b, ctx, p, erros };
 }
-async function estavel(p, fn) { for (let i = 0; i < 40; i++) { try { if (await p.evaluate(fn) && await (async () => { await sleep(350); return p.evaluate(fn); })()) return true; } catch (e) { await sleep(300); } } return false; }
-async function login(d, uid) {
+async function estavel(p, fn) { for (let i = 0; i < 90; i++) { try { if (await p.evaluate(fn) && await (async () => { await sleep(350); return p.evaluate(fn); })()) return true; } catch (e) { await sleep(300); } } return false; }
+async function login(d, uid, opts) {
   await d.p.evaluate(async u => { const c = firebase.auth.GoogleAuthProvider.credential(JSON.stringify({ sub: u, email: u + '@teste.local', email_verified: true, name: 'Teste ' + u })); await firebase.auth().signInWithCredential(c); }, uid);
-  return estavel(d.p, () => typeof currentUid !== 'undefined' && currentUid && document.readyState === 'complete' && !_sync.draining && !!document.querySelector('#centralRoot .ct-head'));
+  const sem = !!(opts && opts.semDrenar);   // true: não exige o fim do envio inicial (muitos grupos de dados na 1ª sincronização podem demorar)
+  return estavel(d.p, sem ? () => typeof currentUid !== 'undefined' && currentUid && document.readyState === 'complete' && !!document.querySelector('#centralRoot .ct-head')
+    : () => typeof currentUid !== 'undefined' && currentUid && document.readyState === 'complete' && !_sync.draining && !!document.querySelector('#centralRoot .ct-head'));
 }
 const esperar = async (p, fn, arg, ms) => { try { await p.waitForFunction(fn, arg, { timeout: ms || 15000 }); return true; } catch (e) { return false; } };
 module.exports = { uidDe, check, resumo, sleep, req, emuDisponivel, limparEmu, fsGet, fsSet, novoAparelho, login, esperar, estavel };

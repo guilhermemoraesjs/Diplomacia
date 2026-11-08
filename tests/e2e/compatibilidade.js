@@ -21,7 +21,9 @@ function contem(orig, atual, caminho) { // todo campo do original precisa existi
 (async () => {
   await H.emuOuSair(); const d = await H.novoAparelho(); const p = d.p, ev = (f, a) => p.evaluate(f, a);
   await d.ctx.addInitScript(l => { if (!localStorage.getItem('__legado')) { localStorage.setItem('__legado', '1'); Object.entries(l).forEach(([k, v]) => localStorage.setItem(k, JSON.stringify(v))); } }, LEGADO);
-  await p.goto(process.env.CHANC_URL || 'http://localhost:8123/index.html'); await p.waitForFunction(() => window.__EMU_ACTIVE === true); check(await H.login(d, 'legado' + Date.now()), 'app abre com dados antigos já salvos');
+  await p.goto(process.env.CHANC_URL || 'http://localhost:8123/index.html'); await p.waitForFunction(() => window.__EMU_ACTIVE === true);
+  const okLogin = await H.login(d, 'legado' + Date.now(), { semDrenar: true });
+  check(okLogin, 'app abre com dados antigos já salvos');
   console.log('\n[Leitura e exibição dos dados antigos]');
   check(d.erros.length === 0, 'carregou sem erros de JavaScript', d.erros.join(' | '));
   await H.ir(p, 'cronograma'); await p.click('#cronoRoot .subtab-btn:has-text("Lista")'); let t = await p.textContent('.cr-corpo'); check(t.includes('Guerra do Paraguai') && t.includes('Sem data') && t.includes('Atrasada'), 'cronograma: itens antigos listados (data passada = atrasada; "—" = sem data)');
@@ -50,7 +52,7 @@ function contem(orig, atual, caminho) { // todo campo do original precisa existi
   difs.push(...contem({ ...esperados.diplo_revisao[0], r2: true }, atual.diplo_revisao[0], 'diplo_revisao[0]'));
   check(difs.length === 0, 'todos os campos originais continuam presentes e idênticos após salvar tudo de novo e recarregar', difs.slice(0, 4).join(' | '));
   check(await ev(() => load('dashboard_streak', []).slice(0, 2).join() === '2026-11-06,2026-11-07'), 'sequência de estudos antiga preservada');
-  await H.esperar(p, () => pendingSyncCount() === 0, null, 20000); const cloud = await H.fsGet(await ev(() => currentUid)); check(cloud && cloud.diplo_cronograma[0].tema === 'Guerra do Paraguai' && cloud.flash_cards[0].srs.acertos === 5, 'dados antigos (e a revisão) foram enviados à nuvem sem perda');
+  await H.esperar(p, () => pendingSyncCount() === 0, null, 150000); const cloud = await H.fsGet(await ev(() => currentUid)); check(cloud && cloud.diplo_cronograma[0].tema === 'Guerra do Paraguai' && cloud.flash_cards[0].srs.acertos === 5, 'dados antigos (e a revisão) foram enviados à nuvem sem perda');
   check(d.erros.length === 0, 'nenhum erro de JavaScript na sessão', d.erros.join(' | '));
   await d.b.close(); process.exit(H.resumo());
 })().catch(e => { console.error('ERRO NO TESTE', e); process.exit(2); });

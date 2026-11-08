@@ -27,6 +27,17 @@ Configurações. Sem internet, mostra “Sem conexão: não foi possível verifi
 Cartão discreto: “Nova versão disponível — Versão instalada: vX · Nova versão: vY — [Atualizar agora] [Depois]”.
 “Depois” dispensa por 2 h (o item “Versão” do menu segue indicando atualização). **Nunca recarrega sozinho.**
 
+### Instalação atômica e falhas (v1.1.0)
+- **`sw.js` só instala se TODOS os arquivos do pré-cache forem baixados com HTTP 200** (ícones de `assets/` são opcionais) **e** o
+  `js/version.js` baixado for do mesmo build do Service Worker. Qualquer falha (404, rede, deploy pela metade) derruba a instalação:
+  o cache incompleto é apagado, o worker novo vira `redundant` e **a versão anterior continua ativa**.
+- `applyUpdate()` espera o estado do worker (`installed` × `redundant`/tempo esgotado). Se falhar, **não recarrega**, mostra
+  “Não foi possível instalar a nova versão — nada foi alterado” com **Tentar novamente**, e registra a falha por 30 min para o
+  aviso automático da mesma versão não ficar insistindo (sem ciclos).
+- Se o worker não assumir o controle, a página pede `CLAIM` e confere a versão do Service Worker ativo via `GET_VERSION`.
+- Boot: se o Service Worker ativo for mais novo que o código carregado (HTML/JS do cache), a página avisa que está desatualizada.
+- Antes de tudo: `flushPendingSync` + snapshot `pre-atualizacao-vX`; edições pendentes continuam pendentes (e seguras no aparelho).
+
 ### Atualizar agora
 1. `flushPendingSync()` — grava edições abertas e tenta enviar à nuvem (8 s). Offline: ficam salvas no aparelho e marcadas como pendentes.
 2. Snapshot de segurança no IndexedDB (`pre-atualizacao-vX`).

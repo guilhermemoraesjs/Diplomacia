@@ -5,7 +5,7 @@ function servir(raiz, porta, opts) {
   opts = opts || {};
   const s = http.createServer((req, res) => {
     let p = decodeURIComponent(req.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html';
-    if (opts.falhar && opts.falhar(p, req)) { res.writeHead(opts.status || 500); return res.end('falha simulada'); }
+    const ic = opts.interceptar && opts.interceptar(p, req); if (ic) { res.writeHead(ic.status || 200, { 'Content-Type': ic.type || 'text/plain', 'Cache-Control': 'no-store' }); return res.end(ic.body || ''); }
     const f = path.join(raiz, p); if (!f.startsWith(raiz) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end('404'); }
     res.writeHead(200, { 'Content-Type': T[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); fs.createReadStream(f).pipe(res);
   });
