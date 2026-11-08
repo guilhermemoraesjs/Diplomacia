@@ -101,12 +101,12 @@ function renderSimuladosHome() {
 
   const statsEl = document.getElementById('simuladosStats');
   if (statsEl) statsEl.innerHTML = `
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">📄</span><div><div class="dash-stat-label">Provas cadastradas</div><div class="dash-stat-n">${simuladosProvasIndex.length}</div><div class="dash-stat-sub">${simuladosProvasIndex.map(p => p.ano).sort()[0] || '—'} - ${simuladosProvasIndex.map(p => p.ano).sort().slice(-1)[0] || '—'}</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">🧩</span><div><div class="dash-stat-label">Questões disponíveis</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">Todas as disciplinas</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">✅</span><div><div class="dash-stat-label">Questões respondidas</div><div class="dash-stat-n">${st.respondidas}</div><div class="dash-stat-sub">${st.total ? Math.round((st.respondidas / st.total) * 100) : 0}% do total</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">🎯</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">Média geral</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">⏱️</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${fmtSeg(st.tempoMedio)}</div><div class="dash-stat-sub">Por questão</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#C24B4B;">📈</span><div><div class="dash-stat-label">Simulados realizados</div><div class="dash-stat-n">${dashAtividade.filter(a => a.tipo === 'simulado').length}</div><div class="dash-stat-sub">Últimos 90 dias</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">${ico('📄')}</span><div><div class="dash-stat-label">Provas cadastradas</div><div class="dash-stat-n">${simuladosProvasIndex.length}</div><div class="dash-stat-sub">${simuladosProvasIndex.map(p => p.ano).sort()[0] || '—'} - ${simuladosProvasIndex.map(p => p.ano).sort().slice(-1)[0] || '—'}</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">${ico('🧩')}</span><div><div class="dash-stat-label">Questões disponíveis</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">Todas as disciplinas</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">${ico('✅')}</span><div><div class="dash-stat-label">Questões respondidas</div><div class="dash-stat-n">${st.respondidas}</div><div class="dash-stat-sub">${st.total ? Math.round((st.respondidas / st.total) * 100) : 0}% do total</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">Média geral</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${fmtSeg(st.tempoMedio)}</div><div class="dash-stat-sub">Por questão</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#C24B4B;">${ico('📈')}</span><div><div class="dash-stat-label">Simulados realizados</div><div class="dash-stat-n">${dashAtividade.filter(a => a.tipo === 'simulado').length}</div><div class="dash-stat-sub">Últimos 90 dias</div></div></div>
   `;
 
   const erradasCount = Object.entries(simuladosProgresso.respondidas).filter(([, r]) => !r.correta).length;
@@ -123,7 +123,7 @@ function renderSimuladosHome() {
   const modosEl = document.getElementById('simuladosModos');
   if (modosEl) modosEl.innerHTML = modos.map(m => `
     <div class="card sim-modo-card" onclick="iniciarFluxoModo('${m.id}')">
-      <div class="sim-modo-icone">${m.icone}</div>
+      <div class="sim-modo-icone">${ico(m.icone, 22)}</div>
       <div class="sim-modo-titulo">${m.titulo}</div>
       <div class="sim-modo-desc">${m.desc}</div>
       ${m.badge ? `<div class="sim-modo-badge mono">${m.badge}</div>` : ''}
@@ -159,7 +159,7 @@ function renderSimuladosHome() {
   const atEl = document.getElementById('simuladosAtividadeRecente');
   if (atEl) atEl.innerHTML = dashAtividade.slice(0, 6).map(a => `
     <div class="dash-activity-row">
-      <span class="dash-activity-ic ${a.tipo}">${a.tipo === 'acerto' ? '✓' : a.tipo === 'erro' ? '✕' : '🔁'}</span>
+      <span class="dash-activity-ic ${a.tipo}">${a.tipo === 'acerto' ? '✓' : a.tipo === 'erro' ? '✕' : ico('🔁', 14)}</span>
       <div><div class="dash-activity-txt">${a.texto}</div><div class="dash-activity-time">${tempoRelativo(a.data)}</div></div>
     </div>`).join('') || '<div class="biblio-empty">Nenhuma atividade ainda — comece a resolver questões.</div>';
 
@@ -173,7 +173,7 @@ function renderSimuladosHome() {
   /* Gráfico de evolução (acerto acumulado por dia) */
   const porDia = {};
   Object.values(simuladosProgresso.respondidas).forEach(r => {
-    const dia = r.data.slice(0, 10);
+    const dia = isoDateTimeToLocalYMD(r.data);
     if (!porDia[dia]) porDia[dia] = { total: 0, corretas: 0 };
     porDia[dia].total++; if (r.correta) porDia[dia].corretas++;
   });
@@ -182,19 +182,19 @@ function renderSimuladosHome() {
 
   /* Sequência de estudos */
   const streakEl = document.getElementById('simuladosStreakInfo');
-  if (streakEl) streakEl.innerHTML = `<div class="dash-streak-n">🔥 ${streak} dias</div><div class="dash-streak-sub">Melhor sequência: ${melhorStreak} dias</div>`;
+  if (streakEl) streakEl.innerHTML = `<div class="dash-streak-n">${streak} dias seguidos</div><div class="dash-streak-sub">Melhor sequência: ${melhorStreak} dias</div>`;
   const streakDaysEl = document.getElementById('simuladosStreakDias');
   if (streakDaysEl && typeof ultimosSeteDias === 'function') streakDaysEl.innerHTML = ultimosSeteDias().map(d =>
     `<div class="dash-streak-day"><span>${d.label}</span><span class="dash-streak-dot ${dashStreakDias.includes(d.iso) ? 'active' : ''}">${dashStreakDias.includes(d.iso) ? '✓' : ''}</span></div>`).join('');
 
   /* Meta mensal */
   const mesAtual = todayISO().slice(0, 7);
-  const respondidasMes = Object.values(simuladosProgresso.respondidas).filter(r => r.data.slice(0, 7) === mesAtual).length;
+  const respondidasMes = Object.values(simuladosProgresso.respondidas).filter(r => isoDateTimeToLocalYMD(r.data).slice(0, 7) === mesAtual).length;
   const pctMeta = Math.min(100, Math.round((respondidasMes / dashMetas.mensal) * 100));
   const metaEl = document.getElementById('simuladosMetaMensal');
   if (metaEl) metaEl.innerHTML = `
     <div class="ring" style="--pct:${pctMeta}; margin:0 auto;"><div class="hole">${pctMeta}%</div></div>
-    <div style="text-align:center; margin-top:10px;"><div style="font-family:'Fraunces',serif; font-size:15px;">${dashMetas.mensal} questões</div><div class="mono" style="font-size:11px; color:var(--text-muted);">${respondidasMes} / ${dashMetas.mensal} · continue assim!</div></div>
+    <div style="text-align:center; margin-top:10px;"><div style="font-family:'Inter',sans-serif; font-size:15px;">${dashMetas.mensal} questões</div><div class="mono" style="font-size:11px; color:var(--text-muted);">${respondidasMes} / ${dashMetas.mensal} · continue assim!</div></div>
   `;
 }
 
@@ -216,7 +216,7 @@ function iniciarFluxoModo(modo) {
 }
 
 async function iniciarSessaoComIds(ids, modo, cronometro, titulo) {
-  if (!ids.length) { alert('Não há questões nessa categoria ainda.'); return; }
+  if (!ids.length) { toast('Não há questões nessa categoria ainda.', 'aviso'); return; }
   const questoes = await carregarQuestoesPorIds(ids);
   iniciarSessao(questoes, modo, cronometro, titulo);
 }
@@ -261,15 +261,15 @@ function renderSimuladosConfig() {
         <button type="button" class="chip" id="cfgModoSimulado" onclick="setCfgModo('simulado')">Simulado (só no final)</button>
       </div>
       <label class="field-label" style="margin-top:14px; display:flex; align-items:center; gap:8px; cursor:pointer;">
-        <input type="checkbox" id="cfgCronometro" checked style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">⏱️ Cronômetro ligado</span>
+        <input type="checkbox" id="cfgCronometro" checked style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">Cronômetro ligado</span>
       </label>
       <label class="field-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-        <input type="checkbox" id="cfgEmbaralharQ" ${modo !== 'provaCompleta' ? 'checked' : ''} style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">🔀 Embaralhar questões</span>
+        <input type="checkbox" id="cfgEmbaralharQ" ${modo !== 'provaCompleta' ? 'checked' : ''} style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">Embaralhar questões</span>
       </label>
       <label class="field-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-        <input type="checkbox" id="cfgEmbaralharAlt" style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">🔀 Embaralhar alternativas</span>
+        <input type="checkbox" id="cfgEmbaralharAlt" style="width:16px; height:16px; accent-color:var(--ub-azul);"> <span style="text-transform:none; letter-spacing:0;">Embaralhar alternativas</span>
       </label>
-      <button class="btn secondary" style="margin-top:18px;" onclick="confirmarConfigECome车()">Começar</button>
+      <button class="btn secondary" style="margin-top:18px;" onclick="confirmarConfigEComecar()">Começar</button>
     </div>
   `;
 }
@@ -280,7 +280,7 @@ function setCfgModo(m) {
   document.getElementById('cfgModoSimulado').classList.toggle('active', m === 'simulado');
 }
 
-async function confirmarConfigECome车() {
+async function confirmarConfigEComecar() {
   const modo = simuladoConfigModoAtual;
   const cronometro = document.getElementById('cfgCronometro').checked;
   let questoes = [];
@@ -305,7 +305,7 @@ async function confirmarConfigECome车() {
     questoes = await carregarQuestoesPorIds(pool.map(q => q.id));
   }
 
-  if (!questoes.length) { alert('Nenhuma questão encontrada com esses filtros.'); return; }
+  if (!questoes.length) { toast('Nenhuma questão encontrada com esses filtros.', 'aviso'); return; }
   if (document.getElementById('cfgEmbaralharAlt') && document.getElementById('cfgEmbaralharAlt').checked) {
     questoes = questoes.map(embaralharAlternativas);
   }
@@ -377,7 +377,7 @@ function renderSimuladoProva() {
     return `<button type="button" class="${cls}" onclick="responderQuestao('${letra}')" ${q.anulado ? 'disabled' : ''}><b>${letra}</b> — ${label}</button>`;
   }).join('') : '');
 
-  const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>⚠ Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.</div>` : '';
+  const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.</div>` : '';
 
   wrap.innerHTML = `
     <div class="sim-topbar">
@@ -391,19 +391,19 @@ function renderSimuladoProva() {
         <span class="mono" style="font-size:11px; color:var(--text-muted);">${q.disciplina} · ${q.tema}</span>
         <div style="display:flex; gap:6px;">
           <button class="sim-icon-btn ${fav ? 'active' : ''}" onclick="toggleFavoritaQuestao('${q.id}')" title="Favoritar">★</button>
-          <button class="sim-icon-btn ${marcada ? 'active' : ''}" onclick="toggleRevisaoQuestao('${q.id}')" title="Marcar para revisar">🔁</button>
+          <button class="sim-icon-btn ${marcada ? 'active' : ''}" onclick="toggleRevisaoQuestao('${q.id}')" title="Marcar para revisar" aria-label="Marcar para revisar">${ico('🔁', 16)}</button>
         </div>
       </div>
       <p class="sim-enunciado">${q.enunciado}</p>
       <div class="sim-alternativas">${altsHtml}</div>
       ${avisoAnulado}
-      ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? '✅ Correto!' : '❌ Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
-      ${mostrarFeedback && !resposta.correta && !q.anulado ? `<button class="btn ghost small" style="margin-top:10px;" onclick="flashCriarDeErro('${q.id}')">🔁 Criar flashcard do erro</button>` : ''}
+      ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? 'Correto!' : 'Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
+      ${mostrarFeedback && !resposta.correta && !q.anulado ? `<button class="btn ghost small" style="margin-top:10px;" onclick="flashCriarDeErro('${q.id}')">Criar flashcard do erro</button>` : ''}
       <label class="field-label" style="margin-top:14px;">Sua anotação</label>
       <textarea onchange="salvarAnotacaoQuestao('${q.id}', this.value)" placeholder="Anote algo sobre esta questão...">${simuladosProgresso.anotacoes[q.id] || ''}</textarea>
       ${(q.paisesRelacionados || []).length ? `<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">${q.paisesRelacionados.map(pid => `
-        <button class="btn ghost small" onclick="abrirPaisDaQuestao('${pid}')">🌍 Abrir ficha: ${pid}</button>
-        <button class="btn ghost small" onclick="abrirFlashcardsDoPais('${pid}')">🔁 Flashcards: ${pid}</button>
+        <button class="btn ghost small" onclick="abrirPaisDaQuestao('${pid}')">Abrir ficha: ${pid}</button>
+        <button class="btn ghost small" onclick="abrirFlashcardsDoPais('${pid}')">Flashcards: ${pid}</button>
       `).join('')}</div>` : ''}
     </div>
     <div style="display:flex; justify-content:space-between; margin-top:14px;">
@@ -499,6 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const telaRevisao = document.getElementById('tela-revisao-importacao');
     const containerRevisao = document.getElementById('container-revisao-questoes');
     const btnSalvar = document.getElementById('btn-salvar-json-plataforma');
+    /* Esta interface de importação (PDF) não existe no index.html; sem os elementos, o bloco inteiro era
+       executado e gerava TypeError a cada carregamento. Agora ele só roda se a interface estiver presente. */
+    if (!inputProva || !inputGabarito || !btnProcessar) return;
 
     let itensExtraidos = [];
 
@@ -661,6 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadAnchor.click();
         downloadAnchor.remove();
 
-        alert(`Sucesso! O arquivo '${ano}-${periodo}.json' foi gerado. Insira-o na pasta 'data/simulados/provas/' do seu projeto para integrá-lo ao banco.`);
+        toast(`Sucesso! O arquivo '${ano}-${periodo}.json' foi gerado. Insira-o na pasta 'data/simulados/provas/' do seu projeto para integrá-lo ao banco.`, 'aviso');
     });
 });

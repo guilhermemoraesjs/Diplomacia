@@ -1,36 +1,16 @@
 /* ==========================================================================
-   stats.js — módulo "Início": estatísticas gerais e Despacho do Dia
-   (agenda que junta pendências de Cronograma e revisão de idiomas).
+   stats.js — atualização dos indicadores globais (barra lateral, selos do
+   menu e Central de Estudos). O "Despacho do Dia" agora vive em central.js.
+   refreshStats() é chamado após qualquer alteração relevante de dados.
    ========================================================================== */
-
-function renderDailyBrief() {
-  const container = document.getElementById('dailyBriefContent'); if (!container) return;
-  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-  let html = `<div class="brief-section"><span class="brief-section-title">Frente I — Idiomas (SRS)</span><div class="brief-item" onclick="goTab('palavras')"><div class="brief-item-meta"><span>Transmissão Ativa</span><span>Palavras</span></div><div class="brief-item-title">Revisão Espaçada Diária</div></div></div>`;
-
-  const diarias = cronograma.filter(c => { const d = parseBR(c.data); return d && isMesmoDia(d, hoje) && !c.feito; });
-  const atrasadas = cronograma.filter(c => { const d = parseBR(c.data); return d && d < hoje && !c.feito; });
-
-  html += `<div class="brief-section"><span class="brief-section-title">Frente II — Edital Diplomacia</span>`;
-  atrasadas.forEach(c => { html += `<div class="brief-item item-atrasado" onclick="openCronoEditModal('${c.id}')"><div class="brief-item-meta"><span>${c.materia}</span><span style="color:var(--bad);">🚨 ATRASADA</span></div><div class="brief-item-title">${c.tema}</div></div>`; });
-  diarias.forEach(c => { html += `<div class="brief-item" onclick="openCronoEditModal('${c.id}')"><div class="brief-item-meta"><span>${c.materia}</span><span>HOJE</span></div><div class="brief-item-title">${c.tema}</div></div>`; });
-  if (!diarias.length && !atrasadas.length) html += `<div class="empty" style="padding:12px 0;">Nenhuma obrigação pendente.</div>`;
-  html += `</div>`;
-  container.innerHTML = html;
-}
+function renderDailyBrief() { if (typeof renderCentral === 'function') renderCentral(); }   // compatibilidade
 
 function refreshStats() {
-  document.getElementById('statMaterias').textContent = materias.length;
-  document.getElementById('statQuestoes').textContent = questoes.length;
-  document.getElementById('statNotas').textContent = notas.length;
-  document.getElementById('statDocs').textContent = biblioDocs.length;
-  document.getElementById('diploProgressLabel').textContent = pctGeral() + '% do edital coberto';
-  const r = document.getElementById('diploRing'); if (r) r.style.setProperty('--pct', pctGeral());
-  const pct = document.getElementById('diploProgressPct'); if (pct) pct.textContent = pctGeral() + '%';
-  const bc = document.getElementById('biblioCountLabel');
-  if (bc) {
-    const dueCount = docsDueForReview().length;
-    bc.textContent = biblioDocs.length + ' documento' + (biblioDocs.length === 1 ? '' : 's') + ' arquivado' + (biblioDocs.length === 1 ? '' : 's') + (dueCount ? ` · ${dueCount} p/ revisar` : '');
-  }
-  renderDailyBrief();
+  try {
+    const q = qbResumo(), meta = document.getElementById('sidebarMetaDiaria'); if (meta) meta.textContent = `${q.hoje}/${q.metaDia}`;
+    const sk = document.getElementById('simuladosStreakInfo'); if (sk && typeof calcularStreakAtual === 'function') sk.innerHTML = `<div class="dash-streak-n">${calcularStreakAtual()} dias seguidos</div><div class="dash-streak-sub">Melhor sequência: ${calcularMelhorStreak()} dias</div>`;
+    const v = document.getElementById('sidebarVersion'); if (v && typeof APP_INFO !== 'undefined') v.innerHTML = `<span>Versão v${escHtml(APP_INFO.version)}</span>`;
+    renderSidebar();
+    const c = document.getElementById('view-inicio'); if (c && c.classList.contains('active')) renderCentral();
+  } catch (e) { console.error('refreshStats', e); }
 }

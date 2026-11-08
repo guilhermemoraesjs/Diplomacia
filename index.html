@@ -2,82 +2,29 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A1329">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chancelaria">
+<link rel="manifest" href="manifest.webmanifest">
 <title>Chancelaria — Gabinete de Estudos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/logo-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/logo-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/logo-180.png">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=1">
+<link rel="stylesheet" href="css/modern.css?v=1">
+<link rel="stylesheet" href="css/modulos.css?v=1">
 </head>
 <body data-theme="dark" data-active-tab="inicio">
-
-<!-- GABINETE MODAL DE ANOTAÇÕES -->
-<div id="editCronoModal" class="modal-overlay" onclick="closeEditModal(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <h3>Gabinete de Estudo — Detalhes</h3>
-    <input type="hidden" id="editCronoId">
-
-    <label class="field-label">Tema / Tópico</label>
-    <input type="text" id="editCronoTema">
-
-    <label class="field-label">Fichamento / Suas Anotações de Estudo</label>
-    <textarea id="editCronoEstudar" placeholder="Escreva aqui seus resumos, insights e anotações do que foi estudado..."></textarea>
-
-    <div class="row2">
-      <div>
-        <label class="field-label">Matéria</label>
-        <select id="editCronoMateria"></select>
-      </div>
-      <div>
-        <label class="field-label">Semana</label>
-        <input type="text" id="editCronoSemana">
-      </div>
-    </div>
-
-    <div class="row2">
-      <div>
-        <label class="field-label">Data de Execução</label>
-        <input type="date" id="editCronoData">
-      </div>
-      <div>
-        <label class="field-label">Tempo Estimado</label>
-        <input type="text" id="editCronoTempo">
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn ghost small" onclick="closeEditModalDirect()">Cancelar</button>
-      <button class="btn secondary small" onclick="saveCronoEdition()">Salvar Alterações</button>
-    </div>
-  </div>
-</div>
-
-<!-- GABINETE MODAL — CONTEÚDO DO DIA (aberto ao clicar em um dia do calendário) -->
-<div id="cronoDayModal" class="modal-overlay" onclick="closeCronoDayModal(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <h3 id="cronoDayModalTitle">Dia</h3>
-
-    <div id="cronoDayModalList" class="day-modal-list"></div>
-
-    <label class="field-label" style="margin-top:14px;">Deixar uma matéria neste dia</label>
-    <div class="day-modal-add-row">
-      <span id="cronoDayModalMateriaSwatch" class="day-modal-materia-swatch"></span>
-      <select id="cronoDayModalMateria" onchange="updateCronoDayModalSwatch()"></select>
-    </div>
-    <input type="text" id="cronoDayModalTema" placeholder="O que vai estudar? (ex.: Guerra do Paraguai)" onkeydown="if(event.key==='Enter')addCronoFromDayModal()">
-
-    <div class="modal-actions">
-      <button class="btn ghost small" onclick="closeCronoDayModalDirect()">Fechar</button>
-      <button class="btn secondary small" onclick="addCronoFromDayModal()">Adicionar ao dia</button>
-    </div>
-  </div>
-</div>
 
 <!-- GABINETE MODAL — FICHA DE PAÍS -->
 <div id="paisModal" class="modal-overlay" onclick="closePaisModal(event)">
@@ -105,98 +52,20 @@
   </div>
 </div>
 
-<div class="letterhead">
-  <div class="brand">
-    <img src="assets/logo-96.png" alt="Chancelaria" class="brand-logo-img crest">
-    <h1>Chancelaria</h1>
-    <div class="sub">gabinete pessoal de estudos</div>
-  </div>
-  <div class="top-right-cabinet">
-    <button class="global-search-trigger" onclick="abrirBuscaGlobal()">🔎 Buscar questões, temas, países... <kbd>⌘K</kbd></button>
-    <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Alternar Tema</button>
-    <div class="protocolo mono">
-      <div id="protocoloData">—</div>
-      <div>Processo nº 001/2026</div>
-      <div class="authbox" id="authBox"></div>
-    </div>
-  </div>
-</div>
+<div class="shell">
+<header class="topbar">
+  <div class="brand-mini"><img src="assets/logo-96.png" alt="Chancelaria"></div>
+  <h1 class="topbar-title" id="topbarTitle">Central de Estudos</h1>
+  <span class="topbar-spacer"></span>
+  <button class="icon-btn search-trigger" onclick="abrirBuscaGlobal()" aria-label="Buscar em tudo"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></svg><span class="lbl">Buscar questões, temas, países...</span><kbd>Ctrl K</kbd></button>
+  <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Alternar tema"></button>
+  <div class="authbox" id="authBox"></div>
+</header>
 
-<main>
+<a class="skip-link" href="#mainContent">Ir para o conteúdo</a>
+<main id="mainContent" tabindex="-1">
   <section class="view active" id="view-inicio">
-    <p class="intro-line">"Duas frentes, um só processo: a palavra e a mesa de negociação."</p>
-
-    <div class="inicio-split">
-      <div>
-        <div class="dossie" style="--accent:var(--ub-azul);" onclick="goTab('palavras')">
-          <div class="stamp">arquivo ativo</div>
-          <div class="tag">Dossiê I</div>
-          <h2>Palavras</h2>
-          <p>Hub Linguístico — latim, francês, inglês, espanhol. Vocabulário, leitura e SRS.</p>
-          <div class="foot">
-            <span class="progress-label" style="color:var(--ub-verde);">conectado ✓</span>
-            <div class="ring" style="--pct:100;"><div class="hole">✒</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--seal);" onclick="goTab('diplomacia')">
-          <div class="stamp">em andamento</div>
-          <div class="tag">Dossiê II</div>
-          <h2>Diplomacia</h2>
-          <p>Preparação CACD / Instituto Rio Branco — matérias, cronograma, questões, discursiva e atualidades.</p>
-          <div class="foot">
-            <span class="progress-label" id="diploProgressLabel">0% do edital coberto</span>
-            <div class="ring" id="diploRing" style="--pct:0;"><div class="hole" id="diploProgressPct">0%</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--ok);" onclick="goTab('biblioteca')">
-          <div class="stamp">acervo pessoal</div>
-          <div class="tag">Dossiê III</div>
-          <h2>Biblioteca</h2>
-          <p>Seu acervo de documentos, fichamentos e leituras — organizado por estantes, buscável e conectado por tema.</p>
-          <div class="foot">
-            <span class="progress-label" id="biblioCountLabel">0 documentos arquivados</span>
-            <div class="ring" style="--pct:100;"><div class="hole">📚</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--azul-light);" onclick="goTab('paises')">
-          <div class="stamp">acervo geopolítico</div>
-          <div class="tag">Dossiê IV</div>
-          <h2>Países</h2>
-          <p>Fichas completas de todos os países — capitais, organizações, política externa e mapa-múndi interativo.</p>
-          <div class="foot">
-            <span class="progress-label" id="paisesCountLabel">0 países catalogados</span>
-            <div class="ring" style="--pct:100;"><div class="hole">🌐</div></div>
-          </div>
-        </div>
-
-        <div class="dossie" style="--accent:var(--seal-glow);" onclick="goTab('simulados')">
-          <div class="stamp">banco de questões</div>
-          <div class="tag">Dossiê V</div>
-          <h2>Simulados</h2>
-          <p>Resolva provas do CACD direto na plataforma, sem PDFs — por disciplina, ano ou simulado personalizado.</p>
-          <div class="foot">
-            <span class="progress-label">10 questões cadastradas</span>
-            <div class="ring" style="--pct:100;"><div class="hole">📝</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="daily-brief-container">
-        <h3>Despacho do Dia: Agenda & Obrigações</h3>
-        <div id="dailyBriefContent"></div>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="card stat-card"><div class="n" id="statMaterias">0</div><div class="l">matérias</div></div>
-      <div class="card stat-card"><div class="n" id="statQuestoes">0</div><div class="l">questões</div></div>
-      <div class="card stat-card"><div class="n" id="statNotas">0</div><div class="l">anotações</div></div>
-      <div class="card stat-card"><div class="n" id="statDocs">0</div><div class="l">documentos</div></div>
-      <div class="card stat-card"><div class="n" id="streakCount">0</div><div class="l">dias seguidos</div></div>
-    </div>
+    <div id="centralRoot"><div class="loading">Carregando sua central de estudos…</div></div>
   </section>
 
   <section class="view" id="view-palavras">
@@ -221,6 +90,7 @@
     </div>
 
     <div class="subview active" id="sub-materias">
+      <div class="page-head"><div><h2>Matérias e edital</h2><p>Organize o edital em temas e subtemas e acompanhe o que já foi estudado. Os assuntos cadastrados aqui alimentam Cronograma, Questões, Biblioteca e Flashcards.</p></div></div>
       <div id="materiasList"></div>
       <div class="card">
         <label class="field-label">Nova Matéria</label>
@@ -232,42 +102,10 @@
     </div>
 
     <div class="subview" id="sub-cronograma">
+      <div id="cronoRoot"><div class="loading">Carregando cronograma…</div></div>
+      <div class="panel-title" style="margin-top:26px;">Revisões manuais (D+1 · D+7 · D+30)</div><p class="intro-line" style="margin-top:-6px;">Itens de revisão cadastrados manualmente. Eles também aparecem em <a href="#" onclick="goTab('revisao'); return false;" style="text-decoration:underline;">Revisão espaçada</a>, junto com flashcards e documentos da Biblioteca.</p>
       <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-        <button class="btn danger small" onclick="limparCronogramaTudo()">🗑️ Excluir todo o cronograma</button>
-      </div>
-      <div class="filters" id="cronoFiltroMateria"></div>
-      <div class="filters">
-        <button class="chip active" id="cronoStatusTodasBtn" onclick="setCronoStatusFiltro('todas')">Todas</button>
-        <button class="chip" id="cronoStatusPendentesBtn" onclick="setCronoStatusFiltro('pendentes')">⏳ Pendentes</button>
-        <button class="chip" id="cronoStatusAtrasadosBtn" onclick="setCronoStatusFiltro('atrasados')">🚨 Atrasadas</button>
-        <button class="chip" id="cronoStatusConcluidosBtn" onclick="setCronoStatusFiltro('concluidos')">✓ Concluídas</button>
-      </div>
-      <div class="filters">
-        <button class="chip active" id="cronoViewDiaBtn" onclick="setCronoView('dia')">📅 Por dia</button>
-        <button class="chip" id="cronoViewMateriaBtn" onclick="setCronoView('materia')">Por matéria</button>
-        <button class="chip" id="cronoViewCalBtn" onclick="setCronoView('calendario')">📅 Calendário</button>
-      </div>
-      <div id="calendarioWrap" style="display:none;"><div id="calendarView" class="crono-cal"></div></div>
-      <div id="cronogramaList"></div>
-
-      <div class="card">
-        <label class="field-label">Novo item do cronograma</label>
-        <input type="text" id="cTema" placeholder="Tema (ex.: Guerra do Paraguai)">
-        <textarea id="cEstudar" placeholder="O que estudar..." style="min-height:50px;"></textarea>
-        <div class="row2">
-          <div><label class="field-label">Matéria</label><select id="cMateria"></select></div>
-          <div><label class="field-label">Semana</label><input type="text" id="cSemana" placeholder="Semana 5"></div>
-        </div>
-        <div class="row2">
-          <div><label class="field-label">Data</label><input type="date" id="cData"></div>
-          <div><label class="field-label">Tempo estimado</label><input type="text" id="cTempo" placeholder="2h30"></div>
-        </div>
-        <div style="margin-top:12px;"><button class="btn secondary" onclick="addCronograma()">Adicionar ao cronograma</button></div>
-      </div>
-
-      <h3 class="section-title" style="margin-top:22px;">Revisão espaçada</h3>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-        <button class="btn danger small" onclick="limparRevisaoTudo()">🗑️ Excluir toda a revisão espaçada</button>
+        <button class="btn danger small" onclick="limparRevisaoTudo()">Excluir toda a revisão espaçada</button>
       </div>
       <div id="revisaoList"></div>
       <div class="card">
@@ -278,7 +116,7 @@
           <div><label class="field-label">Data de estudo</label><input type="date" id="rData" onchange="sugerirDatasRevisao()"></div>
         </div>
         <label class="field-label" style="margin-top:14px;">Datas das revisões (você pode ajustar cada uma)</label>
-        <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="row3">
           <div><label class="field-label">1ª revisão</label><input type="date" id="r1Data"></div>
           <div><label class="field-label">2ª revisão</label><input type="date" id="r2Data"></div>
           <div><label class="field-label">3ª revisão</label><input type="date" id="r3Data"></div>
@@ -287,67 +125,13 @@
       </div>
     </div>
 
-    <div class="subview" id="sub-questoes">
-      <div class="card" id="statsAcerto"></div>
-      <div class="card">
-        <label class="field-label">Matéria</label><select id="qMateria" onchange="renderQTopicoOptions()"></select>
-        <label class="field-label">Tópico (opcional)</label><select id="qTopico"><option value="">— nenhum —</option></select>
-        <div class="row2">
-          <div><label class="field-label">Tipo</label><select id="qTipo" onchange="onQTipoChange()"><option value="C/E">Certo/Errado</option><option value="Discursiva">Discursiva</option></select></div>
-          <div><label class="field-label">Ano / fonte</label><input type="text" id="qFonte" placeholder="CACD 2025..."></div>
-        </div>
-        <textarea id="qContexto" placeholder="Texto-base / contexto..." style="margin-top:8px;"></textarea>
-        <div id="qItensWrap"></div>
-        <button class="btn small ghost" type="button" onclick="addItemField()" style="margin-top:8px;">+ item</button>
-        <div style="margin-top:14px;"><button class="btn secondary" onclick="addQuestao()">Guardar questão</button></div>
-      </div>
-      <div class="filters" id="qFiltroMateria"></div>
-      <div id="questoesList"></div>
-    </div>
+    <div class="subview" id="sub-questoes"><div id="qbRoot"><div class="loading">Carregando banco de questões…</div></div></div>
 
-    <div class="subview" id="sub-discursiva">
-      <div class="card" style="text-align:center;">
-        <div id="cronoDisplay" class="mono" style="font-size:32px; color:var(--ub-azul); margin-bottom:8px;">00:00</div>
-        <button class="btn small secondary" onclick="cronoStart()">Iniciar</button>
-        <button class="btn small ghost" onclick="cronoPause()">Pausar</button>
-        <button class="btn small ghost" onclick="cronoReset()">Zerar</button>
-      </div>
-      <div class="card">
-        <label class="field-label">Nova Discursiva</label>
-        <div class="row2">
-          <div><label class="field-label">Matéria</label><select id="dMateria"></select></div>
-          <div><label class="field-label">Tipo</label>
-            <select id="dTipo">
-              <option>Resumo</option><option>Versão</option><option>Redação</option><option>Tradução</option>
-            </select>
-          </div>
-        </div>
-        <textarea id="dTema" placeholder="Tema ou Enunciado..." style="margin-top:8px;"></textarea>
-        <input type="text" id="dLinhas" placeholder="Extensão (ex: 90 lines)" style="margin-top:8px;">
-        <button class="btn small secondary" onclick="addDiscursiva()" style="margin-top:12px;">Criar Exercício</button>
-      </div>
-      <div id="discursivasList"></div>
-    </div>
+    <div class="subview" id="sub-discursiva"><div id="dlRoot"><div class="loading">Carregando laboratório…</div></div></div>
 
-    <div class="subview" id="sub-atualidades">
-      <div class="card">
-        <input type="text" id="aTema" placeholder="Tema">
-        <input type="text" id="aTitulo" placeholder="Título" style="margin-top:8px;">
-        <textarea id="aResumo" placeholder="Resumo..." style="margin-top:8px;"></textarea>
-        <button class="btn small secondary" onclick="addAtualidade()" style="margin-top:12px;">Guardar</button>
-      </div>
-      <div id="atualidadesList"></div>
-    </div>
+    <div class="subview" id="sub-atualidades"><div id="atRoot"><div class="loading">Carregando atualidades…</div></div></div>
 
-    <div class="subview" id="sub-notas">
-      <div class="card">
-        <input type="text" id="nMateria" placeholder="Matéria">
-        <input type="text" id="nTitulo" placeholder="Título" style="margin-top:8px;">
-        <textarea id="nTexto" placeholder="Texto..." style="margin-top:8px;"></textarea>
-        <button class="btn small secondary" onclick="addNota()" style="margin-top:12px;">Guardar</button>
-      </div>
-      <div id="notasList"></div>
-    </div>
+    <div class="subview" id="sub-notas"><div id="notasRoot"></div></div>
   </section>
 
   <section class="view" id="view-paises">
@@ -355,9 +139,9 @@
     <p class="intro-line">Explore informações detalhadas sobre todos os países relevantes para a prova.</p>
 
     <div class="subtabs">
-      <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')">📇 Lista</button>
-      <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')">🗺️ Mapa-múndi</button>
-      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();">⚖️ Comparar</button>
+      <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')"> Lista</button>
+      <button class="subtab-btn" data-sub="paisesMapaView" onclick="goSub('paisesMapaView')"> Mapa-múndi</button>
+      <button class="subtab-btn" data-sub="paisesComparar" onclick="goSub('paisesComparar'); renderPaisesCompararSelects(); renderPaisesComparacao();"> Comparar</button>
     </div>
 
     <div class="subview active" id="sub-paisesLista">
@@ -403,27 +187,21 @@
     </div>
   </section>
 
-  <section class="view" id="view-organizacoes">
-    <h3 class="section-title">Organizações Internacionais</h3>
-    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: ONU, OMC, BRICS, OTAN e outras, com fichas completas e questões relacionadas.</div></div>
-  </section>
+  <section class="view" id="view-conhecimento"><div id="kbRoot"><div class="loading">Carregando base de conhecimento…</div></div></section>
 
-  <section class="view" id="view-tratados">
-    <h3 class="section-title">Tratados</h3>
-    <div class="card"><div class="biblio-empty">Módulo em construção — em breve: tratados internacionais relevantes para o CACD, ligados às questões dos Simulados.</div></div>
-  </section>
+  <section class="view" id="view-revisao"><div id="revisaoRoot"><div class="loading">Carregando revisões…</div></div></section>
 
   <section class="view" id="view-flashcards">
     <h3 class="section-title">Flashcards</h3>
     <p class="intro-line">Revisão espaçada dedicada ao CACD — 100% local, sem inteligência artificial nesta versão.</p>
 
     <div class="subtabs" id="flashSubtabs">
-      <button class="subtab-btn active" data-fsub="dashboard" onclick="flashShowPanel('dashboard')">📊 Painel</button>
-      <button class="subtab-btn" data-fsub="revisar" onclick="flashShowPanel('revisar')">🔁 Revisar</button>
-      <button class="subtab-btn" data-fsub="calendario" onclick="flashShowPanel('calendario')">📅 Calendário</button>
-      <button class="subtab-btn" data-fsub="lista" onclick="flashShowPanel('lista')">🗂️ Meus Cards</button>
-      <button class="subtab-btn" data-fsub="criar" onclick="flashShowPanel('criar')">➕ Criar</button>
-      <button class="subtab-btn" data-fsub="estatisticas" onclick="flashShowPanel('estatisticas')">📈 Estatísticas</button>
+      <button class="subtab-btn active" data-fsub="dashboard" onclick="flashShowPanel('dashboard')"> Painel</button>
+      <button class="subtab-btn" data-fsub="revisar" onclick="flashShowPanel('revisar')"> Revisar</button>
+      <button class="subtab-btn" data-fsub="calendario" onclick="flashShowPanel('calendario')"> Calendário</button>
+      <button class="subtab-btn" data-fsub="lista" onclick="flashShowPanel('lista')"> Meus Cards</button>
+      <button class="subtab-btn" data-fsub="criar" onclick="flashShowPanel('criar')"> Criar</button>
+      <button class="subtab-btn" data-fsub="estatisticas" onclick="flashShowPanel('estatisticas')"> Estatísticas</button>
     </div>
 
     <!-- ================= PAINEL: DASHBOARD ================= -->
@@ -432,7 +210,7 @@
       <div style="margin-top:16px;" id="flashDashGridSecondary"></div>
       <div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-          <div style="font-family:'Cinzel',serif; font-size:15px; color:var(--text-main, var(--text-light));" id="flashHojeTitulo">Carregando…</div>
+          <div style="font-family:'Inter',sans-serif; font-size:15px; color:var(--text-main, var(--text-light));" id="flashHojeTitulo">Carregando…</div>
           <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="flashHojeSub"></div>
         </div>
         <button class="btn secondary" id="flashIniciarBtn" onclick="flashIniciarRevisaoDashboard()">Iniciar Revisão</button>
@@ -497,8 +275,8 @@
           </div>
         </div>
         <div class="card" id="flashReviewDone" style="display:none; text-align:center; padding:40px 20px;">
-          <div style="font-size:32px; margin-bottom:8px;">🎉</div>
-          <div style="font-family:'Cinzel',serif; font-size:16px; color:var(--text-main, var(--text-light));">Sessão concluída</div>
+          <div style="font-size:32px; margin-bottom:8px;"></div>
+          <div style="font-family:'Inter',sans-serif; font-size:16px; color:var(--text-main, var(--text-light));">Sessão concluída</div>
           <div class="mono" id="flashReviewDoneStats" style="color:var(--text-muted); font-size:13px; margin-top:6px;"></div>
           <button class="btn ghost small" style="margin-top:16px;" onclick="flashEncerrarRevisao()">Voltar aos filtros</button>
         </div>
@@ -510,7 +288,7 @@
       <div class="card" style="max-width:520px; margin:0 auto 16px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
           <button class="btn ghost small" onclick="flashCalMudarMes(-1)">‹</button>
-          <span id="flashCalMesLabel" style="font-family:'Cinzel',serif; color:var(--brass-light); font-size:14px;"></span>
+          <span id="flashCalMesLabel" style="font-family:'Inter',sans-serif; color:var(--brass-light); font-size:14px;"></span>
           <button class="btn ghost small" onclick="flashCalMudarMes(1)">›</button>
         </div>
         <div class="crono-cal" id="flashCalGrid"></div>
@@ -522,7 +300,7 @@
     <!-- ================= PAINEL: MEUS CARDS ================= -->
     <div id="flashPanelLista" class="flash-panel" style="display:none;">
       <div class="flash-filtros-bar">
-        <input type="text" id="flashListaBusca" placeholder="🔎 Buscar por conteúdo, tema ou tag…" oninput="flashOnBuscaLista()">
+        <input type="text" id="flashListaBusca" placeholder=" Buscar por conteúdo, tema ou tag…" oninput="flashOnBuscaLista()">
         <select id="flashListaFiltroDisciplina" onchange="flashAplicarFiltrosLista()"></select>
         <select id="flashListaFiltroDificuldade" onchange="flashAplicarFiltrosLista()">
           <option value="">Qualquer dificuldade</option>
@@ -545,11 +323,11 @@
         <div class="panel-section-title" id="flashCriarTituloPanel">Criar novo flashcard</div>
 
         <div class="flash-tipo-selector" style="margin-top:12px;">
-          <div class="flash-tipo-chip active" data-tipo="basico" onclick="flashSetCriarTipo('basico')"><div class="ttl">📇 Básico</div><div class="sub">Pergunta e resposta.</div></div>
-          <div class="flash-tipo-chip" data-tipo="cloze" onclick="flashSetCriarTipo('cloze')"><div class="ttl">🕳️ Cloze</div><div class="sub">Oculta trechos do texto.</div></div>
-          <div class="flash-tipo-chip" data-tipo="comparacao" onclick="flashSetCriarTipo('comparacao')"><div class="ttl">⚖️ Comparação</div><div class="sub">Dois conceitos lado a lado.</div></div>
-          <div class="flash-tipo-chip" data-tipo="discursivo" onclick="flashSetCriarTipo('discursivo')"><div class="ttl">✍️ Discursivo</div><div class="sub">Resposta curta, estilo CACD.</div></div>
-          <div class="flash-tipo-chip" data-tipo="imagem" onclick="flashSetCriarTipo('imagem')"><div class="ttl">🖼️ Mapa/Imagem</div><div class="sub">Imagem na frente e/ou verso.</div></div>
+          <div class="flash-tipo-chip active" data-tipo="basico" onclick="flashSetCriarTipo('basico')"><div class="ttl"> Básico</div><div class="sub">Pergunta e resposta.</div></div>
+          <div class="flash-tipo-chip" data-tipo="cloze" onclick="flashSetCriarTipo('cloze')"><div class="ttl"> Cloze</div><div class="sub">Oculta trechos do texto.</div></div>
+          <div class="flash-tipo-chip" data-tipo="comparacao" onclick="flashSetCriarTipo('comparacao')"><div class="ttl"> Comparação</div><div class="sub">Dois conceitos lado a lado.</div></div>
+          <div class="flash-tipo-chip" data-tipo="discursivo" onclick="flashSetCriarTipo('discursivo')"><div class="ttl"> Discursivo</div><div class="sub">Resposta curta, estilo CACD.</div></div>
+          <div class="flash-tipo-chip" data-tipo="imagem" onclick="flashSetCriarTipo('imagem')"><div class="ttl"> Mapa/Imagem</div><div class="sub">Imagem na frente e/ou verso.</div></div>
         </div>
 
         <!-- Básico -->
@@ -657,7 +435,7 @@
 
         <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
           <button class="btn ghost" onclick="flashLimparFormCriar()">Limpar</button>
-          <button class="btn secondary" onclick="flashSalvarCriar()">💾 Salvar flashcard</button>
+          <button class="btn secondary" onclick="flashSalvarCriar()"> Salvar flashcard</button>
         </div>
       </div>
     </div>
@@ -681,16 +459,32 @@
   </section>
 
   <section class="view" id="view-configuracoes">
-    <h3 class="section-title">Configurações</h3>
+    <div class="page-head"><div><h2>Configurações</h2><p>Aparência, metas de estudo, dados, versão do aplicativo e organização do menu.</p></div></div>
+
     <div class="card">
-      <label class="field-label">Tema</label>
-      <button class="btn secondary small" onclick="toggleTheme()">🌓 Alternar tema claro/escuro</button>
-      <label class="field-label" style="margin-top:16px;">Conta</label>
-      <div id="authBoxConfig"></div>
+      <div class="panel-title">Versão do aplicativo</div>
+      <div id="versionPanel"></div>
     </div>
+
+    <div class="card" id="cfgPrefs"></div>
+
     <div class="card">
-      <label class="field-label">Ordem do menu lateral</label>
-      <p class="intro-line" style="margin:4px 0 12px;">Use as setas para reorganizar a ordem das páginas na barra lateral.</p>
+      <div class="panel-title">Aparência e conta</div>
+      <div class="row between">
+        <div><b>Tema</b><div class="muted" style="font-size:13px;">Alterna entre azul-marinho escuro e claro.</div></div>
+        <button class="btn secondary small" onclick="toggleTheme()">Alternar tema</button>
+      </div>
+      <div class="row between" style="margin-top:14px;">
+        <div><b>Conta</b><div class="muted" style="font-size:13px;" id="cfgContaInfo">—</div></div>
+        <div id="authBoxConfig"></div>
+      </div>
+    </div>
+
+    <div class="card" id="cfgDados"></div>
+
+    <div class="card">
+      <div class="panel-title">Ordem do menu lateral</div>
+      <p class="intro-line" style="margin:0 0 12px;">Use as setas para reorganizar as páginas dentro de cada grupo.</p>
       <div id="configNavOrderList"></div>
     </div>
   </section>
@@ -704,7 +498,7 @@
       <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
 
       <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
-      <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:start;">
+      <div class="sim-layout2">
         <div class="sim-modos-grid" id="simuladosModos"></div>
         <div>
           <div class="card dash-side-panel">
@@ -721,7 +515,7 @@
       <h3 class="section-title" style="margin-top:24px;">Provas disponíveis</h3>
       <div class="dash-provas-grid" id="simuladosProvasDisponiveis"></div>
 
-      <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-top:20px;">
+      <div class="sim-layout3">
         <div class="card">
           <h4 style="font-size:13px; margin-bottom:10px;">Seu desempenho ao longo do tempo</h4>
           <div id="simuladosGraficoEvolucao"></div>
@@ -761,7 +555,7 @@
 
     <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
       <div>
-        <div style="font-family:'Fraunces',serif; font-size:15px; color:var(--text-main);">🔁 Revisão espaçada</div>
+        <div style="font-family:'Inter',sans-serif; font-size:15px; color:var(--text-main);"> Revisão espaçada</div>
         <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
       </div>
       <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
@@ -783,7 +577,7 @@
       <div class="biblio-main">
         <div id="biblioListView">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <h4 id="biblioCurrentPastaLabel" style="font-family:'Fraunces',serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
+            <h4 id="biblioCurrentPastaLabel" style="font-family:'Inter',sans-serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
             <div style="display:flex; gap:6px;">
               <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
               <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
@@ -796,22 +590,22 @@
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <button class="btn ghost small" onclick="fecharDocumento()">← Voltar</button>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('basico')" title="Criar flashcard básico a partir desta anotação">📇 Flashcard</button>
-              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('cloze')" title="Criar flashcard cloze a partir desta anotação">🕳️ Cloze</button>
-              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('discursivo')" title="Criar flashcard discursivo a partir desta anotação">✍️ Discursivo</button>
-              <button class="btn secondary small" onclick="editarDocumentoAtual()">✏️ Editar</button>
-              <button class="btn ghost small" onclick="deleteDocumentoAtual()">🗑️ Excluir</button>
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('basico')" title="Criar flashcard básico a partir desta anotação"> Flashcard</button>
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('cloze')" title="Criar flashcard cloze a partir desta anotação"> Cloze</button>
+              <button class="btn ghost small" onclick="flashAbrirCriarDeDocumento('discursivo')" title="Criar flashcard discursivo a partir desta anotação"> Discursivo</button>
+              <button class="btn secondary small" onclick="editarDocumentoAtual()"> Editar</button>
+              <button class="btn ghost small" onclick="deleteDocumentoAtual()"> Excluir</button>
             </div>
           </div>
           <div class="card" style="padding:22px 20px;">
             <div style="display:flex; align-items:baseline; gap:10px;">
-              <span id="viewIcon" style="font-size:22px;">📄</span>
-              <h2 id="viewTitulo" style="font-family:'Fraunces',serif; font-size:22px; color:var(--text-main);"></h2>
+              <span id="viewIcon" style="font-size:22px;"></span>
+              <h2 id="viewTitulo" style="font-family:'Inter',sans-serif; font-size:22px; color:var(--text-main);"></h2>
             </div>
             <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
             <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
             <div id="viewRevisaoWrap" style="display:none; align-items:center; gap:8px; margin-top:12px; background:rgba(180,145,75,.1); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:9px 12px; font-size:12px;">
-              <span>🔁 Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
+              <span> Na revisão espaçada · próxima: <strong id="viewRevisaoData"></strong> · intervalo <span id="viewRevisaoIntervalo"></span> dia(s)</span>
             </div>
             <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;"></div>
             <div id="viewConteudo" class="biblio-body-editable" style="margin-top:18px; border:none; background:none; padding:0;"></div>
@@ -833,17 +627,18 @@
           </div>
           <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
             <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
-            <h2 id="reviewTitulo" style="font-family:'Fraunces',serif; font-size:21px; color:var(--text-main);"></h2>
+            <h2 id="reviewTitulo" style="font-family:'Inter',sans-serif; font-size:21px; color:var(--text-main);"></h2>
             <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
             <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
-              <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">❌ Não lembrei</button>
-              <button class="btn ghost small" style="flex:1; min-width:120px;" onclick="rateReview('hard')">😐 Mais ou menos</button>
-              <button class="btn secondary small" style="flex:1; min-width:120px;" onclick="rateReview('good')">✅ Lembrei bem</button>
+              <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">Não lembrei</button>
+              <button class="btn ghost small" style="flex:1; min-width:120px;" onclick="rateReview('hard')">Mais ou menos</button>
+              <button class="btn secondary small" style="flex:1; min-width:120px;" onclick="rateReview('good')">Lembrei bem</button>
+              <button class="btn secondary small" style="flex:1; min-width:120px;" onclick="rateReview('easy')">Fácil</button>
             </div>
           </div>
           <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
-            <div style="font-size:32px; margin-bottom:10px;">🎉</div>
-            <div style="font-family:'Fraunces',serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-size:32px; margin-bottom:10px;"></div>
+            <div style="font-family:'Inter',sans-serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
             <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
           </div>
@@ -873,9 +668,9 @@
                 <button type="button" class="biblio-fav-toggle" id="docFavBtn" onclick="toggleDocFavorita()">☆ Favorita</button>
                 <select id="docPrioridade" class="biblio-priority-select" onchange="save('__noop__',null)">
                   <option value="">Sem prioridade</option>
-                  <option value="baixa">🔹 Prioridade: Baixa</option>
-                  <option value="media">🔶 Prioridade: Média</option>
-                  <option value="alta">🔺 Prioridade: Alta</option>
+                  <option value="baixa"> Prioridade: Baixa</option>
+                  <option value="media"> Prioridade: Média</option>
+                  <option value="alta"> Prioridade: Alta</option>
                 </select>
               </div>
 
@@ -911,14 +706,14 @@
                     <option value="check">☑ Checklist</option>
                     <option value="toggle">▸ Bloco recolhível</option>
                   </select>
-                  <button type="button" title="Link" onclick="fmtLink()">🔗</button>
-                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()">🖼️</button>
+                  <button type="button" title="Link" onclick="fmtLink()"></button>
+                  <button type="button" title="Inserir imagem" onclick="insertImagePrompt()"></button>
                   <button type="button" title="Inserir tabela" onclick="insertTable()">▦</button>
                   <select title="Caixa de destaque" onchange="if(this.value) insertCallout(this.value); this.selectedIndex=0;">
-                    <option value="">⚠ Destaque ▾</option>
-                    <option value="info">ℹ️ Informação</option>
-                    <option value="atencao">⚠️ Atenção</option>
-                    <option value="importante">🔴 Importante</option>
+                    <option value=""> Destaque ▾</option>
+                    <option value="info">ℹ Informação</option>
+                    <option value="atencao"> Atenção</option>
+                    <option value="importante"> Importante</option>
                   </select>
                   <button type="button" title="Linha divisória" onclick="fmt('insertHorizontalRule')">―</button>
                   <span class="toolbar-fs-spacer"></span>
@@ -943,10 +738,10 @@
               </div>
 
               <div class="biblio-ai-actions">
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Assistente de IA')">✨ Assistente de IA</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar flashcards')">🔁 Gerar flashcards</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar questões')">❓ Gerar questões</button>
-                <button class="btn ghost small" onclick="acaoIAEmBreve('Mapa mental')">🕸️ Mapa mental</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Assistente de IA')"> Assistente de IA</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar flashcards')"> Gerar flashcards</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Gerar questões')"> Gerar questões</button>
+                <button class="btn ghost small" onclick="acaoIAEmBreve('Mapa mental')"> Mapa mental</button>
               </div>
             </div>
 
@@ -979,7 +774,7 @@
                     </select>
                     <label class="field-label" style="margin-top:12px; display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none;">
                       <input type="checkbox" id="docSrsAutomatico" style="width:15px; height:15px; accent-color:var(--ub-azul); cursor:pointer;" onchange="atualizarControlesRevisao()">
-                      <span style="font-size:12px;">✨ Usar revisão espaçada automática</span>
+                      <span style="font-size:12px;"> Usar revisão espaçada automática</span>
                     </label>
                     <div id="docSrsStatus" class="mono" style="font-size:10.5px; color:var(--text-muted); margin-top:6px;"></div>
                   </div>
@@ -1008,14 +803,14 @@
                 <div class="panel-section">
                   <label class="field-label">Tipo</label>
                   <select id="docTipo">
-                    <option value="📄">📄 Documento</option>
-                    <option value="📝">📝 Texto longo</option>
-                    <option value="📚">📚 Resumo</option>
-                    <option value="🗂️">🗂️ Fichamento</option>
-                    <option value="🧠">🧠 Mapa mental</option>
-                    <option value="📜">📜 Legislação</option>
-                    <option value="📰">📰 Atualidade</option>
-                    <option value="🌐">🌐 Link</option>
+                    <option value="📄"> Documento</option>
+                    <option value="📝"> Texto longo</option>
+                    <option value="📚"> Resumo</option>
+                    <option value="🗂"> Fichamento</option>
+                    <option value="🧠"> Mapa mental</option>
+                    <option value="📜"> Legislação</option>
+                    <option value="📰"> Atualidade</option>
+                    <option value="🌐"> Link</option>
                   </select>
                   <label class="field-label">Pasta / Estante</label><select id="docPasta" onchange="atualizarBreadcrumbTitulo()"></select>
                   <label class="field-label">Autor</label><input type="text" id="docAutor">
@@ -1033,49 +828,66 @@
     </div>
   </section>
 </main>
+</div><!-- /.shell -->
 
-<div class="tabbar">
-  <div class="sidebar-nav-scroll" id="sidebarNavScroll"></div>
+<aside class="sidebar" aria-label="Navegação principal">
+  <div class="sidebar-brand"><img src="assets/logo-96.png" alt=""><div><b>Chancelaria</b><span>Gabinete de Estudos · CACD</span></div></div>
+  <nav class="sidebar-nav-scroll" id="sidebarNavScroll" aria-label="Seções"></nav>
   <div class="sidebar-footer">
-    <div class="sidebar-mini-card" id="simuladosStreakInfo">🔥 0 dias<br>Melhor sequência: 0 dias</div>
+    <div class="sidebar-mini-card" id="simuladosStreakInfo">0 dias seguidos<br>Melhor sequência: 0 dias</div>
     <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
+    <button class="sidebar-ver" onclick="goTab('configuracoes')" id="sidebarVersion" aria-label="Versão instalada">Versão</button>
   </div>
+</aside>
+<nav class="bottomnav" id="bottomNav" aria-label="Navegação"></nav>
+<div class="sheet-overlay" id="moreSheet" onclick="if(event.target===this) fecharMais()">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Todas as seções"><div class="sheet-grip"></div><div id="moreGrid"></div></div>
 </div>
-
 <!-- ==========================================================================
      Scripts — a ordem importa: cada módulo depende dos anteriores estarem
      carregados (variáveis e funções globais compartilhadas). app.js é
      sempre o último, pois orquestra a renderização inicial de tudo.
      ========================================================================== -->
-<script src="js/config.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/layout-fix.js"></script>
-<script src="js/theme-auth.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/materias.js"></script>
-<script src="js/cronograma.js"></script>
-<script src="js/revisao.js"></script>
-<script src="js/questoes.js"></script>
-<script src="js/discursiva.js"></script>
-<script src="js/atualidades.js"></script>
-<script src="js/notas.js"></script>
+<script src="js/version.js?v=1"></script>
+<script src="js/config.js?v=1"></script>
+<script src="js/utils.js?v=1"></script>
+<script src="js/icons.js?v=1"></script>
+<script src="js/backup.js?v=1"></script>
+<script src="js/migrations.js?v=1"></script>
+<script src="js/theme-auth.js?v=1"></script>
+<script src="js/navigation.js?v=1"></script>
+<script src="js/srs-core.js?v=1"></script>
+<script src="js/materias.js?v=1"></script>
+<script src="js/estudo-log.js?v=1"></script>
+<script src="js/cronograma.js?v=1"></script>
+<script src="js/revisao.js?v=1"></script>
+<script src="js/questoes.js?v=1"></script>
+<script src="js/discursiva.js?v=1"></script>
+<script src="js/atualidades.js?v=1"></script>
+<script src="js/conhecimento.js?v=1"></script>
+<script src="js/notas.js?v=1"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
-<script src="js/paises.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/simulados.js"></script>
-<script src="js/biblioteca-pastas.js"></script>
-<script src="js/biblioteca-documentos.js"></script>
-<script src="js/biblioteca-editor.js"></script>
-<script src="js/biblioteca-revisao.js"></script>
-<script src="js/biblioteca-busca.js"></script>
-<script src="js/flashcards-data.js"></script>
-<script src="js/flashcards-srs.js"></script>
-<script src="js/flashcards-stats.js"></script>
-<script src="js/flashcards-review.js"></script>
-<script src="js/flashcards-ui.js"></script>
-<script src="js/flashcards-integracao.js"></script>
-<script src="js/stats.js"></script>
-<script src="js/app.js"></script>
+<script src="js/paises.js?v=1"></script>
+<script src="js/dashboard.js?v=1"></script>
+<script src="js/simulados.js?v=1"></script>
+<script src="js/biblioteca-pastas.js?v=1"></script>
+<script src="js/biblioteca-documentos.js?v=1"></script>
+<script src="js/biblioteca-editor.js?v=1"></script>
+<script src="js/biblioteca-revisao.js?v=1"></script>
+<script src="js/biblioteca-busca.js?v=1"></script>
+<script src="js/biblioteca-extras.js?v=1"></script>
+<script src="js/flashcards-data.js?v=1"></script>
+<script src="js/flashcards-srs.js?v=1"></script>
+<script src="js/flashcards-stats.js?v=1"></script>
+<script src="js/flashcards-review.js?v=1"></script>
+<script src="js/flashcards-ui.js?v=1"></script>
+<script src="js/flashcards-integracao.js?v=1"></script>
+<script src="js/revisao-hub.js?v=1"></script>
+<script src="js/central.js?v=1"></script>
+<script src="js/stats.js?v=1"></script>
+<script src="js/configuracoes.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+<script src="js/updater.js?v=1"></script>
 </body>
 </html>
