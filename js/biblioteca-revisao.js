@@ -45,28 +45,28 @@ function renderReviewCard() {
   document.getElementById('reviewMeta').textContent = [pastaNome(d.pastaId), d.materia].filter(Boolean).join(' · ');
   document.getElementById('reviewTitulo').textContent = d.titulo || '(sem título)';
   const conteudoEl = document.getElementById('reviewConteudo');
-  conteudoEl.innerHTML = d.conteudo && d.conteudo.trim() ? d.conteudo : '<p style="color:var(--text-muted);">Documento vazio.</p>';
+  conteudoEl.innerHTML = d.conteudo && d.conteudo.trim() ? sanitizarHTML(d.conteudo) : '<p style="color:var(--text-muted);">Documento vazio.</p>';
   conteudoEl.querySelectorAll('input[type=checkbox]').forEach(cb => cb.disabled = true);
+}
+/* Aplica uma avaliação ao documento (motor único srs-core). Reutilizada pela
+   Revisão unificada. Não salva: quem chama decide quando gravar. */
+function docRate(d, quality) {
+  if (!d.srs) d.srs = { modo: 'automatico', interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
+  const hoje = todayISO();
+  if (d.srs.modo === 'manual') { d.srs.lastReview = hoje; d.srs.nextReview = null; return; }   // aguarda você escolher a próxima data em Propriedades
+  const mem = srsMemDeDoc(d);
+  const antes = d.srs.lastReview ? srsRetrievability(Math.max(0, diffDaysISO(d.srs.lastReview, hoje)), mem.S) : null;
+  const n = srsProximo(mem, quality, hoje, srsPrefs(), 'media');
+  d.srs.stab = n.S; d.srs.dif = n.D; d.srs.lapsos = n.lapses; d.srs.acertos = n.acertos; d.srs.erros = n.erros;
+  d.srs.interval = n.intervalo; d.srs.reps = quality === 'again' ? 0 : (d.srs.reps || 0) + 1;
+  d.srs.lastReview = hoje; d.srs.nextReview = n.due;
+  srsRegistrarLog('d', d.id, quality, antes, n.intervalo, hoje);
 }
 function rateReview(quality) {
   const d = reviewQueue[reviewIndex]; if (!d) return;
-  if (!d.srs) d.srs = { modo: 'automatico', interval: 1, reps: 0, nextReview: todayISO(), lastReview: null };
-  if (d.srs.modo === 'manual') {
-    d.srs.lastReview = todayISO();
-    d.srs.nextReview = null; // aguarda você escolher a próxima data em Propriedades
-  } else {
-    if (quality === 'again') {
-      d.srs.interval = 1; d.srs.reps = 0;
-    } else if (quality === 'hard') {
-      d.srs.interval = Math.max(1, Math.round(d.srs.interval * 1.3));
-    } else {
-      d.srs.interval = d.srs.reps === 0 ? 3 : Math.round(d.srs.interval * 2.3);
-      d.srs.reps++;
-    }
-    d.srs.lastReview = todayISO();
-    d.srs.nextReview = addDaysISO(todayISO(), d.srs.interval);
-  }
+  docRate(d, quality);
   save('biblio_docs', biblioDocs);
+  if (typeof trackStudyDay === 'function') trackStudyDay();
   reviewIndex++;
   renderReviewCard();
   renderBiblioReviewBar();

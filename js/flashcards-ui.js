@@ -51,20 +51,20 @@ function flashRenderDashboard() {
   const st = flashCalcularStats();
   const grid = document.getElementById('flashDashStats');
   if (grid) grid.innerHTML = `
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">📅</span><div><div class="dash-stat-label">Para hoje</div><div class="dash-stat-n">${st.paraHoje}</div><div class="dash-stat-sub">cartões prontos</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#E37B7B;">⏰</span><div><div class="dash-stat-label">Vencidos</div><div class="dash-stat-n">${st.vencidos}</div><div class="dash-stat-sub">atrasados</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">🎯</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">${st.totalAcertos + st.totalErros} revisões</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">🔥</span><div><div class="dash-stat-label">Sequência</div><div class="dash-stat-n">${st.streak}</div><div class="dash-stat-sub">dia(s) seguidos</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">⏱️</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${flashFmtSeg(st.tempoMedioSeg)}</div><div class="dash-stat-sub">por cartão</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">🗂️</span><div><div class="dash-stat-label">Total de cartões</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">no acervo</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">${ico('📅')}</span><div><div class="dash-stat-label">Para hoje</div><div class="dash-stat-n">${st.paraHoje}</div><div class="dash-stat-sub">cartões prontos</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#E37B7B;">${ico('⏰')}</span><div><div class="dash-stat-label">Vencidos</div><div class="dash-stat-n">${st.vencidos}</div><div class="dash-stat-sub">atrasados</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">${st.totalAcertos + st.totalErros} revisões</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">${ico('🔥')}</span><div><div class="dash-stat-label">Sequência</div><div class="dash-stat-n">${st.streak}</div><div class="dash-stat-sub">dia(s) seguidos</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${flashFmtSeg(st.tempoMedioSeg)}</div><div class="dash-stat-sub">por cartão</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">${ico('🗂️')}</span><div><div class="dash-stat-label">Total de cartões</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">no acervo</div></div></div>
   `;
   const sec = document.getElementById('flashDashGridSecondary');
   if (sec) sec.innerHTML = `
     <div class="card">
       <div class="panel-section-title">Disciplina mais revisada</div>
-      <div class="flash-dash-line">${st.disciplinaMaisRevisada ? `📚 ${flashEsc(st.disciplinaMaisRevisada)}` : '<span style="color:var(--text-muted);">Ainda sem revisões suficientes.</span>'}</div>
+      <div class="flash-dash-line">${st.disciplinaMaisRevisada ? `${ico('📚')} ${flashEsc(st.disciplinaMaisRevisada)}` : '<span style="color:var(--text-muted);">Ainda sem revisões suficientes.</span>'}</div>
       <div class="panel-section-title" style="margin-top:16px;">Disciplina com mais erros</div>
-      <div class="flash-dash-line">${st.disciplinaComMaisErros ? `⚠️ ${flashEsc(st.disciplinaComMaisErros)}` : '<span style="color:var(--text-muted);">Nenhum erro registrado ainda.</span>'}</div>
+      <div class="flash-dash-line">${st.disciplinaComMaisErros ? `${ico('⚠️')} ${flashEsc(st.disciplinaComMaisErros)}` : '<span style="color:var(--text-muted);">Nenhum erro registrado ainda.</span>'}</div>
     </div>
   `;
   const titulo = document.getElementById('flashHojeTitulo');
@@ -72,7 +72,7 @@ function flashRenderDashboard() {
   const btn = document.getElementById('flashIniciarBtn');
   if (titulo && btn) {
     if (st.paraHoje === 0) {
-      titulo.textContent = st.total === 0 ? 'Nenhum flashcard cadastrado ainda' : 'Tudo em dia por aqui 🎉';
+      titulo.textContent = st.total === 0 ? 'Nenhum flashcard cadastrado ainda' : 'Tudo em dia por aqui';
       sub.textContent = st.total === 0 ? 'Crie seu primeiro cartão na aba "Criar".' : 'Nenhum cartão pendente de revisão agora.';
       btn.disabled = true; btn.textContent = 'Nada pendente';
     } else {
@@ -133,7 +133,7 @@ function flashIniciarRevisaoFiltrada() {
   flashIniciarSessao(fila);
 }
 function flashLabelEstado(e) {
-  return { vencido: '⏰ Vencidos', novo: '🆕 Novos', aprendizado: '🌱 Em aprendizado', maduro: '🌳 Maduros' }[e] || e;
+  return { vencido: 'Vencidos', novo: 'Novos', aprendizado: 'Em aprendizado', maduro: 'Maduros' }[e] || e;
 }
 
 /* ==========================================================================
@@ -142,7 +142,7 @@ function flashLabelEstado(e) {
 function renderFlashReviewCard(card, revelado) {
   const info = flashTipoInfo(card.tipo);
   document.getElementById('flashReviewProgress').textContent = `${flashReviewIdx + 1} / ${flashReviewQueue.length}`;
-  document.getElementById('flashReviewTipoBadge').innerHTML = `<span class="flash-tipo-badge">${info.icone} ${info.label}</span>`;
+  document.getElementById('flashReviewTipoBadge').innerHTML = `<span class="flash-tipo-badge">${ico(info.icone)} ${info.label}</span>`;
   document.getElementById('flashReviewMeta').textContent = [card.disciplina, card.tema, card.subtema].filter(Boolean).join(' · ') || 'Sem classificação';
   document.getElementById('flashReviewFrente').innerHTML = flashRenderFrenteHTML(card);
 
@@ -174,7 +174,7 @@ function flashRenderFrenteHTML(card) {
     case 'comparacao':
       return `<div class="flash-front-text">${flashNl2Br(card.frente || `${card.comparacaoA.titulo} × ${card.comparacaoB.titulo}`)}</div>`;
     case 'imagem':
-      return `${card.imagemFrenteUrl ? `<img class="flash-card-img" src="${card.imagemFrenteUrl}" alt="">` : ''}${card.frente ? `<div class="flash-front-text">${flashNl2Br(card.frente)}</div>` : ''}`;
+      return `${card.imagemFrenteUrl ? `<img class="flash-card-img" src="${flashEsc(card.imagemFrenteUrl)}" alt="">` : ''}${card.frente ? `<div class="flash-front-text">${flashNl2Br(card.frente)}</div>` : ''}`;
     default:
       return `<div class="flash-front-text">${flashNl2Br(card.frente)}</div>`;
   }
@@ -189,7 +189,7 @@ function flashRenderVersoHTML(card) {
         <div class="flash-compare-col"><h4>${flashEsc(card.comparacaoB.titulo)}</h4><div>${flashNl2Br(card.comparacaoB.conteudo)}</div></div>
       </div>`;
     case 'imagem':
-      return `${card.imagemVersoUrl ? `<img class="flash-card-img" src="${card.imagemVersoUrl}" alt="">` : ''}${card.verso ? `<div class="flash-front-text">${flashNl2Br(card.verso)}</div>` : ''}`;
+      return `${card.imagemVersoUrl ? `<img class="flash-card-img" src="${flashEsc(card.imagemVersoUrl)}" alt="">` : ''}${card.verso ? `<div class="flash-front-text">${flashNl2Br(card.verso)}</div>` : ''}`;
     default:
       return `<div class="flash-front-text">${flashNl2Br(card.verso)}</div>`;
   }
@@ -281,14 +281,14 @@ function flashCardItemHTML(c) {
   return `
     <div class="card flash-card-item">
       <div class="flash-card-item-head">
-        <span class="flash-tipo-badge">${info.icone} ${info.label}</span>
+        <span class="flash-tipo-badge">${ico(info.icone)} ${info.label}</span>
         <span class="flash-estado-badge estado-${estado}">${flashLabelEstado(estado)}</span>
       </div>
       <div class="flash-card-item-frente">${preview || '<span style="color:var(--text-muted);">(sem conteúdo)</span>'}</div>
       <div class="flash-card-item-meta mono">${[c.disciplina, c.tema].filter(Boolean).join(' · ') || 'Sem classificação'} ${c.srs.proximaRevisao ? '· próxima: ' + isoToBR(c.srs.proximaRevisao) : ''}</div>
       <div class="flash-card-item-actions">
-        <button class="btn ghost small" onclick="flashAbrirEdicaoCard('${c.id}')">✏️ Editar</button>
-        <button class="btn ghost small" onclick="flashConfirmarExclusao('${c.id}')">🗑️ Excluir</button>
+        <button class="btn ghost small" onclick="flashAbrirEdicaoCard('${c.id}')">${ico('✏️')} Editar</button>
+        <button class="btn ghost small" onclick="flashConfirmarExclusao('${c.id}')">${ico('🗑️')} Excluir</button>
       </div>
     </div>`;
 }
@@ -370,9 +370,9 @@ function flashCalRenderListaDia() {
     : `<div class="empty" style="padding:12px 0; color:var(--text-muted);">Nenhum cartão agendado para este dia.</div>`;
 }
 
-function flashConfirmarExclusao(id) {
+async function flashConfirmarExclusao(id) {
   const c = flashGetById(id); if (!c) return;
-  if (!confirm('Excluir este flashcard definitivamente?')) return;
+  if (!await confirmar('Excluir este flashcard definitivamente?', { titulo: 'Excluir flashcard', ok: 'Excluir' })) return;
   if (c.tipo === 'cloze' && c.clozeGrupoId) flashExcluirGrupoCloze(c.clozeGrupoId); else flashExcluirCard(id);
   flashAplicarFiltrosLista();
   flashRenderDashboard();
@@ -439,7 +439,7 @@ function flashRenderTagsInput() {
   flashTagsAtual.forEach(tag => {
     const chip = document.createElement('span');
     chip.className = 'tag-chip';
-    chip.innerHTML = `${flashEsc(tag)}<button type="button" onclick="flashRemoverTag('${tag.replace(/'/g, "\\'")}')">✕</button>`;
+    chip.innerHTML = `${flashEsc(tag)}<button type="button" onclick="flashRemoverTag('${tag.replace(/'/g, "\\'")}')" aria-label="Remover tag">${icon('x', 12)}</button>`;
     wrap.insertBefore(chip, input);
   });
 }
@@ -505,7 +505,7 @@ function flashSalvarCriar() {
 
   if (tipo === 'cloze') {
     const texto = document.getElementById('flashClozeTexto').value.trim();
-    if (!flashParseClozeNumeros(texto).length) { alert('Marque ao menos uma lacuna, no formato {{c1::palavra}}.'); return; }
+    if (!flashParseClozeNumeros(texto).length) { toast('Marque ao menos uma lacuna, no formato {{c1::palavra}}.', 'aviso'); return; }
     const criados = flashSalvarNotaCloze(texto, comuns, flashCriarEditandoGrupoCloze);
     flashAplicarDataRevisaoEscolhida(criados.map(c => c.id));
     flashToast(flashCriarEditandoGrupoCloze ? 'Cartões cloze atualizados.' : 'Cartões cloze criados.');
@@ -514,22 +514,22 @@ function flashSalvarCriar() {
     if (tipo === 'basico') {
       campos.frente = document.getElementById('flashFrenteBasico').value.trim();
       campos.verso = document.getElementById('flashVersoBasico').value.trim();
-      if (!campos.frente || !campos.verso) { alert('Preencha a frente e o verso do cartão.'); return; }
+      if (!campos.frente || !campos.verso) { toast('Preencha a frente e o verso do cartão.', 'aviso'); return; }
     } else if (tipo === 'comparacao') {
       campos.frente = document.getElementById('flashCompPrompt').value.trim();
       campos.comparacaoA = { titulo: document.getElementById('flashCompTituloA').value.trim(), conteudo: document.getElementById('flashCompConteudoA').value.trim() };
       campos.comparacaoB = { titulo: document.getElementById('flashCompTituloB').value.trim(), conteudo: document.getElementById('flashCompConteudoB').value.trim() };
-      if (!campos.comparacaoA.titulo || !campos.comparacaoB.titulo) { alert('Dê um título para os dois conceitos comparados.'); return; }
+      if (!campos.comparacaoA.titulo || !campos.comparacaoB.titulo) { toast('Dê um título para os dois conceitos comparados.', 'aviso'); return; }
     } else if (tipo === 'discursivo') {
       campos.frente = document.getElementById('flashDiscFrente').value.trim();
       campos.verso = document.getElementById('flashDiscVerso').value.trim();
-      if (!campos.frente || !campos.verso) { alert('Preencha a pergunta e a resposta-modelo.'); return; }
+      if (!campos.frente || !campos.verso) { toast('Preencha a pergunta e a resposta-modelo.', 'aviso'); return; }
     } else if (tipo === 'imagem') {
       campos.frente = document.getElementById('flashImgFrenteTexto').value.trim();
       campos.verso = document.getElementById('flashImgVersoTexto').value.trim();
       campos.imagemFrenteUrl = document.getElementById('flashImgFrentePreview').dataset.url || (flashCriarEditandoId ? flashGetById(flashCriarEditandoId)?.imagemFrenteUrl || '' : '');
       campos.imagemVersoUrl = document.getElementById('flashImgVersoPreview').dataset.url || (flashCriarEditandoId ? flashGetById(flashCriarEditandoId)?.imagemVersoUrl || '' : '');
-      if (!campos.imagemFrenteUrl && !campos.frente) { alert('Adicione ao menos uma imagem ou texto na frente.'); return; }
+      if (!campos.imagemFrenteUrl && !campos.frente) { toast('Adicione ao menos uma imagem ou texto na frente.', 'aviso'); return; }
     }
     let cardsAlvo;
     if (flashCriarEditandoId) { flashAtualizarCard(flashCriarEditandoId, campos); cardsAlvo = [flashCriarEditandoId]; }
@@ -601,7 +601,7 @@ function flashRenderEstatisticas() {
   if (porTipoEl) porTipoEl.innerHTML = FLASH_TIPOS.map(t => {
     const n = st.porTipo[t.id] || 0;
     const pct = st.total ? Math.round((n / st.total) * 100) : 0;
-    return `<div style="margin-bottom:10px;"><div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;"><span>${t.icone} ${t.label}</span><span class="mono">${n}</span></div><div class="bar"><span style="width:${pct}%;"></span></div></div>`;
+    return `<div style="margin-bottom:10px;"><div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;"><span>${ico(t.icone)} ${t.label}</span><span class="mono">${n}</span></div><div class="bar"><span style="width:${pct}%;"></span></div></div>`;
   }).join('');
   const porDiscEl = document.getElementById('flashStatsPorDisciplina');
   if (porDiscEl) {

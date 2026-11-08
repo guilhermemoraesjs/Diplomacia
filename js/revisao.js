@@ -27,7 +27,7 @@ function addRevisao() {
   const r1Data = document.getElementById('r1Data').value || null;
   const r2Data = document.getElementById('r2Data').value || null;
   const r3Data = document.getElementById('r3Data').value || null;
-  if (!tema) { alert('Dê um nome ao tema.'); return; }
+  if (!tema) { toast('Dê um nome ao tema.', 'aviso'); return; }
   revisao.push({
     id: uid(), tema, materia, topicoId: null, dataEstudo: dataRaw || null,
     r1: false, r2: false, r3: false,
@@ -37,11 +37,12 @@ function addRevisao() {
   ['rTema', 'rData', 'r1Data', 'r2Data', 'r3Data'].forEach(id => document.getElementById(id).value = '');
   renderRevisao();
 }
-function toggleRevisaoCheck(id, campo) { const r = revisao.find(x => x.id === id); r[campo] = !r[campo]; save(REVISAO_KEY, revisao); renderRevisao(); }
-function delRevisao(id) { if (!confirm('Remover revisão?')) return; revisao = revisao.filter(x => x.id !== id); save(REVISAO_KEY, revisao); renderRevisao(); }
-function limparRevisaoTudo() {
-  if (!revisao.length) { alert('A revisão espaçada já está vazia.'); return; }
-  if (!confirm(`Isso vai excluir permanentemente todos os ${revisao.length} itens de revisão espaçada. Essa ação não pode ser desfeita. Confirma?`)) return;
+function toggleRevisaoCheck(id, campo) { const r = revisao.find(x => x.id === id); r[campo] = !r[campo]; save(REVISAO_KEY, revisao); renderRevisao(); if (typeof refreshStats === 'function') refreshStats(); }
+async function delRevisao(id) { if (!await confirmar('Remover esta revisão manual?', { titulo: 'Remover revisão', ok: 'Remover' })) return; revisao = revisao.filter(x => x.id !== id); save(REVISAO_KEY, revisao); renderRevisao(); }
+async function limparRevisaoTudo() {
+  if (!revisao.length) { toast('A revisão manual já está vazia.'); return; }
+  if (!await confirmar(`Isso exclui permanentemente os ${revisao.length} itens de revisão manual. Um ponto de restauração é salvo antes. Confirma?`, { titulo: 'Excluir revisões manuais', ok: 'Excluir tudo' })) return;
+  await criarSnapshot('antes-de-limpar-revisao');
   revisao = [];
   save(REVISAO_KEY, revisao);
   renderRevisao();
@@ -55,6 +56,6 @@ function renderRevisao() {
     const d1 = iso1 ? isoToBR(iso1) : '—';
     const d2 = iso2 ? isoToBR(iso2) : '—';
     const d3 = iso3 ? isoToBR(iso3) : '—';
-    return `<div class="card revisao"><div><div class="rname">${r.tema}</div><div class="rmeta">${r.materia}</div></div><div class="rchecks"><div><input type="checkbox" ${r.r1 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div><div><input type="checkbox" ${r.r2 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div><div><input type="checkbox" ${r.r3 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div></div><button class="rdel" onclick="delRevisao('${r.id}')">Remover</button></div>`;
+    return `<div class="card revisao"><div><div class="rname">${escHtml(r.tema)}</div><div class="rmeta">${escHtml(r.materia)}</div></div><div class="rchecks"><div><input type="checkbox" ${r.r1 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div><div><input type="checkbox" ${r.r2 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div><div><input type="checkbox" ${r.r3 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div></div><button class="rdel" onclick="delRevisao('${r.id}')">Remover</button></div>`;
   }).join('') : '<div class="empty">Nenhuma revisão espaçada ativa.</div>';
 }

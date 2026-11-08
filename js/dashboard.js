@@ -24,7 +24,7 @@ function trackStudyDay() {
 }
 function calcularStreakAtual() {
   let streak = 0; let d = new Date();
-  while (dashStreakDias.includes(d.toISOString().slice(0, 10))) {
+  while (dashStreakDias.includes(ymdLocal(d))) {
     streak++; d.setDate(d.getDate() - 1);
   }
   return streak;
@@ -44,7 +44,7 @@ function ultimosSeteDias() {
   const arr = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    arr.push({ label: 'DSTQQSS'.charAt(d.getDay()) === '' ? '' : ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][d.getDay()], iso: d.toISOString().slice(0, 10) });
+    arr.push({ label: 'DSTQQSS'.charAt(d.getDay()) === '' ? '' : ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][d.getDay()], iso: ymdLocal(d) });
   }
   return arr;
 }

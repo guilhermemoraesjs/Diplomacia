@@ -21,8 +21,14 @@ const CLOUD_KEYS = [
   'biblio_docs', 'biblio_pastas', 'biblio_expanded_folders',
   'chancelaria_theme', 'diplo_paises', 'paises_favoritos', 'simulados_progresso',
   'dashboard_atividade', 'dashboard_streak', 'dashboard_metas', 'nav_order',
-  'flash_cards', 'flash_streak_dias', 'flash_tempos'
+  'flash_cards', 'flash_streak_dias', 'flash_tempos',
+  /* adicionadas na modernização v1.0.0 (todas novas — nenhuma substitui chave existente) */
+  'chancelaria_prefs', 'diplo_questoes_hist', 'diplo_kb', 'diplo_estudo_log', 'srs_log'
 ];
+
+/* Chaves locais que NÃO vão para a nuvem (estado do aparelho). Listadas aqui
+   para o backup e a documentação saberem que existem. */
+const LOCAL_ONLY_KEYS = ['chancelaria_dirty', 'chancelaria_schema', 'chancelaria_timer', 'chancelaria_version_seen', 'chancelaria_version_info', 'chancelaria_upd_dismissed', 'chancelaria_upd_target', 'biblio_rascunho'];
 
 let currentUid = null;
 

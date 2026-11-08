@@ -57,7 +57,7 @@ function renderBiblioTree() {
     const expanded = biblioExpandedFolders.has(p.id);
     const count = biblioDocs.filter(d => d.pastaId === p.id).length;
     const delBtn = p.auto
-      ? `<button class="bn-del" title="Vem de Diplomacia → Matérias" onclick="event.stopPropagation(); alert('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.');">🔒</button>`
+      ? `<button class="bn-del" title="Vem de Diplomacia → Matérias" onclick="event.stopPropagation(); toast('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.', 'aviso');">🔒</button>`
       : `<button class="bn-del" onclick="event.stopPropagation(); delPastaBiblio('${p.id}')">✕</button>`;
     const toggleBtn = hasChildren
       ? `<button type="button" class="bn-toggle ${expanded ? 'open' : ''}" onclick="event.stopPropagation(); toggleFolderExpand('${p.id}')">▶</button>`
@@ -179,14 +179,14 @@ function promptSubpasta() {
   biblioPastas.push({ id: uid(), nome: '📁 ' + nome.trim(), parentId: biblioCurrentPasta });
   save('biblio_pastas', biblioPastas); renderBiblioTree();
 }
-function delPastaBiblio(id) {
+async function delPastaBiblio(id) {
   if (!biblioPastas.some(p => p.id === id)) {
-    alert('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.');
+    toast('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.', 'aviso');
     return;
   }
   const temFilhos = biblioPastas.some(p => p.parentId === id);
   const temDocs = biblioDocs.some(d => d.pastaId === id);
-  if (temFilhos || temDocs) { if (!confirm('Esta pasta tem subpastas ou documentos dentro. Excluir mesmo assim? Os documentos ficarão sem pasta.')) return; }
+  if (temFilhos || temDocs) { if (!await confirmar('Esta pasta tem subpastas ou documentos dentro. Excluir mesmo assim? Os documentos ficarão sem pasta (não são apagados).', { titulo: 'Excluir pasta', ok: 'Excluir pasta' })) return; }
   biblioPastas = biblioPastas.filter(p => p.id !== id);
   biblioDocs.forEach(d => { if (d.pastaId === id) d.pastaId = null; });
   save('biblio_pastas', biblioPastas); save('biblio_docs', biblioDocs);

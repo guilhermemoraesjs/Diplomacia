@@ -1,0 +1,13 @@
+{
+  "name": "chancelaria",
+  "private": true,
+  "description": "Chancelaria — Gabinete de Estudos (site estático, sem build). Scripts abaixo só usam Node, sem dependências.",
+  "scripts": {
+    "version:sync": "node scripts/sync-version.js",
+    "version:check": "node scripts/sync-version.js --check",
+    "release:patch": "node scripts/sync-version.js --bump patch",
+    "release:minor": "node scripts/sync-version.js --bump minor",
+    "release:major": "node scripts/sync-version.js --bump major",
+    "test": "node --test tests/*.test.js"
+  }
+}

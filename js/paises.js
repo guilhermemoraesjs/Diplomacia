@@ -145,7 +145,7 @@ function togglePaisesFiltrosAvancados() {
   const abrindo = el.style.display === 'none' || !el.style.display;
   el.style.display = abrindo ? 'block' : 'none';
   const btn = document.getElementById('paisesFiltrosAvancadosBtn');
-  if (btn) btn.textContent = abrindo ? '⚙ Ocultar filtros' : '⚙ Mais filtros';
+  if (btn) btn.textContent = abrindo ? 'Ocultar filtros' : 'Mais filtros';
 }
 function renderPaisesFiltrosAvancados() {
   const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
@@ -199,9 +199,9 @@ function paisCardHtml(p) {
         </div>
       </div>
       <div class="pc-stats">
-        <div class="pc-stat"><span class="pc-stat-ic">🏛️</span><div><span class="pc-stat-label">Capital</span><span class="pc-stat-val">${p.capital}</span></div></div>
-        <div class="pc-stat"><span class="pc-stat-ic">👥</span><div><span class="pc-stat-label">População</span><span class="pc-stat-val">${fmtPopulacao(p.populacao)}</span></div></div>
-        <div class="pc-stat"><span class="pc-stat-ic">💰</span><div><span class="pc-stat-label">Moeda</span><span class="pc-stat-val">${p.moeda}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">${ico('🏛️')}</span><div><span class="pc-stat-label">Capital</span><span class="pc-stat-val">${p.capital}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">${ico('👥')}</span><div><span class="pc-stat-label">População</span><span class="pc-stat-val">${fmtPopulacao(p.populacao)}</span></div></div>
+        <div class="pc-stat"><span class="pc-stat-ic">${ico('💰')}</span><div><span class="pc-stat-label">Moeda</span><span class="pc-stat-val">${p.moeda}</span></div></div>
       </div>
       ${orgs.length ? `<div class="pc-orgs">${orgs.slice(0, 3).map(o => `<span class="org-badge">${o}</span>`).join('')}${orgs.length > 3 ? `<span class="org-badge more">+${orgs.length - 3}</span>` : ''}</div>` : ''}
       <div class="pc-bar"></div>
@@ -354,6 +354,7 @@ const PAIS_DETALHE_ABAS = [
   { id: 'historia', label: 'História' },
   { id: 'curiosidades', label: 'Curiosidades' },
   { id: 'flashcards', label: 'Flashcards' },
+  { id: 'meuacervo', label: 'Meu acervo' },
   { id: 'atualidades', label: 'Atualidades' },
   { id: 'questoes', label: 'Questões CACD' }
 ];
@@ -417,9 +418,11 @@ const PAIS_TAB_RENDERERS = {
         <div class="pd-flash-resposta"><span class="field-label">Resposta</span><div style="font-size:13.5px; margin-top:4px; color:var(--brass-light);">${f.resposta}</div></div>
       </div>`).join('')}</div>`;
   },
+  meuacervo(n) { return typeof kbRenderMeuAcervoPais === 'function' ? kbRenderMeuAcervoPais(n.id) : uiEmpty('Base de conhecimento indisponível.'); },
   atualidades(n) {
-    if (!n.atualidades.length) return uiEmpty('Nenhuma atualidade cadastrada ainda para este país.');
-    return n.atualidades.map(a => uiCardItem(null, `<h4 style="margin-bottom:4px;">${a.titulo}</h4><p>${a.resumo}</p>`, ' margin-bottom:10px;')).join('');
+    const minhas = (typeof kbAtualidadesDoPais === 'function' ? kbAtualidadesDoPais(n.id) : []).map(a => uiCardItem(null, `<h4 style="margin-bottom:4px;">${escHtml(a.titulo)}</h4><div class="mono muted" style="font-size:11.5px;margin-bottom:4px;">${isoToBR(a.data)} · seu registro</div><p>${escHtml(a.resumo)}</p>`, ' margin-bottom:10px;')).join('');
+    if (!n.atualidades.length && !minhas) return uiEmpty('Nenhuma atualidade cadastrada ainda para este país.');
+    return minhas + n.atualidades.map(a => uiCardItem(null, `<h4 style="margin-bottom:4px;">${a.titulo}</h4><p>${a.resumo}</p>`, ' margin-bottom:10px;')).join('');
   },
   questoes(n) {
     if (!n.questoesCACD.length) return uiEmpty('Nenhuma questão CACD cadastrada ainda para este país.');

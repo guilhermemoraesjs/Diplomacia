@@ -15,12 +15,15 @@ function renderBiblioSearch() {
       (d.autor || '').toLowerCase().includes(q) ||
       (d.tags || []).some(t => t.toLowerCase().includes(q)) ||
       stripHtml(d.conteudo).toLowerCase().includes(q) ||
-      (d.observacoes || '').toLowerCase().includes(q);
+      (d.observacoes || '').toLowerCase().includes(q) ||
+      (d.assunto || '').toLowerCase().includes(q) ||
+      (d.destaques || []).some(h => (h.texto + ' ' + (h.comentario || '')).toLowerCase().includes(q)) ||
+      Object.values(d.fichamento || {}).some(v => String(v).toLowerCase().includes(q));
   });
-  el.innerHTML = `<h3 class="section-title" style="margin-top:6px;">${results.length} resultado(s) para "${qEl.value.trim()}"</h3>` +
+  el.innerHTML = `<h3 class="section-title" style="margin-top:6px;">${results.length} resultado(s) para "${escHtml(qEl.value.trim())}"</h3>` +
     (results.length ? `<div class="biblio-doc-list">${results.map(d => `
       <div class="card biblio-doc-card" onclick="document.getElementById('biblioSearch').value=''; renderBiblioSearch(); abrirDocumento('${d.id}');">
-        <div class="bd-icon">${d.tipo || '📄'}</div>
+        <div class="bd-icon">${docTipoIcone(d.tipo)}</div>
         <div class="bd-body"><div class="bd-title">${d.titulo}</div><div class="bd-meta">${pastaNome(d.pastaId)}</div></div>
       </div>`).join('')}</div>` : '<div class="biblio-empty">Nada encontrado.</div>');
 }

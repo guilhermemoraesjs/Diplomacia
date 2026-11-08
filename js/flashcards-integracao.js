@@ -9,7 +9,7 @@
 /* ---- Biblioteca → Flashcards ---- */
 function flashAbrirCriarDeDocumento(tipo) {
   const d = biblioDocs.find(x => x.id === biblioCurrentDocId);
-  if (!d) { alert('Abra ou salve o documento antes de criar um flashcard a partir dele.'); return; }
+  if (!d) { toast('Abra ou salve o documento antes de criar um flashcard a partir dele.', 'aviso'); return; }
   goTab('flashcards');
   flashLimparFormCriar();
   flashSetCriarTipo(tipo);

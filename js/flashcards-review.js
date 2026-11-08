@@ -129,6 +129,6 @@ function flashTrackStudyDay() {
 }
 function flashCalcularStreakAtual() {
   let streak = 0; let d = new Date();
-  while (flashStreakDias.includes(d.toISOString().slice(0, 10))) { streak++; d.setDate(d.getDate() - 1); }
+  while (flashStreakDias.includes(ymdLocal(d))) { streak++; d.setDate(d.getDate() - 1); }
   return streak;
 }

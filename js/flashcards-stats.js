@@ -59,7 +59,7 @@ function flashRevisoesUltimosDias(dias) {
   const arr = [];
   for (let i = dias - 1; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = ymdLocal(d);
     const label = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][d.getDay()];
     const count = flashTempos.filter(t => t.data === iso).length;
     arr.push({ label, iso, valor: count });

@@ -29,11 +29,11 @@ function renderBiblioDocList() {
   if (!list.length) { el.innerHTML = '<div class="biblio-empty">Nenhum documento aqui ainda. Clique em "+ Novo documento" para começar.</div>'; return; }
   el.innerHTML = list.map(d => `
     <div class="card biblio-doc-card" onclick="abrirDocumento('${d.id}')">
-      <div class="bd-icon">${d.tipo || '📄'}</div>
+      <div class="bd-icon">${docTipoIcone(d.tipo)}</div>
       <div class="bd-body">
-        <div class="bd-title">${d.favorita ? '★ ' : ''}${d.titulo || '(sem título)'}</div>
-        <div class="bd-meta">${d.autor ? d.autor + ' · ' : ''}${pastaNome(d.pastaId)}${d.data ? ' · ' + isoToBR(d.data) : ''}</div>
-        ${d.tags && d.tags.length ? `<div class="bd-tags">${d.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}</div>` : ''}
+        <div class="bd-title">${d.favorita ? '★ ' : ''}${escHtml(d.titulo || '(sem título)')}</div>
+        <div class="bd-meta">${d.autor ? escHtml(d.autor) + ' · ' : ''}${escHtml(pastaNome(d.pastaId))}${d.data ? ' · ' + isoToBR(d.data) : ''}</div>
+        ${d.tags && d.tags.length ? `<div class="bd-tags">${d.tags.map(t => `<span class="tag-chip">${escHtml(t)}</span>`).join('')}</div>` : ''}
       </div>
     </div>
   `).join('');
@@ -81,7 +81,7 @@ function abrirDocumento(id) {
   showBiblioPanel('view');
 }
 function renderDocumentoView(d) {
-  document.getElementById('viewIcon').textContent = d.tipo || '📄';
+  document.getElementById('viewIcon').innerHTML = docTipoIcone(d.tipo);
   document.getElementById('viewTitulo').textContent = d.titulo || '(sem título)';
   const metaParts = [];
   if (d.autor) metaParts.push(d.autor);
@@ -96,9 +96,9 @@ function renderDocumentoView(d) {
     document.getElementById('viewRevisaoData').textContent = isoToBR(d.srs.nextReview);
     document.getElementById('viewRevisaoIntervalo').textContent = d.srs.interval || '—';
   } else { revWrap.style.display = 'none'; }
-  document.getElementById('viewTags').innerHTML = (d.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join('');
+  document.getElementById('viewTags').innerHTML = (d.tags || []).map(t => `<span class="tag-chip">${escHtml(t)}</span>`).join('');
   const conteudoEl = document.getElementById('viewConteudo');
-  conteudoEl.innerHTML = destacarConexoesTexto(d.conteudo && d.conteudo.trim() ? d.conteudo : '<p style="color:var(--text-muted);">Documento vazio.</p>');
+  conteudoEl.innerHTML = destacarConexoesTexto(d.conteudo && d.conteudo.trim() ? sanitizarHTML(d.conteudo) : '<p style="color:var(--text-muted);">Documento vazio.</p>');
   conteudoEl.querySelectorAll('input[type=checkbox]').forEach(cb => cb.disabled = true);
   const obsWrap = document.getElementById('viewObservacoesWrap');
   if (d.observacoes && d.observacoes.trim()) { obsWrap.style.display = 'block'; document.getElementById('viewObservacoes').textContent = d.observacoes; }
@@ -131,12 +131,12 @@ function abrirDocumentoEdit(id) {
   document.getElementById('docSrsStatus').textContent = d.srs
     ? `Última revisão: ${d.srs.lastReview ? isoToBR(d.srs.lastReview) : 'ainda não revisado'} · ${d.srs.reps || 0} revisão(ões) feita(s)`
     : '';
-  document.getElementById('docConteudo').innerHTML = d.conteudo || '';
+  document.getElementById('docConteudo').innerHTML = sanitizarHTML(d.conteudo || '');
   document.getElementById('docObservacoes').value = d.observacoes || '';
   const favBtn = document.getElementById('docFavBtn');
   favBtn.textContent = d.favorita ? '★ Favorita' : '☆ Favorita';
   favBtn.classList.toggle('active', !!d.favorita);
-  document.getElementById('docMetaCriado').textContent = 'Criada em ' + isoToBR(new Date(d.criadoEm).toISOString().slice(0, 10));
+  document.getElementById('docMetaCriado').textContent = 'Criada em ' + isoToBR(ymdLocal(new Date(d.criadoEm)));
   document.getElementById('docMetaEditado').textContent = d.editadoEm ? '· Editada ' + tempoRelativo(new Date(d.editadoEm).toISOString()) : '';
   renderTagsInput();
   atualizarControlesRevisao();
@@ -156,7 +156,7 @@ function fecharDocumento() {
 
 function saveDocumento() {
   const titulo = document.getElementById('docTitulo').value.trim();
-  if (!titulo) { alert('Dê um título ao documento.'); return; }
+  if (!titulo) { toast('Dê um título ao documento.', 'aviso'); return; }
   const srsAtivo = document.getElementById('docSrsAtivo').checked;
   const srsAutomatico = document.getElementById('docSrsAutomatico').checked;
   const dados = {
@@ -202,9 +202,10 @@ function saveDocumento() {
   renderDocumentoView(d);
   showBiblioPanel('view');
 }
-function deleteDocumentoAtual() {
+async function deleteDocumentoAtual() {
   if (!biblioCurrentDocId) { fecharDocumento(); return; }
-  if (!confirm('Excluir este documento definitivamente?')) return;
+  if (!await confirmar('Excluir este documento definitivamente, com seus destaques e comentários? Um ponto de restauração é salvo antes.', { titulo: 'Excluir documento', ok: 'Excluir' })) return;
+  await criarSnapshot('antes-de-excluir-documento');
   biblioDocs = biblioDocs.filter(x => x.id !== biblioCurrentDocId);
   save('biblio_docs', biblioDocs); refreshStats(); renderBiblioReviewBar(); fecharDocumento();
 }
@@ -254,7 +255,7 @@ function renderRelacionados(doc, targetId) {
   if (!doc || !doc.tags || !doc.tags.length) { el.innerHTML = '<div class="biblio-empty" style="padding:14px;">Adicione tags para ver documentos relacionados.</div>'; return; }
   const related = biblioDocs.filter(d => d.id !== doc.id && d.tags && d.tags.some(t => doc.tags.includes(t)));
   el.innerHTML = related.length
-    ? related.map(d => `<div class="biblio-related-item" onclick="abrirDocumento('${d.id}')">${d.tipo || '📄'} ${d.titulo}</div>`).join('')
+    ? related.map(d => `<div class="biblio-related-item" onclick="abrirDocumento('${d.id}')">${docTipoIcone(d.tipo)} ${escHtml(d.titulo)}</div>`).join('')
     : '<div class="biblio-empty" style="padding:14px;">Nenhum documento relacionado ainda.</div>';
 }
 
@@ -306,10 +307,10 @@ function renderPainelConexoes(d) {
   const paisesEncontrados = paisesMencionadosNoTexto(conteudo || '');
   el.innerHTML = `
     <div class="panel-conn-row" ${paisesEncontrados.length ? `onclick="mostrarConexoesPaises()"` : ''}>
-      <span>🌍 Países</span><span class="mono">${paisesEncontrados.length}</span>
+      <span>Países</span><span class="mono">${paisesEncontrados.length}</span>
     </div>
-    <div class="panel-conn-row disabled"><span>🏛️ Organizações</span><span class="mono">em breve</span></div>
-    <div class="panel-conn-row disabled"><span>📜 Tratados</span><span class="mono">em breve</span></div>
+    <div class="panel-conn-row disabled"><span>Organizações</span><span class="mono">em breve</span></div>
+    <div class="panel-conn-row disabled"><span>Tratados</span><span class="mono">em breve</span></div>
   `;
   window._paisesConectados = paisesEncontrados;
 }
@@ -330,10 +331,10 @@ function renderPainelRelacionados(d) {
     : [];
   const flashcardsRelacionados = d && typeof flashcardsDaAnotacao === 'function' ? flashcardsDaAnotacao(d.id) : [];
   el.innerHTML = `
-    <div class="panel-conn-row"><span>❓ Questões relacionadas</span><span class="mono">${questoesRelacionadas.length}</span></div>
-    <div class="panel-conn-row" onclick="${d ? `flashAbrirFlashcardsDaAnotacao('${d.id}')` : ''}"><span>🔁 Flashcards relacionados</span><span class="mono">${flashcardsRelacionados.length}</span></div>
-    <div class="panel-conn-row disabled"><span>📰 Notícias relacionadas</span><span class="mono">em breve</span></div>
-    <div class="panel-conn-row" onclick="document.querySelector('.biblio-related')?.scrollIntoView({behavior:'smooth'})"><span>📄 Outras anotações</span><span class="mono">${outrasNotas.length}</span></div>
+    <div class="panel-conn-row"><span>Questões relacionadas</span><span class="mono">${questoesRelacionadas.length}</span></div>
+    <div class="panel-conn-row" onclick="${d ? `flashAbrirFlashcardsDaAnotacao('${d.id}')` : ''}"><span>Flashcards relacionados</span><span class="mono">${flashcardsRelacionados.length}</span></div>
+    <div class="panel-conn-row disabled"><span>Notícias relacionadas</span><span class="mono">em breve</span></div>
+    <div class="panel-conn-row" onclick="document.querySelector('.biblio-related')?.scrollIntoView({behavior:'smooth'})"><span>Outras anotações</span><span class="mono">${outrasNotas.length}</span></div>
   `;
 }
 
@@ -350,5 +351,5 @@ function destacarConexoesTexto(html) {
 }
 
 function acaoIAEmBreve(nome) {
-  alert(`"${nome}" ainda não está disponível — essa função vai exigir uma chave de API de IA configurada no projeto. Assim que decidirmos isso juntos, eu ligo esse botão de verdade.`);
+  toast(`"${nome}" ainda não está disponível — essa função vai exigir uma chave de API de IA configurada no projeto. Assim que decidirmos isso juntos, eu ligo esse botão de verdade.`, 'aviso');
 }
