@@ -3,12 +3,27 @@
   "private": true,
   "description": "Chancelaria — Gabinete de Estudos (site estático, sem build). Scripts abaixo só usam Node, sem dependências.",
   "scripts": {
+    "test": "npm run test:unit && npm run test:version",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:version": "node scripts/sync-version.js --check && node --test tests/version/*.test.js",
+    "test:e2e": "node tests/e2e/run-all.js",
+    "test:mobile": "node tests/e2e/mobile.js",
+    "test:update": "node tests/e2e/atualizacao.js",
+    "test:sync": "node tests/e2e/run-emulator.js",
+    "test:all": "npm test && npm run test:e2e && npm run test:mobile && npm run test:update && npm run test:sync",
     "version:sync": "node scripts/sync-version.js",
     "version:check": "node scripts/sync-version.js --check",
     "release:patch": "node scripts/sync-version.js --bump patch",
     "release:minor": "node scripts/sync-version.js --bump minor",
     "release:major": "node scripts/sync-version.js --bump major",
-    "test": "node --test tests/*.test.js",
-    "test:e2e": "cd tests/e2e && node fluxos.js && node sincronizacao.js && node atualizacao.js && node mobile.js"
+    "serve": "python3 -m http.server 8123"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0",
+    "firebase": "10.0.0",
+    "firebase-tools": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

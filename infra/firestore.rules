@@ -1,0 +1,17 @@
+// PROPOSTA de regras de segurança — NÃO implantadas pelo repositório (nada aqui altera a produção).
+// Usadas apenas pelo Firebase Emulator Suite nos testes. Compare com as regras atuais do seu projeto
+// antes de qualquer implantação manual (ver docs/SINCRONIZACAO.md).
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Estrutura atual: um documento por usuário
+    match /chancelaria_users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      // Estrutura futura (um documento por chave) — ver plano de migração
+      match /dados/{chave} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

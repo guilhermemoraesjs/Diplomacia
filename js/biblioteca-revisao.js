@@ -56,11 +56,11 @@ function docRate(d, quality) {
   if (d.srs.modo === 'manual') { d.srs.lastReview = hoje; d.srs.nextReview = null; return; }   // aguarda você escolher a próxima data em Propriedades
   const mem = srsMemDeDoc(d);
   const antes = d.srs.lastReview ? srsRetrievability(Math.max(0, diffDaysISO(d.srs.lastReview, hoje)), mem.S) : null;
-  const n = srsProximo(mem, quality, hoje, srsPrefs(), 'media');
+  const n = srsAgendar(mem, quality, hoje, srsPrefs(), 'media');
   d.srs.stab = n.S; d.srs.dif = n.D; d.srs.lapsos = n.lapses; d.srs.acertos = n.acertos; d.srs.erros = n.erros;
   d.srs.interval = n.intervalo; d.srs.reps = quality === 'again' ? 0 : (d.srs.reps || 0) + 1;
-  d.srs.lastReview = hoje; d.srs.nextReview = n.due;
-  srsRegistrarLog('d', d.id, quality, antes, n.intervalo, hoje);
+  d.srs.lastReview = hoje; d.srs.nextReview = n.due; d.srs.em = Date.now();
+  srsRegistrarLog('d', d.id, quality, antes, n.intervalo, hoje, { d: Math.round(n.D * 10) / 10, l: n.lapses });
 }
 function rateReview(quality) {
   const d = reviewQueue[reviewIndex]; if (!d) return;

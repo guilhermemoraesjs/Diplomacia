@@ -36,6 +36,7 @@ function reloadStateFromLocalStorage() {
   if (document.getElementById('view-flashcards')?.classList.contains('active')) initFlashcardsTab();
   refreshStats();
   renderRevisaoHub();
+  renderSyncChip();
 }
 
 migrarSeNecessario().catch(e => console.warn('migração:', e)).finally(() => {

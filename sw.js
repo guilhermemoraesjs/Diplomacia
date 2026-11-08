@@ -55,6 +55,7 @@ const PRECACHE = [
   "js/simulados.js",
   "js/srs-core.js",
   "js/stats.js",
+  "js/sync.js",
   "js/theme-auth.js",
   "js/updater.js",
   "js/utils.js",

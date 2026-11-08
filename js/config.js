@@ -28,8 +28,11 @@ const CLOUD_KEYS = [
 
 /* Chaves locais que NÃO vão para a nuvem (estado do aparelho). Listadas aqui
    para o backup e a documentação saberem que existem. */
-const LOCAL_ONLY_KEYS = ['chancelaria_dirty', 'chancelaria_schema', 'chancelaria_timer', 'chancelaria_version_seen', 'chancelaria_version_info', 'chancelaria_upd_dismissed', 'chancelaria_upd_target', 'biblio_rascunho'];
+const LOCAL_ONLY_KEYS = ['chancelaria_dirty', 'chancelaria_schema', 'chancelaria_timer', 'chancelaria_version_seen', 'chancelaria_version_info', 'chancelaria_upd_dismissed', 'chancelaria_upd_target', 'biblio_rascunho', 'chancelaria_syncmeta', 'chancelaria_conflicts', 'chancelaria_device'];
 
 let currentUid = null;
 
 try { firebase.initializeApp(fbCfg); } catch (e) {}
+/* Gancho SÓ para testes automatizados: se a página definir window.__FIREBASE_EMULATOR__ antes dos scripts
+   ({firestore:'localhost:8080', auth:'http://localhost:9099'}), usa o Firebase Emulator Suite em vez da produção. */
+try { if (window.__FIREBASE_EMULATOR__) { const [h, p] = window.__FIREBASE_EMULATOR__.firestore.split(':'); firebase.firestore().useEmulator(h, +p); firebase.auth().useEmulator(window.__FIREBASE_EMULATOR__.auth, { disableWarnings: true }); window.__EMU_ACTIVE = true; } } catch (e) { console.warn('emulador:', e); }

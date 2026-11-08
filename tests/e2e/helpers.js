@@ -2,7 +2,7 @@
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
 const STUB = fs.readFileSync(path.join(__dirname, 'firebase-stub.js'), 'utf8');
 async function abrir(opts) {
-  opts = opts || {}; const b = await chromium.launch();
+  opts = opts || {}; const b = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   const ctx = await b.newContext(Object.assign({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1, serviceWorkers: 'allow' }, opts.context || {}));
   await ctx.route('**/firebasejs/**', r => r.fulfill({ contentType: 'application/javascript', body: r.request().url().includes('app-compat') ? STUB : '' }));
   await ctx.route(/fonts\.g(oogleapis|static)\.com/, r => r.abort());
