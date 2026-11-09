@@ -101,25 +101,28 @@ function _aplicarConflito(key, local, remoto, tLocal, tRemoto, tRemotoMeta) {
 function _ref() { return firebase.firestore().collection('chancelaria_users').doc(currentUid); }
 const _comTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('tempo esgotado ao falar com a nuvem')), ms))]);
 
-/* Envia um LOTE de chaves em UMA transação (uma ida e volta ao servidor em vez de uma por chave).
-   Cada chave é avaliada separadamente: 'ok' | 'igual' | 'superado' | 'conflito'. A transação é atômica; se ela falhar
-   (ex.: documento grande demais), _drenar reenvia chave a chave para isolar a que falha. */
-async function _enviarLote(keys) {
-  const pend = {}; keys.forEach(k => { const stamp = getDirty()[k], raw = localStorage.getItem(k); if (!stamp) return; if (raw == null) { clearDirty(k, stamp); return; } pend[k] = { stamp, value: JSON.parse(raw) }; });
-  const ks = Object.keys(pend); if (!ks.length) return {};
-  const ref = _ref(), dev = deviceId(); let res = {}, remoto = {};
-  await _comTimeout(firebase.firestore().runTransaction(async tx => {
-    res = {}; remoto = {};                                                               // a função pode ser reexecutada pelo SDK
-    const snap = await tx.get(ref), data = snap.exists ? snap.data() : {}, meta = data.__meta || {}, base = getSyncBase(), upd = {}, novos = {};
-    for (const k of ks) {
-      const { stamp, value } = pend[k], rm = meta[k], rt = rm ? rm.t : 0, rv = data[k]; remoto[k] = { t: rt, v: rv };
-      if (rm && rm.d === dev && rt > stamp) res[k] = 'superado';                          // gravação antiga: já existe uma mais nova deste aparelho
-      else if (rt > (base[k] || 0) && rv !== undefined && !deepEqual(rv, value)) res[k] = 'conflito';   // outro aparelho mudou desde a última sincronização
-      else if (rv !== undefined && deepEqual(rv, value)) res[k] = 'igual';
-      else { res[k] = 'ok'; upd[k] = value; novos[k] = { t: stamp, d: dev }; }
-    }
-    if (Object.keys(upd).length) tx.set(ref, Object.assign({}, upd, { __meta: novos }), { merge: true });
-  }), SYNC_TIMEOUT_MS);
+/* ---- Estrutura na nuvem ----
+   1 (legado): tudo em chancelaria_users/{uid}.   2 (migrada): um documento por chave em chancelaria_users/{uid}/dados/{chave}
+   = {valor, t, d, v:1}, com o controle em dados/__controle = {estrutura, migracao}. Em 2, as gravações vão para os documentos por chave
+   (autoridade) e, "melhor esforço", também para o documento legado (compatibilidade com versões 1.1.0 ainda abertas). Ver docs/SINCRONIZACAO.md. */
+function _estrutura() { return localStorage.getItem('chancelaria_estrutura') === '2' ? 2 : 1; }
+function _dadosCol() { return _ref().collection('dados'); }
+/* Estado remoto efetivo por chave: vale o mais recente entre o legado (valor+__meta) e o documento por chave (empate: o novo). */
+function _compor(leg, docs) {
+  const data = {}, meta = {}, lm = (leg && leg.__meta) || {};
+  CLOUD_KEYS.forEach(k => { const lv = leg ? leg[k] : undefined, lt = lm[k] ? lm[k].t : 0, nd = docs[k];
+    if (nd && nd.valor !== undefined && (lv === undefined || nd.t >= lt)) { data[k] = nd.valor; meta[k] = { t: nd.t, d: nd.d }; }
+    else if (lv !== undefined) { data[k] = lv; meta[k] = lm[k] || { t: 0 }; } });
+  return { data, meta };
+}
+function _montarPend(keys) { const pend = {}; keys.forEach(k => { const stamp = getDirty()[k], raw = localStorage.getItem(k); if (!stamp) return; if (raw == null) { clearDirty(k, stamp); return; } pend[k] = { stamp, value: JSON.parse(raw) }; }); return pend; }
+function _classificar(k, p, rv, rt, rd, dev, base) {
+  if (rd === dev && rt > p.stamp) return 'superado';                                       // gravação antiga: já existe uma mais nova deste aparelho
+  if (rt > (base[k] || 0) && rv !== undefined && !deepEqual(rv, p.value)) return 'conflito';   // outro aparelho mudou desde a última sincronização
+  if (rv !== undefined && deepEqual(rv, p.value)) return 'igual';
+  return 'ok';
+}
+function _finalizarLote(ks, pend, res, remoto) {
   const base = getSyncBase();
   for (const k of ks) {
     const { stamp, value } = pend[k], r = res[k];
@@ -127,6 +130,30 @@ async function _enviarLote(keys) {
     base[k] = r === 'ok' ? stamp : Math.max(remoto[k].t, base[k] || 0); clearDirty(k, stamp);   // só limpa se não houve edição mais nova durante o voo
   }
   setSyncBase(Object.assign(getSyncBase(), Object.fromEntries(Object.entries(base).filter(([k]) => res[k] && res[k] !== 'conflito'))));
+}
+
+/* Envia um LOTE de chaves em UMA transação (uma ida e volta ao servidor em vez de uma por chave).
+   Cada chave é avaliada separadamente: 'ok' | 'igual' | 'superado' | 'conflito'. A transação é atômica; se ela falhar
+   (ex.: documento grande demais), _drenar reenvia chave a chave para isolar a que falha. */
+async function _enviarLote(keys) {
+  const pend = _montarPend(keys), ks = Object.keys(pend); if (!ks.length) return {};
+  const ref = _ref(), dev = deviceId(), est = _estrutura(); let res = {}, remoto = {};
+  await _comTimeout(firebase.firestore().runTransaction(async tx => {
+    res = {}; remoto = {};                                                               // a função pode ser reexecutada pelo SDK
+    const ls = await tx.get(ref), leg = ls.exists ? ls.data() : {}, lm = leg.__meta || {}, base = getSyncBase(), upd = {}, novos = {}, docs = {};
+    if (est === 2) for (const k of ks) { const s = await tx.get(_dadosCol().doc(k)); if (s.exists) docs[k] = s.data(); }
+    const efetivo = est === 2 ? _compor(leg, docs) : { data: leg, meta: lm };
+    for (const k of ks) {
+      const rm = efetivo.meta[k], rt = rm ? rm.t : 0, rv = efetivo.data[k]; remoto[k] = { t: rt, v: rv };
+      res[k] = _classificar(k, pend[k], rv, rt, rm && rm.d, dev, base);
+      if (res[k] === 'ok') { if (est === 2) tx.set(_dadosCol().doc(k), { valor: pend[k].value, t: pend[k].stamp, d: dev, v: 1 }); else { upd[k] = pend[k].value; novos[k] = { t: pend[k].stamp, d: dev }; } }
+    }
+    if (est === 1 && Object.keys(upd).length) tx.set(ref, Object.assign({}, upd, { __meta: novos }), { merge: true });
+  }), SYNC_TIMEOUT_MS);
+  _finalizarLote(ks, pend, res, remoto);
+  if (est === 2) {                                                                       // compatibilidade: espelha no documento legado (falha, ex.: tamanho, NÃO bloqueia)
+    const oks = ks.filter(k => res[k] === 'ok'); if (oks.length) ref.set(Object.assign({}, Object.fromEntries(oks.map(k => [k, pend[k].value])), { __meta: Object.fromEntries(oks.map(k => [k, { t: pend[k].stamp, d: dev }])) }), { merge: true }).then(() => { _sync.legadoFalhando = false; }).catch(e => { _sync.legadoFalhando = true; console.warn('Espelho no documento legado falhou (ignorado):', e && e.message); });
+  }
   return res;
 }
 async function _enviarChave(key) { const r = (await _enviarLote([key]))[key]; return r === undefined ? 'nada' : r; }
@@ -179,7 +206,10 @@ async function flushPendingSync(timeoutMs) {
 
 /* ---- download da nuvem (login, volta à aba, volta da conexão) ---- */
 async function pullFromCloud() {
-  const snap = await _comTimeout(_ref().get(), SYNC_TIMEOUT_MS), data = snap.exists ? snap.data() : {}, meta = data.__meta || {}, mudou = [], conflitos = [];
+  const [snap, col] = await _comTimeout(Promise.all([_ref().get(), _dadosCol().get().catch(e => { if (e && e.code === 'permission-denied') { _sync.semSubcolecao = true; return { forEach() {} }; } throw e; })]), SYNC_TIMEOUT_MS)   /* regras de produção ainda sem a subcoleção: segue no modo legado, sem erro */, leg = snap.exists ? snap.data() : {}, docs = {};
+  let controle = null; col.forEach(d => { if (d.id === '__controle') controle = d.data(); else docs[d.id] = d.data(); });
+  const estr = controle && controle.estrutura === 2 ? 2 : 1; try { localStorage.setItem('chancelaria_estrutura', String(estr)); } catch (e) {}
+  const { data, meta } = estr === 2 ? _compor(leg, docs) : { data: leg, meta: leg.__meta || {} }, mudou = [], conflitos = [];
   const dirty = getDirty(), base = getSyncBase();
   CLOUD_KEYS.forEach(k => {
     const rv = data[k], rt = (meta[k] && meta[k].t) || 0, raw = localStorage.getItem(k); let lv; try { lv = raw == null ? undefined : JSON.parse(raw); } catch (e) { lv = undefined; }

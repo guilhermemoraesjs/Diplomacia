@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
-  "build": 2,
-  "date": "2026-11-08",
+  "version": "1.2.0",
+  "build": 3,
+  "date": "2026-11-09",
   "notes": [
-    "Segunda rodada: sincronização serializada com controle de conflitos, backup e restauração seguros, revisão unificada (adaptativa/fixa), atualizador com instalação atômica e suíte de testes real (Firebase Emulator)."
+    "Migração gradual e reversível do Firestore (documento único → um documento por chave), com teste de permissão, validação, retomada e reversão."
   ]
 }

@@ -42,15 +42,27 @@ em *Configurações → Backup e segurança* e avisa acima de 800 KB. Nada é pe
 (limite de 1 MiB **por chave**). Chaves que ainda possam estourar (`biblio_docs`, `flash_cards`) podem depois ser
 divididas em `dados/{chave}/itens/{id}` (um documento por registro).
 
-### Plano de migração gradual, sem perda (NÃO executado nesta rodada — motivo ao final)
-| Fase | O que muda | Reversão |
+### Migração gradual — IMPLEMENTADA na v1.2.0 (`js/migracao.js`), acionada por você
+Configurações → Backup e segurança → **Estrutura dos dados na nuvem** → "Migrar para um documento por grupo". Nada acontece sozinho.
+
+| Etapa | O que o app faz | Se falhar |
 |---|---|---|
-| 0 (atual) | Documento único + `__meta` | — |
-| 1 — backup | Antes de qualquer coisa: snapshot local + exportação JSON do estado; cópia do documento legado em `chancelaria_users/{uid}/backup/legado-AAAAMMDD` | Nada a desfazer |
-| 2 — cópia | Para cada chave: criar `dados/{chave}` **somente se não existir ou se o `t` for mais antigo** (idempotente; id do documento = chave → sem duplicação). Progresso por chave em `__migracao = {estado:'copiando', feitas:[...]}`; interrompida? recomeça de onde parou | Apagar a subcoleção `dados` (o legado segue intacto) |
-| 3 — validação | Ler os dois lados e comparar com `deepEqual` chave a chave; só então gravar `__estrutura: 2` | Não gravar a flag |
-| 4 — dupla gravação | Clientes novos gravam nos dois lugares e leem `dados/*` quando `__estrutura == 2`, senão o legado | Voltar `__estrutura` para 1 |
-| 5 — consolidação | Parar de gravar no legado após N semanas sem divergência; **manter** o documento legado como backup (nunca apagar automaticamente) | Reativar a dupla gravação |
+| 1 | Tenta enviar pendências (não bloqueia: dados que não cabem no documento único seguem salvos no aparelho) | segue |
+| 2 | **Ponto de restauração local obrigatório** (`pre-migracao-firestore`) | aborta, nada alterado |
+| 3 | **Teste de permissão** (grava e apaga `dados/__teste`) — regras de produção ainda sem a subcoleção? | **aborta antes de tocar em qualquer coisa**, com mensagem |
+| 4 | Cópia do documento legado em `backup/legado-AAAAMMDD` | aborta, nada alterado |
+| 5 | `dados/__controle = {estrutura:1, migracao:{estado:'copiando', feitas:[…]}}` | — |
+| 6 | Copia chave a chave: id do documento = chave (sem duplicação), idempotente, preserva `t`/`d` originais | queda no meio → estado `interrompida`; o app continua no legado; **retomar** recomeça de onde parou |
+| 7 | **Valida** numa transação (legado == novo, chave a chave) e só então grava `estrutura:2`; divergência (edição concorrente) → recopia e valida de novo, até 3 vezes | divergência persistente → **não vira a chave**; legado intacto |
+
+Depois da virada: as gravações vão para `dados/{chave}` e são **espelhadas (melhor esforço)** no documento legado, para versões ≤1.1.0 ainda abertas;
+a leitura usa o mais recente (por `t`) entre legado e novo, então um cliente antigo que escreveu depois também é visto. Se o espelho falhar por tamanho (esperado
+para quem passou de 1 MiB), isso **não bloqueia** nada. **Reverter** (botão no mesmo painel): atualiza o legado com o estado mais recente, verifica, e só então volta a
+`estrutura:1`; se os dados não couberem no documento único, a reversão é **recusada** sem perda. Os documentos por chave nunca são apagados automaticamente.
+Pull com regras que ainda negam `dados/`: tratado como "sem subcoleção" (modo legado), sem erro — quem não atualizou as regras não é afetado.
+
+**O que você precisa fazer para usar:** (1) publicar as regras de `infra/firestore.rules` (acrescentam `dados/{chave}` e `backup/{doc}`; **não foram publicadas por mim**);
+(2) atualizar o app em todos os aparelhos (v1.2.0+); (3) clicar em Migrar num aparelho e acompanhar o painel.
 
 **Compatibilidade:** versões antigas do app continuam lendo/gravando o documento legado; por isso a fase 4 (dupla gravação)
 precisa ser publicada antes de a fase 5 existir. **Duplicações:** evitadas por id determinístico + comparação de `t`.
@@ -61,6 +73,6 @@ precisa ser publicada antes de a fase 5 existir. **Duplicações:** evitadas por
 cobrem o documento `chancelaria_users/{uid}`, as gravações na subcoleção seriam negadas — é preciso você revisar e
 publicar as regras (e validar no emulador com `npm run test:sync`) antes da fase 2.
 
-**Por que não foi executada agora:** a migração depende de (a) atualizar as regras de produção — fora do que posso fazer
+**Por que o plano original não foi executado às cegas:** a migração depende de (a) atualizar as regras de produção — fora do que posso fazer
 sem sua autorização e sem poder testar contra o projeto real — e (b) uma rodada própria de testes de interrupção/rollback
 no emulador. Executar às cegas arriscaria justamente os dados que esta rodada procura proteger.

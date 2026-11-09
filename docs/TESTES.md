@@ -37,7 +37,7 @@ Se os emuladores não estiverem no ar, as suítes terminam com **código 3 ("Nã
 | Download/upload de arquivos de backup | — |
 
 ## Suítes
-`tests/unit` · `tests/version` · `tests/e2e/{navegacao, questoes, cronograma, discursivas, biblioteca, revisao, conhecimento, compatibilidade, backup, sync-emulador, atualizacao, mobile}.js`
+`tests/unit` · `tests/version` · `tests/e2e/{navegacao, questoes, cronograma, discursivas, biblioteca, revisao, conhecimento, compatibilidade, backup, sync-emulador, migracao-emulador, atualizacao, mobile}.js`
 (`helpers.js`/`emu.js` = ambiente; `server.js` = servidor estático sem cache; `run-suites.js` = executor com quadro de resultados).
 
 ## CI
