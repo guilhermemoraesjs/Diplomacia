@@ -10,8 +10,8 @@
      "Atualizar agora" (mensagem SKIP_WAITING), para não interromper estudo.
    ========================================================================== */
 /* @generated:start (scripts/sync-version.js) */
-const APP_VERSION = "1.2.0";
-const APP_BUILD = 3;
+const APP_VERSION = "1.2.1";
+const APP_BUILD = 4;
 const CACHE_APP = 'chancelaria-app-' + APP_VERSION;
 const PRECACHE = [
   "./",

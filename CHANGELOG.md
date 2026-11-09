@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.1 — correções do atualizador (achadas pelo CI do GitHub)
+O aviso "a atualização ainda não foi carregada" (com **Forçar atualização**) era apagado/sobrescrito pela verificação periódica; clique duplo em Forçar contava duas tentativas. O CI do GitHub reprovou `atualizacao` por uma corrida no teste; ela revelou os dois bugs. Teste agora aguarda a navegação e cobre o clique duplo.
+
 ## v1.2.0 — migração do Firestore
 Migração gradual e reversível do documento único para um documento por chave (botão em Backup e segurança): teste de permissão, snapshot obrigatório, cópia de segurança na nuvem, validação transacional, retomada, reversão, coexistência com clientes 1.1.0. Suíte `migracao-emulador` (47 verificações).
 
