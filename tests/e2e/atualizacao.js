@@ -92,7 +92,10 @@ const SEM_SYNC = /Falha ao sincronizar|WebChannel|Atualização não concluída|
   console.log('\n[10] Sem ciclos: alvo que nunca carrega');
   A = await ambiente(); d = await A.abrir(); p = d.p; ev = (f, a) => p.evaluate(f, a); let navs = 0; p.on('framenavigated', f => { if (f === p.mainFrame()) navs++; });
   await ev(() => localStorage.setItem('chancelaria_upd_target', JSON.stringify({ build: 99, version: '9.9.9', em: Date.now(), tentativas: 0 }))); await p.reload(); await p.waitForSelector('#updBanner.erro', { timeout: 15000 }); check((await p.textContent('#updBanner')).includes('ainda não foi carregada'), 'alvo não carregado: avisa em vez de declarar sucesso');
-  await p.click('#updBanner >> text=Forçar atualização'); await p.waitForSelector('#updBanner.erro', { timeout: 20000 }); await H.sleep(800); await p.click('#updBanner >> text=Forçar atualização'); await H.sleep(4000);
+  const FORCAR = '#updBanner >> text=Forçar atualização', navegar = acao => Promise.all([p.waitForNavigation({ waitUntil: 'load', timeout: 40000 }), acao()]);
+  await navegar(() => p.dblclick(FORCAR));                                   // clique DUPLO: não pode contar duas tentativas nem recarregar duas vezes
+  await p.waitForSelector('#updBanner.erro', { timeout: 20000 }); check(await ev(() => JSON.parse(localStorage.getItem('chancelaria_upd_target')).tentativas) === 1, 'clique duplo em "Forçar atualização" conta UMA tentativa (sem corrida)');
+  await navegar(() => p.click(FORCAR)) ; await p.waitForFunction(() => !localStorage.getItem('chancelaria_upd_target'), null, { timeout: 30000 }); await H.sleep(2000);
   const fim = await ev(() => ({ alvo: localStorage.getItem('chancelaria_upd_target'), erro: !!document.querySelector('#updBanner.erro'), toast: (document.getElementById('toastHost') || { innerText: '' }).innerText })); check(fim.alvo === null && !fim.erro && fim.toast.includes('Não foi possível carregar a v9.9.9') && navs <= 6, 'após 2 tentativas desiste com mensagem (sem laço infinito de recarregamentos)', JSON.stringify({ ...fim, navs }));
   check(d.erros.filter(e => !SEM_SYNC.test(e)).length === 0, 'sem erros de JavaScript', d.erros.filter(e => !SEM_SYNC.test(e)).join(' | ')); await A.fechar();
 

@@ -93,7 +93,7 @@ function updMostrarBanner(msgOcupado) {
 function updDispensar() { UPD.erroBanner = false; if (UPD.nova) updGravar('chancelaria_upd_dismissed', { build: UPD.nova.build, em: Date.now() }); const el = document.getElementById('updBanner'); if (el) el.remove(); updAtualizarUI(); }
 function updAtualizarUI(manual) {
   document.body.classList.toggle('has-update', !!UPD.nova);
-  if (UPD.nova && !updDispensado()) updMostrarBanner(); else if (!UPD.ocupado) { const el = document.getElementById('updBanner'); if (el && !UPD.nova) el.remove(); }
+  if (UPD.nova && !updDispensado()) updMostrarBanner(); else if (!UPD.ocupado) { const el = document.getElementById('updBanner'); if (el && !UPD.nova && !UPD.erroBanner) el.remove(); }
   renderVersionPanel();
   if (manual && UPD.ultimoResultado) {
     const r = UPD.ultimoResultado;
@@ -155,6 +155,7 @@ async function applyUpdate() {
 /* Último recurso (iPhone preso em versão antiga): remove SÓ o Service Worker e os
    caches 'chancelaria-app-*'; dados do usuário não são tocados. */
 async function forcarAtualizacao() {
+  if (UPD.forcando) return; UPD.forcando = true;           // clique duplo não conta duas tentativas nem dispara duas recargas
   const alvo = updLerJSON('chancelaria_upd_target') || {};
   alvo.tentativas = (alvo.tentativas || 0) + 1; updGravar('chancelaria_upd_target', alvo);
   try { await flushPendingSync(5000); } catch (e) {}
@@ -173,7 +174,7 @@ function updVerificarPosAtualizacao() {
   const alvo = updLerJSON('chancelaria_upd_target'); if (!alvo) return;
   if (APP_INFO.build >= alvo.build) { localStorage.removeItem('chancelaria_upd_target'); localStorage.removeItem('chancelaria_upd_dismissed'); if (history.replaceState && /atualizado=/.test(location.search)) history.replaceState(null, '', location.pathname); return; }
   if ((alvo.tentativas || 0) >= 2) { localStorage.removeItem('chancelaria_upd_target'); setTimeout(() => toast(`Não foi possível carregar a v${alvo.version}. Continue usando a v${APP_INFO.version} e tente de novo mais tarde.`, 'erro'), 1500); return; }
-  UPD.nova = { version: alvo.version, build: alvo.build };
+  UPD.nova = { version: alvo.version, build: alvo.build }; UPD.erroBanner = true;      // protege o aviso: a verificação periódica não pode sobrescrevê-lo
   const el = document.createElement('div'); el.id = 'updBanner'; el.className = 'upd-banner erro'; el.setAttribute('role', 'alert');
   el.innerHTML = `<div class="upd-body"><strong>A atualização ainda não foi carregada</strong><span>O navegador manteve a v${escHtml(APP_INFO.version)}. Seus dados estão intactos.</span></div><div class="upd-actions"><button class="btn secondary small" onclick="forcarAtualizacao()">Forçar atualização</button></div>`;
   document.body.appendChild(el);
