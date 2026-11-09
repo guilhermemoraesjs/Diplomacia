@@ -10,8 +10,8 @@
      "Atualizar agora" (mensagem SKIP_WAITING), para não interromper estudo.
    ========================================================================== */
 /* @generated:start (scripts/sync-version.js) */
-const APP_VERSION = "1.1.0";
-const APP_BUILD = 2;
+const APP_VERSION = "1.2.0";
+const APP_BUILD = 3;
 const CACHE_APP = 'chancelaria-app-' + APP_VERSION;
 const PRECACHE = [
   "./",
@@ -45,6 +45,7 @@ const PRECACHE = [
   "js/flashcards-ui.js",
   "js/icons.js",
   "js/materias.js",
+  "js/migracao.js",
   "js/migrations.js",
   "js/navigation.js",
   "js/notas.js",

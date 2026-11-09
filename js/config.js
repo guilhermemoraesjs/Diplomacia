@@ -28,7 +28,7 @@ const CLOUD_KEYS = [
 
 /* Chaves locais que NÃO vão para a nuvem (estado do aparelho). Listadas aqui
    para o backup e a documentação saberem que existem. */
-const LOCAL_ONLY_KEYS = ['chancelaria_dirty', 'chancelaria_schema', 'chancelaria_timer', 'chancelaria_version_seen', 'chancelaria_version_info', 'chancelaria_upd_dismissed', 'chancelaria_upd_target', 'biblio_rascunho', 'chancelaria_syncmeta', 'chancelaria_conflicts', 'chancelaria_device'];
+const LOCAL_ONLY_KEYS = ['chancelaria_dirty', 'chancelaria_schema', 'chancelaria_timer', 'chancelaria_version_seen', 'chancelaria_version_info', 'chancelaria_upd_dismissed', 'chancelaria_upd_target', 'biblio_rascunho', 'chancelaria_syncmeta', 'chancelaria_conflicts', 'chancelaria_device', 'chancelaria_estrutura'];
 
 let currentUid = null;
 

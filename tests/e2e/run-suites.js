@@ -2,7 +2,7 @@
 // Requer os emuladores (use `npm run test:e2e`, que os inicia com `firebase emulators:exec`).
 const { spawn } = require('child_process'); const path = require('path'); const { servir } = require('./server');
 const raiz = path.join(__dirname, '..', '..');
-const TODAS = ['navegacao', 'questoes', 'cronograma', 'discursivas', 'biblioteca', 'revisao', 'conhecimento', 'compatibilidade', 'backup', 'sync-emulador', 'atualizacao', 'mobile'];
+const TODAS = ['navegacao', 'questoes', 'cronograma', 'discursivas', 'biblioteca', 'revisao', 'conhecimento', 'compatibilidade', 'backup', 'sync-emulador', 'migracao-emulador', 'atualizacao', 'mobile'];
 const SUITES = process.argv.slice(2).length ? process.argv.slice(2) : TODAS;   // ex.: node run-suites.js mobile
 (async () => {
   const srv = await servir(raiz, 8123), res = [];

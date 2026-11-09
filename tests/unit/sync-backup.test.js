@@ -55,3 +55,16 @@ test('SRS: preferências lidas do armazenamento (modo e intervalos), com padrõe
   L.run(`localStorage.setItem('chancelaria_prefs', JSON.stringify({srsModo:'fixo', srsIntervalos:{good:11, hard:'abc'}}))`); assert.equal(L.run(`srsPrefs().modo`), 'fixo'); assert.equal(L.run(`srsPrefs().fixos.good`), 11); assert.equal(L.run(`srsPrefs().fixos.hard`), 15);
   L.run(`localStorage.setItem('chancelaria_prefs', JSON.stringify({srsModo:'lixo'}))`); assert.equal(L.run(`srsPrefs().modo`), 'adaptativo');
 });
+test('_compor (estrutura migrada): vale o mais recente entre legado e documento por chave; empate favorece o novo; chaves só de um lado são mantidas', () => {
+  L.ctx.__leg = { a: 'leg-novo', b: 'leg', c: 'so-legado', __meta: { a: { t: 200, d: 'x' }, b: { t: 100, d: 'x' }, c: { t: 5, d: 'x' } } };
+  L.ctx.__docs = { a: { valor: 'doc-velho', t: 100, d: 'y' }, b: { valor: 'doc', t: 100, d: 'y' }, diplo_notas: { valor: [1], t: 7, d: 'y' } };
+  // usa chaves reais de CLOUD_KEYS para o teste: mapeia a→diplo_notas etc.
+  L.run(`var leg2 = { diplo_notas: 'leg-novo', diplo_kb: 'leg', diplo_questoes: 'so-legado', __meta: { diplo_notas: {t:200,d:'x'}, diplo_kb: {t:100,d:'x'}, diplo_questoes: {t:5,d:'x'} } };
+         var docs2 = { diplo_notas: {valor:'doc-velho',t:100,d:'y'}, diplo_kb: {valor:'doc',t:100,d:'y'}, srs_log: {valor:['n'],t:7,d:'y'} };
+         var comp = _compor(leg2, docs2);`);
+  assert.equal(L.run(`comp.data.diplo_notas`), 'leg-novo');           // legado mais novo (t 200 > 100)
+  assert.equal(L.run(`comp.data.diplo_kb`), 'doc');                    // empate → documento por chave
+  assert.equal(L.run(`comp.data.diplo_questoes`), 'so-legado');        // só no legado
+  assert.equal(L.run(`JSON.stringify(comp.data.srs_log)`), '["n"]');   // só no novo
+  assert.equal(L.run(`comp.meta.diplo_notas.t`), 200);
+});

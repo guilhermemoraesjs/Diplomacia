@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.0 — migração do Firestore
+Migração gradual e reversível do documento único para um documento por chave (botão em Backup e segurança): teste de permissão, snapshot obrigatório, cópia de segurança na nuvem, validação transacional, retomada, reversão, coexistência com clientes 1.1.0. Suíte `migracao-emulador` (47 verificações).
+
 ## v1.1.0 — segunda rodada (confiabilidade e proteção de dados)
 **Sincronização:** fila serializada, carimbos por edição, transação com `__meta`, conflito entre aparelhos (mesclagem por id), retentativas,
 indicador de estado (local/pendente/enviando/offline/falha/sincronizado). **Backup e segurança:** formato v2 com hash, validação,
