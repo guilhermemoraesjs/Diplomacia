@@ -1,8 +1,8 @@
 // A versão é definida SÓ em version.json; os demais arquivos são derivados e precisam estar sincronizados.
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
-const r = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+const r = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 test('versão: version.json, js/version.js, sw.js e ?v= do index.html estão sincronizados', () => {
-  const out = execFileSync('node', [path.join(__dirname, '../scripts/sync-version.js'), '--check'], { encoding: 'utf8' });
+  const out = execFileSync('node', [path.join(__dirname, '../../scripts/sync-version.js'), '--check'], { encoding: 'utf8' });
   assert.match(out, /versão consistente/);
 });
 test('versão: build do cliente (APP_INFO) = build do Service Worker = version.json', () => {

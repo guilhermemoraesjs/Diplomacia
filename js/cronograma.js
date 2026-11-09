@@ -165,6 +165,8 @@ function setCronoFiltroMateria(n) { cronoMateriaFiltro = n; renderCronograma(); 
 
 /* ---- modal genérico ---- */
 function crModal(html, id) { crFecharModal(id); const ov = document.createElement('div'); ov.className = 'modal-overlay show'; ov.id = id || 'crModal'; ov.innerHTML = `<div class="modal-card" role="dialog" aria-modal="true">${html}</div>`; ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); }); document.body.appendChild(ov); return ov; }
+/* Foco inicial do modal, sem roubar o foco se a pessoa já começou a digitar em outro campo do modal. */
+function crFocoInicial(id) { requestAnimationFrame(() => { const e = document.getElementById(id), m = e && e.closest('.modal-card'); if (e && m && !m.contains(document.activeElement)) e.focus(); }); }
 function crFecharModal(id) { const m = document.getElementById(id || 'crModal'); if (m) m.remove(); }
 
 /* ---- criar / editar ---- */
@@ -185,7 +187,7 @@ function crAbrirForm(id, isoPadrao) {
     ${c ? `<div class="cr-form-info">${c.feito ? `Concluída${c.concluidoEm ? ' em ' + new Date(c.concluidoEm).toLocaleDateString('pt-BR') : ''}. ` : ''}Planejado: ${c.duracaoMin ? fmtMin(c.duracaoMin) : '—'} · Estudado: ${crTempoReal(c) ? fmtMin(crTempoReal(c)) : '—'}${c.reagend ? ` · Reagendada ${c.reagend}×` : ''}</div>` : ''}
     <div id="crfErro" class="form-erro" role="alert"></div>
     <div class="modal-actions">${c ? `<button class="btn danger small" onclick="crExcluir('${c.id}')" style="margin-right:auto;">${icon('trash', 14)} Excluir</button>` : ''}<button class="btn ghost small" onclick="crFecharModal()">Cancelar</button><button class="btn small" onclick="crSalvarForm(${c ? `'${c.id}'` : 'null'})">Salvar</button></div>`);
-  crAtualizarAssuntos(); setTimeout(() => document.getElementById('crfTema').focus(), 50);
+  crAtualizarAssuntos(); crFocoInicial('crfTema');
 }
 function crAtualizarAssuntos() {
   const m = materias.find(x => x.nome === (document.getElementById('crfMateria') || {}).value), dl = document.getElementById('crfAssuntos'); if (!dl) return;
@@ -212,13 +214,13 @@ async function crExcluir(id) {
 function crAlternarConcluir(id) {
   const c = cronograma.find(x => x.id === id); if (!c) return;
   if (c.feito) { crReabrir(c); return; }
-  const jaReg = crTempoReal(c), sug = jaReg ? '' : (c.duracaoMin || '');
+  const jaReg = crTempoReal(c), sug = '';   // nunca pré-preenche com o tempo planejado: tempo real só entra se você informar
   crModal(`<h3>Concluir atividade</h3><p class="muted" style="margin-top:-4px;">${escHtml(c.tema)}</p>
     ${jaReg ? `<p class="cr-form-info">Já registrado: <b>${fmtMin(jaReg)}</b> estudados.</p>` : ''}
     <label class="field-label" for="crcMin">${jaReg ? 'Tempo adicional estudado (minutos)' : 'Quanto tempo você estudou? (minutos)'}</label><input type="number" id="crcMin" min="0" max="1440" value="${sug}" placeholder="${c.duracaoMin ? 'Planejado: ' + c.duracaoMin : 'Ex.: 90'}" inputmode="numeric">
     <p class="muted" style="font-size:12.5px;margin:8px 0 0;">Deixe em branco para concluir sem registrar o tempo — a atividade ficará marcada como "tempo não registrado".</p>
     <div class="modal-actions"><button class="btn ghost small" onclick="crFecharModal()">Cancelar</button><button class="btn small" onclick="crConfirmarConcluir('${id}')">${icon('check', 14)} Concluir</button></div>`);
-  setTimeout(() => document.getElementById('crcMin').focus(), 50);
+  crFocoInicial('crcMin');
 }
 function crConfirmarConcluir(id) {
   const c = cronograma.find(x => x.id === id); if (!c) return;

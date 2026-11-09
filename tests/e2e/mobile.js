@@ -1,26 +1,57 @@
-// Verifica rolagem horizontal e elementos cortados em telas pequenas (iPhone 390x844 e 320x640) e tablet.
-const { abrir, check, resumo } = require('./helpers');
+// Responsividade com INTERAÇÃO real (toque), em 4 tamanhos: iPhone 390×844, iPhone SE 320×640, tablet 820×1180 e desktop 1366×768.
+// Verifica rolagem horizontal, alvos de toque, modais dentro da tela, campos utilizáveis, editor, banco de questões, cronômetro e navegação.
+const H = require('./helpers'); const { check } = H;
+const TAMANHOS = [['iPhone 390×844', { width: 390, height: 844 }, true], ['iPhone SE 320×640', { width: 320, height: 640 }, true], ['tablet 820×1180', { width: 820, height: 1180 }, true], ['desktop 1366×768', { width: 1366, height: 768 }, false]];
 (async () => {
-  for (const [nome, vp] of [['iPhone 390', { width: 390, height: 844 }], ['iPhone SE 320', { width: 320, height: 640 }], ['tablet 820', { width: 820, height: 1180 }]]) {
-    console.log('\n[' + nome + ']');
-    const { b, p, erros } = await abrir({ context: { viewport: vp, isMobile: true, hasTouch: true } });
-    await p.evaluate(() => { const m = materias; const h = todayISO();
-      cronograma = [crNorm({ id: 'a', tema: 'Guerra do Paraguai e a formação do estado nacional brasileiro', estudar: '', semana: '—', tempo: '1h30', data: crISOParaBR(h), materia: m[0].nome, feito: false, prioridade: 'alta' })]; crSalvar();
-      questoes = [qNorm({ id: 'q1', enunciado: 'Enunciado longo '.repeat(40), materia: m[0].nome, tipo: 'multipla', alternativas: ['A', 'B', 'C', 'D'].map(l => ({ letra: l, texto: 'Alternativa extensa '.repeat(12) })), gabarito: 'A', banca: 'CEBRASPE', ano: 2022 })]; qSalvar();
-      discursivas = [dlNorm({ id: 'd1', materia: m[2].nome, tema: 'Tema ', limiteLinhas: 30, producoes: [{ id: 'p1', texto: 'x', criadoEm: Date.now(), editadoEm: Date.now(), tempoSeg: 0, versoes: [], avaliacao: null }] })]; dlSalvar();
-      biblioDocs.push({ id: 'd1', titulo: 'Doc', conteudo: '<table><tr><td>' + 'celula '.repeat(60) + '</td></tr></table><p>' + 'a'.repeat(200) + '</p>', tags: [], criadoEm: Date.now() }); save('biblio_docs', biblioDocs); flashCriarCard({ frente: 'F', verso: 'V', disciplina: 'X' }); reloadStateFromLocalStorage(); });
-    const ids = await p.evaluate(() => NAV_ITEMS.map(i => i.id).filter(i => i !== 'palavras'));
-    for (const id of ids) {
-      await p.evaluate(i => goTab(i), id); await p.waitForTimeout(450);
-      const r = await p.evaluate(() => { const w = document.documentElement.clientWidth; const largos = [...document.querySelectorAll('.view.active *, .topbar *, .bottomnav *')].filter(e => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > w + 1 && !e.closest('.subtabs, .table-scroll, .filters, svg, .mapa-mundi-wrap, .mapa-mundi, .crono-cal, [style*="overflow"]') && getComputedStyle(e).position !== 'fixed'; }).slice(0, 3).map(e => e.tagName + '.' + String(e.className).slice(0, 30)); return { sw: document.documentElement.scrollWidth, w, largos }; });
-      check(r.sw <= r.w + 1, `${id}: sem rolagem horizontal (scrollWidth ${r.sw} ≤ ${r.w})`, r.largos.join(', '));
-    }
-    await p.evaluate(() => { goTab('questoes'); qResolverUma('q1'); }); await p.waitForTimeout(300);
-    check(await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), 'resolução de questão cabe na tela');
-    check(await p.evaluate(() => { const b = document.querySelector('.qb-opcao'); return b && b.getBoundingClientRect().height >= 44; }), 'alternativas têm alvo de toque ≥ 44px');
-    check(await p.evaluate(() => [...document.querySelectorAll('.bottomnav button')].every(b => b.getBoundingClientRect().height >= 44)), 'botões da barra inferior ≥ 44px');
-    await p.evaluate(() => abrirMais()); check(await p.evaluate(() => document.querySelectorAll('#moreGrid button').length >= 10), 'folha "Mais" lista as demais seções');
-    check(erros.length === 0, 'sem erros de JS', erros.join(' | ')); await b.close();
+  await H.emuOuSair();
+  for (const [nome, vp, toque] of TAMANHOS.filter(t => !process.env.SIZE || t[0].includes(process.env.SIZE))) {
+    console.log(`\n[${nome}]`); const d = await H.abrir({ context: { viewport: vp, hasTouch: toque, isMobile: vp.width < 600 } }), p = d.p, ev = (f, a) => p.evaluate(f, a), W = vp.width, H_ = vp.height, estreito = W < 900;
+    const tocar = sel => toque ? p.tap(sel) : p.click(sel);
+    await ev(() => { const m = materias, h = todayISO(); cronograma = [crNorm({ id: 'a', tema: 'Guerra do Paraguai e a formação do estado nacional brasileiro no século XIX', estudar: '', semana: '—', tempo: '1h30', data: crISOParaBR(h), materia: m[0].nome, feito: false, prioridade: 'alta' }), crNorm({ id: 'b', tema: 'Atrasada', estudar: '', semana: '—', tempo: '1h', data: crISOParaBR(addDaysISO(h, -3)), materia: m[1].nome, feito: false })]; crSalvar();
+      questoes = [qNorm({ id: 'q1', enunciado: 'Enunciado longo '.repeat(40), materia: m[0].nome, tipo: 'multipla', alternativas: ['A', 'B', 'C', 'D'].map(l => ({ letra: l, texto: 'Alternativa extensa '.repeat(12) })), gabarito: 'A', banca: 'CEBRASPE', ano: 2022, comentario: 'Comentário '.repeat(30) })]; qSalvar();
+      discursivas = [dlNorm({ id: 'd1', materia: m[2].nome, tema: 'Tema discursivo '.repeat(10), limiteLinhas: 30, producoes: [{ id: 'p1', texto: 'x', criadoEm: Date.now(), editadoEm: Date.now(), tempoSeg: 0, versoes: [], avaliacao: null }] })]; dlSalvar();
+      biblioDocs = [{ id: 'bd', titulo: 'Documento com tabela e texto longo', conteudo: '<table><tr><td>' + 'celula '.repeat(60) + '</td></tr></table><p>' + 'a'.repeat(250) + '</p>', tags: ['t'], criadoEm: Date.now() }]; save('biblio_docs', biblioDocs); flashCriarCard({ frente: 'F', verso: 'V', disciplina: 'X' });
+      atualidades = [atNorm({ id: 'at', titulo: 'T'.repeat(120), resumo: 'r', paises: ['br'] })]; atSalvar(); kbItens = [kbNorm({ id: 'k', tipo: 'tema', nome: 'Tema com nome bem grande '.repeat(4) })]; kbSalvar(); reloadStateFromLocalStorage(); });
+
+    console.log('  — rolagem horizontal em todas as seções');
+    const ids = await ev(() => NAV_ITEMS.map(i => i.id).filter(i => i !== 'palavras'));
+    for (const id of ids) { await H.ir(p, id); await H.sleep(250); const r = await ev(() => { const w = document.documentElement.clientWidth; const fora = [...document.querySelectorAll('.view.active *, .topbar *, .bottomnav *')].filter(e => { const b = e.getBoundingClientRect(); return b.width > 0 && b.right > w + 1 && !e.closest('.subtabs, .table-scroll, .filters, svg, .mapa-mundi-wrap, .mapa-mundi, [style*="overflow"]') && getComputedStyle(e).position !== 'fixed'; }).slice(0, 3).map(e => e.tagName + '.' + String(e.className).slice(0, 28)); return { sw: document.documentElement.scrollWidth, w, fora }; }); check(r.sw <= r.w + 1 && r.fora.length === 0, `${id}: sem rolagem horizontal e sem elementos fora da tela`, JSON.stringify(r)); }
+
+    console.log('  — navegação');
+    if (estreito) {
+      check(await p.locator('.sidebar').isHidden() && await p.locator('#bottomNav').isVisible(), 'barra inferior visível e sidebar oculta');
+      const bs = await p.locator('#bottomNav button').all(); let ok = true; for (const b of bs) { const bb = await b.boundingBox(); if (!bb || bb.height < 44 || bb.width < 44 || bb.y + bb.height > H_ + 1) ok = false; } check(ok && bs.length === 5, 'botões da barra inferior ≥ 44×44 px e dentro da tela');
+      for (const rot of ['Cronograma', 'Banco de questões', 'Revisão espaçada', 'Central de Estudos']) { await tocar(`#bottomNav button[aria-label="${rot}"]`); await H.sleep(250); check(await ev(r => document.getElementById('topbarTitle').textContent === r, rot), `tocar em "${rot}" na barra inferior navega`); }
+      await tocar('#bottomNav button[aria-label="Mais opções"]'); await H.sleep(350); const sh = await p.locator('#moreSheet .sheet').boundingBox(); check(await p.locator('#moreSheet.show').count() === 1 && sh.y >= 0 && sh.y + sh.height <= H_ + 1 && sh.x >= 0 && sh.x + sh.width <= W + 1, 'folha "Mais" cabe na tela');
+      for (const rot of ['Flashcards', 'Biblioteca']) { await tocar(`#moreGrid button:has-text("${rot}")`); await H.sleep(300); check(await ev(r => document.getElementById('topbarTitle').textContent.includes(r), rot) && await p.locator('#moreSheet.show').count() === 0, `"Mais" → ${rot} abre e fecha a folha`); if (rot !== 'Biblioteca') { await tocar('#bottomNav button[aria-label="Mais opções"]'); await H.sleep(300); } }
+    } else { check(await p.locator('.sidebar').isVisible() && await p.locator('#bottomNav').isHidden(), 'desktop: sidebar visível, barra inferior oculta'); for (const [id, rot] of [['cronograma', 'Cronograma'], ['questoes', 'Banco de questões'], ['biblioteca', 'Biblioteca']]) { await p.click(`#sidebarNavScroll button[data-tab="${id}"]`); await H.sleep(250); check(await ev(r => document.getElementById('topbarTitle').textContent === r, rot), `sidebar: "${rot}" navega`); } }
+
+    console.log('  — banco de questões (criar e resolver por toque)');
+    await H.ir(p, 'questoes'); await tocar('#qbRoot .page-actions >> text=Nova questão'); await H.sleep(300);
+    const dentro = async sel => ev(s => { const m = document.querySelector(s), b = m.getBoundingClientRect(); return b.left >= 0 && b.right <= innerWidth + 1 && b.top >= 0 && b.bottom <= innerHeight + 1; }, sel);
+    check(await dentro('#crModal .modal-card'), 'modal "Nova questão" cabe dentro da tela'); check(await ev(() => { const m = document.querySelector('#crModal .modal-card'); return m.scrollHeight <= m.clientHeight + 1 || getComputedStyle(m).overflowY !== 'visible'; }), 'modal alto tem rolagem interna (nada cortado)');
+    check(await ev(() => [...document.querySelectorAll('#crModal input[type=text], #crModal input[type=number], #crModal textarea, #crModal select')].every(e => parseFloat(getComputedStyle(e).fontSize) >= (innerWidth < 900 ? 16 : 13))), estreito ? 'campos com fonte ≥ 16 px (iOS não dá zoom ao focar)' : 'campos com fonte legível');
+    await p.fill('#qfEnun', 'Pergunta criada por toque?'); await p.selectOption('#qfTipo', 'ce'); await tocar('input[name="qfGab"][value="C"]'); await p.locator('#crModal .modal-actions >> text=Salvar questão').scrollIntoViewIfNeeded(); const bt = await p.locator('#crModal .modal-actions >> text=Salvar questão').boundingBox(); check(bt.height >= 34 && bt.y + bt.height <= H_ + 1 && bt.x + bt.width <= W + 1, 'botão "Salvar questão" alcançável dentro da tela'); await tocar('#crModal .modal-actions >> text=Salvar questão'); await H.sleep(250);
+    check(await ev(() => questoes.some(q => q.enunciado === 'Pergunta criada por toque?' && q.gabarito === 'C')), 'questão criada por toque foi salva');
+    await tocar('.qb-card:has-text("Enunciado longo") >> text=Resolver'); await H.sleep(250); const ob = await p.locator('.qb-opcao').first().boundingBox(); check(ob.height >= 44 && ob.x >= 0 && ob.x + ob.width <= W + 1, 'alternativas com alvo de toque ≥ 44 px e dentro da tela'); await tocar('.qb-opcao >> nth=0'); await tocar('#qsConfirmar'); await H.sleep(200);
+    check(await p.locator('.qb-feedback.ok').count() === 1 && await ev(() => { const f = document.querySelector('.qb-feedback').getBoundingClientRect(); return f.left >= 0 && f.right <= innerWidth + 1; }), 'correção aparece (acerto) e cabe na largura'); check(await ev(() => questoesHist.length === 1 && questoesHist[0].correta === true), 'resposta registrada no histórico');
+
+    console.log('  — cronograma e cronômetro');
+    await H.ir(p, 'cronograma'); const play = p.locator('.cr-item', { hasText: 'Guerra do Paraguai' }).locator('[aria-label="Iniciar cronômetro"]'); await play.scrollIntoViewIfNeeded(); const pb = await play.boundingBox(); check(pb.width >= 32 && pb.height >= 32, 'botão de cronômetro da atividade tem alvo de toque adequado', JSON.stringify(pb)); await (toque ? play.tap() : play.click()); await H.sleep(400);
+    const pill = await p.locator('#timerPill').boundingBox(); check(pill && pill.x >= 0 && pill.x + pill.width <= W + 1 && pill.y >= 0 && pill.y < 80, 'indicador do cronômetro visível no topo, dentro da tela'); await tocar('#timerPill'); await H.sleep(250); check(await dentro('#timerModal .modal-card'), 'modal do cronômetro cabe na tela'); await ev(() => { const t = timerLer(); t.acumuladoMs = 120000; t.rodando = false; timerGravar(t); }); await tocar('#timerModal .modal-actions >> text=Finalizar e registrar'); await H.sleep(300);
+    check(await ev(() => crTempoReal(cronograma.find(x => x.id === 'a')) === 2 && !timerLer()), 'finalizar por toque registra 2 min na atividade');
+    await tocar('.cr-item:has-text("Atrasada") .cr-check'); await H.sleep(250); check(await dentro('#crModal .modal-card') && await p.locator('#crcMin').isVisible(), 'modal de conclusão cabe na tela e o campo de tempo é utilizável'); await p.fill('#crcMin', '45'); await tocar('#crModal .modal-actions >> text=Concluir'); await H.sleep(250); check(await ev(() => cronograma.find(x => x.id === 'b').feito && crTempoReal(cronograma.find(x => x.id === 'b')) === 45), 'concluir por toque com 45 min');
+    await tocar('#cronoRoot .subtab-btn:has-text("Mês")'); await H.sleep(250); const cel = await p.locator('.cr-mes-d.hoje').boundingBox(); check(cel.width >= 38 && cel.height >= 38 && await ev(() => document.documentElement.scrollWidth <= innerWidth + 1), 'calendário mensal: células tocáveis e sem rolagem horizontal');
+
+    console.log('  — editor de documentos e discursivas');
+    await H.ir(p, 'biblioteca'); await tocar('#biblioListView >> text=+ Novo documento'); await H.sleep(250); await p.fill('#docTitulo', 'Doc no celular'); await p.click('#docConteudo'); await p.keyboard.type('Texto digitado no editor.');
+    const tb = await ev(() => { const t = document.getElementById('docToolbar').getBoundingClientRect(); const bs = [...document.querySelectorAll('#docToolbar button')].map(b => b.getBoundingClientRect()); return { fora: bs.filter(b => b.width > 0 && (b.right > innerWidth + 1 || b.left < -1)).length, n: bs.length, w: t.width }; }); check(tb.fora === 0 && tb.n > 8, 'barra de ferramentas do editor: todos os botões dentro da tela (quebra de linha)', JSON.stringify(tb));
+    check(await ev(() => document.documentElement.scrollWidth <= innerWidth + 1), 'editor aberto sem rolagem horizontal da página'); const ed = await p.locator('#docConteudo').boundingBox(); check(ed.width >= Math.min(W - 40, 280) && ed.x >= 0 && ed.x + ed.width <= W + 1, 'área de edição utilizável (largura adequada)');
+    await tocar('.biblio-editor-actions >> text=Salvar'); await H.sleep(300); check(await ev(() => biblioDocs.some(b => b.titulo === 'Doc no celular' && b.conteudo.includes('Texto digitado'))), 'documento salvo por toque'); await H.ir(p, 'discursivas'); await tocar('#dlRoot .dl-card >> text=Abrir'); await p.waitForSelector('#dlTexto'); const ta = await p.locator('#dlTexto').boundingBox(); check(ta.x >= 0 && ta.x + ta.width <= W + 1 && ta.height >= 160, 'editor de discursivas cabe e tem altura útil'); await p.fill('#dlTexto', 'Texto da produção no celular.'); await H.sleep(1300); check(await ev(() => discursivas[0].producoes[0].texto === 'Texto da produção no celular.'), 'digitação no editor de discursivas é salva (autosave)');
+    console.log('  — modais e menus restantes');
+    await H.ir(p, 'atualidades'); await tocar('#atRoot .page-actions >> text=Novo acontecimento'); await H.sleep(250); check(await dentro('#crModal .modal-card') || await ev(() => { const m = document.querySelector('#crModal .modal-card'); return m.getBoundingClientRect().left >= 0 && m.getBoundingClientRect().right <= innerWidth + 1; }), 'modal de acontecimento cabe na largura'); await p.keyboard.press('Escape'); await tocar('#crModal .modal-actions >> text=Cancelar');
+    await ev(() => { confirmar('Excluir?', { titulo: 'Teste', ok: 'Sim' }); }); await H.sleep(250); check(await dentro('.confirm-card'), 'diálogo de confirmação cabe na tela'); await tocar('.confirm-overlay [data-r="0"]');
+    check(await ev(() => document.documentElement.scrollWidth <= innerWidth + 1), 'página final sem rolagem horizontal'); check(d.erros.length === 0, 'nenhum erro de JavaScript', d.erros.join(' | ')); await d.b.close();
   }
-  process.exit(resumo());
-})();
+  process.exit(H.resumo());
+})().catch(e => { console.error('ERRO NO TESTE', e); process.exit(2); });

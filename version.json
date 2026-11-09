@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
-  "build": 1,
+  "version": "1.1.0",
+  "build": 2,
   "date": "2026-11-08",
   "notes": [
-    "Primeira versão modernizada: nova identidade visual, Central de Estudos, banco de questões, revisão espaçada adaptativa, cronograma com tempo real, laboratório de discursivas, atualidades e base de conhecimento, e sistema de atualização automática."
+    "Segunda rodada: sincronização serializada com controle de conflitos, backup e restauração seguros, revisão unificada (adaptativa/fixa), atualizador com instalação atômica e suíte de testes real (Firebase Emulator)."
   ]
 }

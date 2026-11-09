@@ -36,10 +36,13 @@ function reloadStateFromLocalStorage() {
   if (document.getElementById('view-flashcards')?.classList.contains('active')) initFlashcardsTab();
   refreshStats();
   renderRevisaoHub();
+  renderSyncChip();
 }
 
 migrarSeNecessario().catch(e => console.warn('migração:', e)).finally(() => {
   reloadStateFromLocalStorage();
+  /* depois de recarregar (atualização do app, sincronização), volta para a seção em que você estava */
+  try { const t = sessionStorage.getItem('chancelaria_tab'); if (t && t !== 'inicio' && navItem(t) && !/^#\/paises\//.test(location.hash)) goTab(t); } catch (e) {}
   if (location.hash && /^#\/paises\//.test(location.hash) && typeof aplicarRotaPaisAtual === 'function') { /* rota de país é tratada por paises.js */ }
 });
 // o dia virou com o app aberto? atualiza a Central

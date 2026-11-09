@@ -28,44 +28,34 @@ function flashIsVencido(card) {
    que o app usava antes da v1.0.0. O padrão agora é o modo "adaptativo"
    (srs-core.js, inspirado no FSRS). Os dois modos preservam os mesmos
    campos do cartão; o adaptativo apenas acrescenta stab/dif/lapsos. */
-const FLASH_INTERVALOS_FIXOS = { again: 7, hard: 15, good: 30, easy: 60 };
+const FLASH_INTERVALOS_FIXOS = SRS_FIXOS_PADRAO;   // (srs-core.js) padrão do modo fixo; configurável em Configurações
 
 /* Recalcula intervalo, acertos/erros, repetições e a próxima data de
    revisão a partir da qualidade escolhida:
    'again' (Errei) · 'hard' (Difícil) · 'good' (Bom) · 'easy' (Fácil). */
 function flashRate(card, qualidade) {
   const s = card.srs; const hoje = todayISO(); const prefs = srsPrefs();
-  const antes = s.ultimaRevisao ? srsRetrievability(Math.max(0, diffDaysISO(s.ultimaRevisao, hoje)), srsMemDeFlash(card).S) : null;
-  if (prefs.modo === 'fixo') {
-    if (qualidade === 'again') { s.erros++; s.repeticoes = 0; } else { s.acertos++; s.repeticoes++; }
-    s.intervalo = FLASH_INTERVALOS_FIXOS[qualidade];
-    s.proximaRevisao = addDaysISO(hoje, s.intervalo);
-  } else {
-    const n = srsProximo(srsMemDeFlash(card), qualidade, hoje, prefs, card.dificuldade);
-    s.stab = n.S; s.dif = n.D; s.lapsos = n.lapses;
-    s.acertos = n.acertos; s.erros = n.erros;
-    s.repeticoes = qualidade === 'again' ? 0 : (s.repeticoes || 0) + 1;
-    s.intervalo = n.intervalo; s.proximaRevisao = n.due;
-  }
+  const mem = srsMemDeFlash(card);
+  const antes = s.ultimaRevisao ? srsRetrievability(Math.max(0, diffDaysISO(s.ultimaRevisao, hoje)), mem.S) : null;
+  const n = srsAgendar(mem, qualidade, hoje, prefs, card.dificuldade);          // respeita o método global (adaptativo ou fixo)
+  s.stab = n.S; s.dif = n.D; s.lapsos = n.lapses; s.acertos = n.acertos; s.erros = n.erros;
+  s.repeticoes = qualidade === 'again' ? 0 : (s.repeticoes || 0) + 1;
+  s.intervalo = n.intervalo; s.proximaRevisao = n.due;
   // fator de facilidade mantido por compatibilidade com dados e telas antigas
   if (qualidade === 'again') s.fatorFacilidade = Math.max(FLASH_EASE_MIN, s.fatorFacilidade - 0.2);
   else if (qualidade === 'hard') s.fatorFacilidade = Math.max(FLASH_EASE_MIN, s.fatorFacilidade - 0.15);
   else if (qualidade === 'easy') s.fatorFacilidade = s.fatorFacilidade + 0.15;
-  s.ultimaRevisao = hoje;
+  s.ultimaRevisao = hoje; s.em = Date.now();
   s.estado = flashState(card);
   card.editadoEm = Date.now();
-  if (!card._preview) srsRegistrarLog('f', card.id, qualidade, antes, s.intervalo, hoje);
+  if (!card._preview) srsRegistrarLog('f', card.id, qualidade, antes, s.intervalo, hoje, { d: Math.round(n.D * 10) / 10, l: n.lapses });
   return card;
 }
 
 /* Simula o resultado de uma avaliação SEM aplicar de verdade — mostra ao
    lado de cada botão em quantos dias o cartão voltaria (ex.: "Bom · 6 dias"). */
 function flashPreviewIntervalo(card, qualidade) {
-  const prefs = srsPrefs();
-  if (prefs.modo === 'adaptativo') return srsPreview(srsMemDeFlash(card), todayISO(), prefs, card.dificuldade)[qualidade];
-  const clone = JSON.parse(JSON.stringify(card)); clone._preview = true;
-  flashRate(clone, qualidade);
-  return clone.srs.intervalo;
+  return srsPreview(srsMemDeFlash(card), todayISO(), srsPrefs(), card.dificuldade)[qualidade];
 }
 function flashFormatDias(n) {
   if (n <= 0) return 'hoje';

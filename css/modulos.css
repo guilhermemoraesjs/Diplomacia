@@ -150,3 +150,8 @@ img, svg, video { max-width:100%; }
 @media (min-width:900px) { .sim-layout2 { grid-template-columns:2fr 1fr; } .sim-layout3 { grid-template-columns:2fr 1fr 1fr; } }
 .ct-cols > *, .ct-grid5 > *, .grid-2 > * { min-width:0; } .ct-desp { min-width:0; } .ct-desp b, .ct-desp small { overflow-wrap:anywhere; }
 .view.active, .view.active .card { min-width:0; } .view.active { overflow-wrap:break-word; }
+
+/* Editor da Biblioteca em telas estreitas: o grid não pode ser alargado pelo conteúdo (barra de ferramentas / texto) */
+.biblio-editor-shell, .biblio-editor-col, .biblio-panel, #docConteudoWrap, #docConteudo, .biblio-main, .biblio-layout > * { min-width:0; max-width:100%; }
+#docConteudo { overflow-wrap:anywhere; box-sizing:border-box; }
+.biblio-editor-toolbar { max-width:100%; }

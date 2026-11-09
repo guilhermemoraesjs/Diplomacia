@@ -278,3 +278,11 @@ main:focus { outline:none; }
 @media (min-width:900px) { .topbar { padding-left:28px; padding-right:28px; } }
 .bottomnav { padding-left:env(safe-area-inset-left, 0px); padding-right:env(safe-area-inset-right, 0px); }
 @media (prefers-reduced-motion:reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+/* Indicador de sincronização */
+.sync-chip { display:none; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:16px; border:1px solid var(--line); background:var(--ink-2); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.sync-chip::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
+.sync-chip.ok::before { background:var(--ok); } .sync-chip.pend::before { background:var(--warn); } .sync-chip.err { border-color:rgba(239,107,107,.5); color:var(--bad); } .sync-chip.err::before { background:var(--bad); }
+@media (min-width:560px) { .sync-chip { display:inline-flex; } }
+.sync-chip.err, .sync-chip.pend { display:inline-flex; }
+@media (max-width:559px) { .sync-chip { font-size:0; gap:0; padding:0; width:32px; justify-content:center; } .sync-chip::before { width:10px; height:10px; } }

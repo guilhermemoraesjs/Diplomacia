@@ -3,12 +3,27 @@
   "private": true,
   "description": "Chancelaria — Gabinete de Estudos (site estático, sem build). Scripts abaixo só usam Node, sem dependências.",
   "scripts": {
+    "test": "npm run test:unit && npm run test:version",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:version": "node scripts/sync-version.js --check && node --test tests/version/*.test.js",
+    "test:e2e": "firebase emulators:exec --config infra/firebase.json --only auth,firestore --project estudamais-e8a60 \"node tests/e2e/run-suites.js \"",
+    "test:mobile": "firebase emulators:exec --config infra/firebase.json --only auth,firestore --project estudamais-e8a60 \"node tests/e2e/run-suites.js mobile\"",
+    "test:update": "firebase emulators:exec --config infra/firebase.json --only auth,firestore --project estudamais-e8a60 \"node tests/e2e/run-suites.js atualizacao\"",
+    "test:sync": "firebase emulators:exec --config infra/firebase.json --only auth,firestore --project estudamais-e8a60 \"node tests/e2e/run-suites.js sync-emulador\"",
+    "test:all": "npm test && npm run test:e2e",
     "version:sync": "node scripts/sync-version.js",
     "version:check": "node scripts/sync-version.js --check",
     "release:patch": "node scripts/sync-version.js --bump patch",
     "release:minor": "node scripts/sync-version.js --bump minor",
     "release:major": "node scripts/sync-version.js --bump major",
-    "test": "node --test tests/*.test.js",
-    "test:e2e": "cd tests/e2e && node fluxos.js && node sincronizacao.js && node atualizacao.js && node mobile.js"
+    "serve": "python3 -m http.server 8123"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0",
+    "firebase": "10.0.0",
+    "firebase-tools": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

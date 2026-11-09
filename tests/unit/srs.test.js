@@ -4,7 +4,7 @@ function carregar(...arquivos) {
   const store = {};
   const ctx = { localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } }, console, Date, Math, JSON, document: {}, window: {} };
   vm.createContext(ctx);
-  for (const f of arquivos) vm.runInContext(fs.readFileSync(path.join(__dirname, '..', f), 'utf8') + '\n;this.__exports = Object.assign(this.__exports||{});', ctx, { filename: f });
+  for (const f of arquivos) vm.runInContext(fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8') + '\n;this.__exports = Object.assign(this.__exports||{});', ctx, { filename: f });
   return { ctx, store, run: code => vm.runInContext(code, ctx) };
 }
 const L = carregar('js/utils.js', 'js/srs-core.js');

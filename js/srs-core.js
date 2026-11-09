@@ -16,16 +16,27 @@
    • proporção histórica de erros reduz até 30 % o crescimento do intervalo;
    • granularidade de 1 dia (mínimo 1 dia), teto configurável (padrão 365).
    Os 19 pesos são os padrão do FSRS-5; não há treino personalizado.
+   NÃO é uma implementação oficial/completa do FSRS: faltam a otimização
+   dos pesos com o seu histórico, o agendamento de revisões no mesmo dia
+   (short-term), o "fuzz" e a calibração por retenção real. Use-a como um
+   agendador adaptativo simples e documentado, não como o FSRS de referência.
+
+   MÉTODO GLOBAL (Configurações → Preferências de estudo): 'adaptativo'
+   (acima) ou 'fixo' (intervalos em dias configuráveis por resposta).
+   TODOS os módulos (flashcards, Biblioteca, hub de Revisão) agendam por
+   srsAgendar(), que respeita o método escolhido.
    Funções puras: recebem "hoje" (YYYY-MM-DD) por parâmetro → testáveis.
    ========================================================================== */
 const SRS_W = [0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621];
 const SRS_DECAY = -0.5, SRS_FACTOR = 19 / 81;
 const SRS_RATING = { again: 1, hard: 2, good: 3, easy: 4 };
+const SRS_FIXOS_PADRAO = { again: 7, hard: 15, good: 30, easy: 60 };   // os mesmos intervalos fixos que o app usava nos flashcards antes da v1.0.0
 const SRS_NOMES = { again: 'Errei', hard: 'Difícil', good: 'Bom', easy: 'Fácil' };
 
 function srsPrefs() {
   let p = {}; try { p = JSON.parse(localStorage.getItem('chancelaria_prefs')) || {}; } catch (e) {}
-  return { modo: p.srsModo === 'fixo' ? 'fixo' : 'adaptativo', retencao: Math.min(0.97, Math.max(0.7, +p.srsRetencao || 0.9)), maxIntervalo: Math.max(7, +p.srsMaxIntervalo || 365) };
+  const f = p.srsIntervalos || {}, fx = k => Math.max(1, Math.round(+f[k] || SRS_FIXOS_PADRAO[k]));
+  return { modo: p.srsModo === 'fixo' ? 'fixo' : 'adaptativo', retencao: Math.min(0.97, Math.max(0.7, +p.srsRetencao || 0.9)), maxIntervalo: Math.max(7, +p.srsMaxIntervalo || 365), fixos: { again: fx('again'), hard: fx('hard'), good: fx('good'), easy: fx('easy') } };
 }
 const _clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const _d0 = r => SRS_W[4] - Math.exp(SRS_W[5] * (r - 1)) + 1;
@@ -74,9 +85,28 @@ function srsProximo(mem, rating, hoje, prefs, dificuldade) {
   return m;
 }
 
-/* Intervalos previstos dos 4 botões, garantindo errei ≤ difícil < bom < fácil. */
+/* Método FIXO: o intervalo vem direto da tabela configurada. A dificuldade interna continua sendo
+   atualizada (e S acompanha o intervalo) para que trocar de método depois seja contínuo. */
+function srsProximoFixo(mem, rating, hoje, prefs, dificuldade) {
+  const g = SRS_RATING[rating], m = Object.assign({}, mem);
+  const dNovo = (m.S && m.ultima) ? m.D + (-SRS_W[6] * (g - 3)) * ((10 - m.D) / 9) : _d0(g) + _ajusteDif(dificuldade);
+  m.D = _clamp((m.S && m.ultima) ? SRS_W[7] * _d0(4) + (1 - SRS_W[7]) * dNovo : dNovo, 1, 10);
+  m.R = (m.S && m.ultima) ? srsRetrievability(Math.max(0, diffDaysISO(m.ultima, hoje)), m.S) : null;
+  m.reps = (m.reps || 0) + 1;
+  if (g === 1) { m.lapses = (m.lapses || 0) + 1; m.erros = (m.erros || 0) + 1; } else m.acertos = (m.acertos || 0) + 1;
+  m.ultima = hoje; m.intervalo = prefs.fixos[rating]; m.S = m.intervalo; m.due = addDaysISO(hoje, m.intervalo);
+  return m;
+}
+/* PONTO ÚNICO de agendamento: respeita o método global escolhido pelo usuário. */
+function srsAgendar(mem, rating, hoje, prefs, dificuldade) {
+  prefs = prefs || srsPrefs();
+  return prefs.modo === 'fixo' ? srsProximoFixo(mem, rating, hoje, prefs, dificuldade) : srsProximo(mem, rating, hoje, prefs, dificuldade);
+}
+
+/* Intervalos previstos dos 4 botões (adaptativo: garante errei ≤ difícil < bom < fácil; fixo: a tabela). */
 function srsPreview(mem, hoje, prefs, dificuldade) {
   prefs = prefs || srsPrefs();
+  if (prefs.modo === 'fixo') return Object.assign({}, prefs.fixos);
   const r = {}; ['again', 'hard', 'good', 'easy'].forEach(k => { r[k] = srsProximo(mem, k, hoje, prefs, dificuldade).intervalo; });
   r.hard = Math.max(r.again, Math.min(r.hard, r.good)); r.good = Math.max(r.good, r.hard + (r.hard >= r.good ? 1 : 0)); r.easy = Math.max(r.easy, r.good + 1);
   r.good = Math.min(r.good, prefs.maxIntervalo); r.easy = Math.min(Math.max(r.easy, r.good), prefs.maxIntervalo);
@@ -101,8 +131,8 @@ function srsMemDeDoc(d) {
 }
 
 /* Log de revisões (alimenta histórico e curva de retenção). Mantém os últimos 4000. */
-function srsRegistrarLog(tipo, id, rating, R, intervalo, hoje) {
+function srsRegistrarLog(tipo, id, rating, R, intervalo, hoje, extra) {
   const log = load('srs_log', []);
-  log.push({ t: hoje || todayISO(), k: tipo, id, r: SRS_RATING[rating], R: R == null ? null : Math.round(R * 100) / 100, i: intervalo });
+  log.push(Object.assign({ t: hoje || todayISO(), k: tipo, id, r: SRS_RATING[rating], R: R == null ? null : Math.round(R * 100) / 100, i: intervalo, m: srsPrefs().modo }, extra || {}));
   save('srs_log', log.slice(-4000));
 }
