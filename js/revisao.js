@@ -56,6 +56,6 @@ function renderRevisao() {
     const d1 = iso1 ? isoToBR(iso1) : '—';
     const d2 = iso2 ? isoToBR(iso2) : '—';
     const d3 = iso3 ? isoToBR(iso3) : '—';
-    return `<div class="card revisao"><div><div class="rname">${escHtml(r.tema)}</div><div class="rmeta">${escHtml(r.materia)}</div></div><div class="rchecks"><div><input type="checkbox" ${r.r1 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div><div><input type="checkbox" ${r.r2 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div><div><input type="checkbox" ${r.r3 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div></div><button class="rdel" onclick="delRevisao('${r.id}')">Remover</button></div>`;
+    return `<div class="card revisao"><div><div class="rname">${escHtml(r.tema)}</div><div class="rmeta">${escHtml(nomeSemEmoji(r.materia))}</div></div><div class="rchecks"><div><input type="checkbox" ${r.r1 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r1')">${d1}</div><div><input type="checkbox" ${r.r2 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r2')">${d2}</div><div><input type="checkbox" ${r.r3 ? 'checked' : ''} onchange="toggleRevisaoCheck('${r.id}','r3')">${d3}</div></div><button class="rdel" onclick="delRevisao('${r.id}')">Remover</button></div>`;
   }).join('') : '<div class="empty">Nenhuma revisão espaçada ativa.</div>';
 }

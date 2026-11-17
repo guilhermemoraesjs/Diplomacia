@@ -13,16 +13,16 @@
 <title>Chancelaria — Gabinete de Estudos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/logo-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/logo-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/logo-180.png">
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="css/style.css?v=4">
-<link rel="stylesheet" href="css/modern.css?v=4">
-<link rel="stylesheet" href="css/modulos.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/modern.css?v=5">
+<link rel="stylesheet" href="css/modulos.css?v=5">
 </head>
 <body data-theme="dark" data-active-tab="inicio">
 
@@ -40,7 +40,8 @@
   <div class="gate-card">
     <img src="assets/logo-64.png" alt="Chancelaria" class="brand-logo-img">
     <h1>Chancelaria</h1>
-    <button class="btn secondary" onclick="gateGoogleLogin()" style="width:100%; margin-top:16px;">Entrar com Google</button>
+    <p class="gate-sub">Gabinete de estudos para o CACD. Entre para sincronizar seus dados entre aparelhos.</p>
+    <button class="btn block" onclick="gateGoogleLogin()" style="margin-top:22px;">Entrar com Google</button>
     <div id="gateError" class="mono" style="color:var(--bad); margin-top:8px;"></div>
   </div>
 </div>
@@ -55,7 +56,7 @@
 <div class="shell">
 <header class="topbar">
   <div class="brand-mini"><img src="assets/logo-96.png" alt="Chancelaria"></div>
-  <h1 class="topbar-title" id="topbarTitle">Central de Estudos</h1>
+  <span class="topbar-crumb" id="topbarCrumb">Estudo</span><h1 class="topbar-title" id="topbarTitle">Central de Estudos</h1>
   <span class="topbar-spacer"></span>
   <button class="icon-btn search-trigger" onclick="abrirBuscaGlobal()" aria-label="Buscar em tudo"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></svg><span class="lbl">Buscar questões, temas, países...</span><kbd>Ctrl K</kbd></button>
   <button class="sync-chip local" id="syncChip" onclick="goTab('configuracoes'); setTimeout(()=>{const e=document.getElementById('cfgSeguranca'); if(e) e.scrollIntoView({behavior:'smooth'});},150)" aria-live="polite">Somente local</button>
@@ -104,12 +105,12 @@
 
     <div class="subview" id="sub-cronograma">
       <div id="cronoRoot"><div class="loading">Carregando cronograma…</div></div>
-      <div class="panel-title" style="margin-top:26px;">Revisões manuais (D+1 · D+7 · D+30)</div><p class="intro-line" style="margin-top:-6px;">Itens de revisão cadastrados manualmente. Eles também aparecem em <a href="#" onclick="goTab('revisao'); return false;" style="text-decoration:underline;">Revisão espaçada</a>, junto com flashcards e documentos da Biblioteca.</p>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-        <button class="btn danger small" onclick="limparRevisaoTudo()">Excluir toda a revisão espaçada</button>
-      </div>
+      <details class="disclosure" id="cronoRevManuais">
+      <summary><span><b>Revisões manuais</b><small>D+1 · D+7 · D+30 — também aparecem em Revisão espaçada</small></span><svg class="ic disclosure-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="disclosure-body">
+      <p class="intro-line">Itens de revisão cadastrados manualmente. Eles também aparecem em <a href="#" onclick="goTab('revisao'); return false;">Revisão espaçada</a>, junto com flashcards e documentos da Biblioteca.</p>
       <div id="revisaoList"></div>
-      <div class="card">
+      <div class="card flat">
         <label class="field-label">Novo item de revisão (manual)</label>
         <input type="text" id="rTema" placeholder="Tema (ex.: Sintaxe)">
         <div class="row2">
@@ -122,8 +123,10 @@
           <div><label class="field-label">2ª revisão</label><input type="date" id="r2Data"></div>
           <div><label class="field-label">3ª revisão</label><input type="date" id="r3Data"></div>
         </div>
-        <div style="margin-top:12px;"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button></div>
+        <div style="margin-top:14px;" class="row between"><button class="btn" onclick="addRevisao()">Adicionar à revisão espaçada</button><button class="btn danger small" onclick="limparRevisaoTudo()">Excluir toda a revisão espaçada</button></div>
       </div>
+      </div>
+      </details>
     </div>
 
     <div class="subview" id="sub-questoes"><div id="qbRoot"><div class="loading">Carregando banco de questões…</div></div></div>
@@ -136,8 +139,7 @@
   </section>
 
   <section class="view" id="view-paises">
-    <h3 class="section-title">Países — Fichas Geopolíticas</h3>
-    <p class="intro-line">Explore informações detalhadas sobre todos os países relevantes para a prova.</p>
+    <div class="page-head"><div><h2>Países</h2><p>Fichas geopolíticas, mapa-múndi e comparação lado a lado dos países relevantes para a prova.</p></div></div>
 
     <div class="subtabs">
       <button class="subtab-btn active" data-sub="paisesLista" onclick="goSub('paisesLista')"> Lista</button>
@@ -150,17 +152,13 @@
         <div class="paises-toolbar">
           <input type="text" id="paisesSearch" placeholder="Buscar por país, capital, idioma, moeda ou organização..." oninput="renderPaises()">
           <div class="filters" id="paisesFiltroContinente"></div>
-          <div class="paises-filtros-avancados">
-            <select id="paisesFiltroIdioma" onchange="setPaisesFiltroIdioma(this.value)"></select>
-            <select id="paisesFiltroMoeda" onchange="setPaisesFiltroMoeda(this.value)"></select>
-            <select id="paisesFiltroGoverno" onchange="setPaisesFiltroGoverno(this.value)"></select>
-            <select id="paisesFiltroOrganizacaoSelect" onchange="setPaisesFiltroOrganizacao(this.value)"></select>
-          </div>
-          <div class="filters">
-            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()">★ Favoritos</button>
+          <div class="filters paises-acoes">
+            <button class="chip" id="paisesFavToggleBtn" onclick="togglePaisesApenasFavoritos()" aria-pressed="false">Favoritos</button>
             <button class="chip ordena-chip" id="paisesOrdemBtn" onclick="togglePaisesOrdem()">A → Z</button>
-            <span class="mono" id="paisesCountLabel" style="font-size:11px; color:var(--text-muted); align-self:center; margin-left:auto;"></span>
+            <button class="chip" id="paisesFiltrosAvancadosBtn" onclick="togglePaisesFiltrosAvancados()" aria-expanded="false">Mais filtros</button>
+            <span id="paisesCountLabel" class="paises-count"></span>
           </div>
+          <div class="card flat paises-filtros-avancados" id="paisesFiltrosAvancados" style="display:none;"></div>
         </div>
         <div class="paises-grid" id="paisesGrid"></div>
       </div>
@@ -193,8 +191,7 @@
   <section class="view" id="view-revisao"><div id="revisaoRoot"><div class="loading">Carregando revisões…</div></div></section>
 
   <section class="view" id="view-flashcards">
-    <h3 class="section-title">Flashcards</h3>
-    <p class="intro-line">Revisão espaçada dedicada ao CACD — 100% local, sem inteligência artificial nesta versão.</p>
+    <div class="page-head"><div><h2>Flashcards</h2><p>Cartões de memorização com revisão espaçada. Os cartões vencidos também aparecem em Revisão espaçada.</p></div></div>
 
     <div class="subtabs" id="flashSubtabs">
       <button class="subtab-btn active" data-fsub="dashboard" onclick="flashShowPanel('dashboard')"> Painel</button>
@@ -207,15 +204,15 @@
 
     <!-- ================= PAINEL: DASHBOARD ================= -->
     <div id="flashPanelDashboard" class="flash-panel">
-      <div class="dash-provas-grid" id="flashDashStats" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));"></div>
-      <div style="margin-top:16px;" id="flashDashGridSecondary"></div>
-      <div class="card" style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <div>
-          <div style="font-family:'Inter',sans-serif; font-size:15px; color:var(--text-main, var(--text-light));" id="flashHojeTitulo">Carregando…</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="flashHojeSub"></div>
+      <div class="card hero-cta">
+        <div class="hero-cta-txt">
+          <div class="hero-cta-t" id="flashHojeTitulo">Carregando…</div>
+          <div class="hero-cta-s" id="flashHojeSub"></div>
         </div>
-        <button class="btn secondary" id="flashIniciarBtn" onclick="flashIniciarRevisaoDashboard()">Iniciar Revisão</button>
+        <button class="btn" id="flashIniciarBtn" onclick="flashIniciarRevisaoDashboard()">Iniciar revisão</button>
       </div>
+      <div class="stat-grid" id="flashDashStats"></div>
+      <div style="margin-top:14px;" id="flashDashGridSecondary"></div>
     </div>
 
     <!-- ================= PAINEL: REVISAR ================= -->
@@ -277,7 +274,7 @@
         </div>
         <div class="card" id="flashReviewDone" style="display:none; text-align:center; padding:40px 20px;">
           <div style="font-size:32px; margin-bottom:8px;"></div>
-          <div style="font-family:'Inter',sans-serif; font-size:16px; color:var(--text-main, var(--text-light));">Sessão concluída</div>
+          <div style="font-family:var(--font-sans); font-size:16px; color:var(--text-main, var(--text-light));">Sessão concluída</div>
           <div class="mono" id="flashReviewDoneStats" style="color:var(--text-muted); font-size:13px; margin-top:6px;"></div>
           <button class="btn ghost small" style="margin-top:16px;" onclick="flashEncerrarRevisao()">Voltar aos filtros</button>
         </div>
@@ -289,7 +286,7 @@
       <div class="card" style="max-width:520px; margin:0 auto 16px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
           <button class="btn ghost small" onclick="flashCalMudarMes(-1)">‹</button>
-          <span id="flashCalMesLabel" style="font-family:'Inter',sans-serif; color:var(--brass-light); font-size:14px;"></span>
+          <span id="flashCalMesLabel" style="font-family:var(--font-sans); color:var(--brass-light); font-size:14px;"></span>
           <button class="btn ghost small" onclick="flashCalMudarMes(1)">›</button>
         </div>
         <div class="crono-cal" id="flashCalGrid"></div>
@@ -301,7 +298,7 @@
     <!-- ================= PAINEL: MEUS CARDS ================= -->
     <div id="flashPanelLista" class="flash-panel" style="display:none;">
       <div class="flash-filtros-bar">
-        <input type="text" id="flashListaBusca" placeholder=" Buscar por conteúdo, tema ou tag…" oninput="flashOnBuscaLista()">
+        <input type="text" id="flashListaBusca" placeholder="Buscar por conteúdo, tema ou tag…" oninput="flashOnBuscaLista()">
         <select id="flashListaFiltroDisciplina" onchange="flashAplicarFiltrosLista()"></select>
         <select id="flashListaFiltroDificuldade" onchange="flashAplicarFiltrosLista()">
           <option value="">Qualquer dificuldade</option>
@@ -436,7 +433,7 @@
 
         <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
           <button class="btn ghost" onclick="flashLimparFormCriar()">Limpar</button>
-          <button class="btn secondary" onclick="flashSalvarCriar()"> Salvar flashcard</button>
+          <button class="btn" onclick="flashSalvarCriar()">Salvar flashcard</button>
         </div>
       </div>
     </div>
@@ -491,12 +488,11 @@
   </section>
 
   <section class="view" id="view-simulados">
-    <h3 class="section-title">Simulados</h3>
-    <p class="intro-line">Resolva provas do CACD diretamente na plataforma — sem PDFs.</p>
+    <div class="page-head"><div><h2>Simulados</h2><p>Resolva provas do CACD diretamente na plataforma, por prova completa, disciplina, ano ou filtros próprios.</p></div></div>
 
     
     <div id="simuladosPanelHome">
-      <div class="dash-provas-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px,1fr));" id="simuladosStats"></div>
+      <div class="stat-grid" id="simuladosStats"></div>
 
       <h3 class="section-title" style="margin-top:24px;">Como você deseja estudar?</h3>
       <div class="sim-layout2">
@@ -551,12 +547,11 @@
   </section>
 
   <section class="view" id="view-biblioteca">
-    <h3 class="section-title">Biblioteca</h3>
-    <p class="intro-line">Seu acervo pessoal: documentos, fichamentos e leituras — organizados e conectados por tema.</p>
+    <div class="page-head"><div><h2>Biblioteca</h2><p>Seu acervo pessoal de documentos, fichamentos e leituras, organizado em estantes e conectado por tema.</p></div></div>
 
     <div class="card" id="biblioReviewBar" style="display:none; border-left:3px solid var(--ub-azul); align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
       <div>
-        <div style="font-family:'Inter',sans-serif; font-size:15px; color:var(--text-main);"> Revisão espaçada</div>
+        <div style="font-family:var(--font-sans); font-size:15px; color:var(--text-main);"> Revisão espaçada</div>
         <div id="biblioReviewCountText" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
       </div>
       <button class="btn secondary small" id="biblioReviewBtn" onclick="iniciarRevisaoBiblioteca()">Revisar agora</button>
@@ -578,10 +573,10 @@
       <div class="biblio-main">
         <div id="biblioListView">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <h4 id="biblioCurrentPastaLabel" style="font-family:'Inter',sans-serif; font-size:16px; color:var(--text-main);">Todas as estantes</h4>
+            <h4 id="biblioCurrentPastaLabel" class="section-title" style="margin:0;">Todas as estantes</h4>
             <div style="display:flex; gap:6px;">
               <button class="btn ghost small" id="biblioAddSubpastaBtn" onclick="promptSubpasta()" style="display:none;">+ Subpasta</button>
-              <button class="btn secondary small" onclick="novoDocumento()">+ Novo documento</button>
+              <button class="btn small" id="biblioNovoDocBtn" onclick="novoDocumento()"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Novo documento</button>
             </div>
           </div>
           <div class="biblio-doc-list" id="biblioDocList"></div>
@@ -601,7 +596,7 @@
           <div class="card" style="padding:22px 20px;">
             <div style="display:flex; align-items:baseline; gap:10px;">
               <span id="viewIcon" style="font-size:22px;"></span>
-              <h2 id="viewTitulo" style="font-family:'Inter',sans-serif; font-size:22px; color:var(--text-main);"></h2>
+              <h2 id="viewTitulo" style="font-family:var(--font-sans); font-size:22px; color:var(--text-main);"></h2>
             </div>
             <div id="viewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-top:8px;"></div>
             <div id="viewFonte" style="font-size:11.5px; color:var(--text-muted); margin-top:2px; font-style:italic;"></div>
@@ -628,7 +623,7 @@
           </div>
           <div class="card" id="reviewCardWrap" style="padding:22px 20px;">
             <div id="reviewMeta" class="mono" style="font-size:11px; color:var(--text-muted); margin-bottom:6px;"></div>
-            <h2 id="reviewTitulo" style="font-family:'Inter',sans-serif; font-size:21px; color:var(--text-main);"></h2>
+            <h2 id="reviewTitulo" style="font-family:var(--font-sans); font-size:21px; color:var(--text-main);"></h2>
             <div id="reviewConteudo" class="biblio-body-editable" style="margin-top:16px; border:none; background:none; padding:0; max-height:48vh; overflow:auto;"></div>
             <div style="display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:16px;">
               <button class="btn ghost small" style="flex:1; min-width:120px; border-color:var(--bad); color:var(--bad);" onclick="rateReview('again')">Não lembrei</button>
@@ -639,7 +634,7 @@
           </div>
           <div class="card" id="reviewDone" style="display:none; text-align:center; padding:40px 20px;">
             <div style="font-size:32px; margin-bottom:10px;"></div>
-            <div style="font-family:'Inter',sans-serif; font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
+            <div style="font-family:var(--font-sans); font-size:17px; color:var(--text-main); margin-bottom:6px;">Revisão concluída!</div>
             <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">Você revisou todos os fichamentos pendentes de hoje.</div>
             <button class="btn secondary small" onclick="encerrarRevisao()">Voltar à Biblioteca</button>
           </div>
@@ -734,7 +729,7 @@
               </div>
 
               <div class="biblio-editor-actions">
-                <button class="btn secondary" onclick="saveDocumento()">Salvar</button>
+                <button class="btn" onclick="saveDocumento()">Salvar</button>
                 <button class="btn ghost" onclick="deleteDocumentoAtual()">Excluir</button>
               </div>
 
@@ -835,8 +830,10 @@
   <div class="sidebar-brand"><img src="assets/logo-96.png" alt=""><div><b>Chancelaria</b><span>Gabinete de Estudos · CACD</span></div></div>
   <nav class="sidebar-nav-scroll" id="sidebarNavScroll" aria-label="Seções"></nav>
   <div class="sidebar-footer">
-    <div class="sidebar-mini-card" id="simuladosStreakInfo">0 dias seguidos<br>Melhor sequência: 0 dias</div>
-    <div class="sidebar-mini-card">Meta diária: <b id="sidebarMetaDiaria">0/15</b> questões</div>
+    <div class="sidebar-status">
+      <div class="ss-item" title="Dias seguidos com estudo registrado"><span>Sequência</span><div id="simuladosStreakInfo"><b>0 dias</b></div></div>
+      <div class="ss-item" title="Questões resolvidas hoje / meta diária"><span>Questões hoje</span><b id="sidebarMetaDiaria">0/15</b></div>
+    </div>
     <button class="sidebar-ver" onclick="goTab('configuracoes')" id="sidebarVersion" aria-label="Versão instalada">Versão</button>
   </div>
 </aside>
@@ -849,48 +846,48 @@
      carregados (variáveis e funções globais compartilhadas). app.js é
      sempre o último, pois orquestra a renderização inicial de tudo.
      ========================================================================== -->
-<script src="js/version.js?v=4"></script>
-<script src="js/config.js?v=4"></script>
-<script src="js/utils.js?v=4"></script>
-<script src="js/icons.js?v=4"></script>
-<script src="js/backup.js?v=4"></script>
-<script src="js/migrations.js?v=4"></script>
-<script src="js/sync.js?v=4"></script>
-<script src="js/migracao.js?v=4"></script>
-<script src="js/theme-auth.js?v=4"></script>
-<script src="js/navigation.js?v=4"></script>
-<script src="js/srs-core.js?v=4"></script>
-<script src="js/materias.js?v=4"></script>
-<script src="js/estudo-log.js?v=4"></script>
-<script src="js/cronograma.js?v=4"></script>
-<script src="js/revisao.js?v=4"></script>
-<script src="js/questoes.js?v=4"></script>
-<script src="js/discursiva.js?v=4"></script>
-<script src="js/atualidades.js?v=4"></script>
-<script src="js/conhecimento.js?v=4"></script>
-<script src="js/notas.js?v=4"></script>
+<script src="js/version.js?v=5"></script>
+<script src="js/config.js?v=5"></script>
+<script src="js/utils.js?v=5"></script>
+<script src="js/icons.js?v=5"></script>
+<script src="js/backup.js?v=5"></script>
+<script src="js/migrations.js?v=5"></script>
+<script src="js/sync.js?v=5"></script>
+<script src="js/migracao.js?v=5"></script>
+<script src="js/theme-auth.js?v=5"></script>
+<script src="js/navigation.js?v=5"></script>
+<script src="js/srs-core.js?v=5"></script>
+<script src="js/materias.js?v=5"></script>
+<script src="js/estudo-log.js?v=5"></script>
+<script src="js/cronograma.js?v=5"></script>
+<script src="js/revisao.js?v=5"></script>
+<script src="js/questoes.js?v=5"></script>
+<script src="js/discursiva.js?v=5"></script>
+<script src="js/atualidades.js?v=5"></script>
+<script src="js/conhecimento.js?v=5"></script>
+<script src="js/notas.js?v=5"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
-<script src="js/paises.js?v=4"></script>
-<script src="js/dashboard.js?v=4"></script>
-<script src="js/simulados.js?v=4"></script>
-<script src="js/biblioteca-pastas.js?v=4"></script>
-<script src="js/biblioteca-documentos.js?v=4"></script>
-<script src="js/biblioteca-editor.js?v=4"></script>
-<script src="js/biblioteca-revisao.js?v=4"></script>
-<script src="js/biblioteca-busca.js?v=4"></script>
-<script src="js/biblioteca-extras.js?v=4"></script>
-<script src="js/flashcards-data.js?v=4"></script>
-<script src="js/flashcards-srs.js?v=4"></script>
-<script src="js/flashcards-stats.js?v=4"></script>
-<script src="js/flashcards-review.js?v=4"></script>
-<script src="js/flashcards-ui.js?v=4"></script>
-<script src="js/flashcards-integracao.js?v=4"></script>
-<script src="js/revisao-hub.js?v=4"></script>
-<script src="js/central.js?v=4"></script>
-<script src="js/stats.js?v=4"></script>
-<script src="js/configuracoes.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
-<script src="js/updater.js?v=4"></script>
+<script src="js/paises.js?v=5"></script>
+<script src="js/dashboard.js?v=5"></script>
+<script src="js/simulados.js?v=5"></script>
+<script src="js/biblioteca-pastas.js?v=5"></script>
+<script src="js/biblioteca-documentos.js?v=5"></script>
+<script src="js/biblioteca-editor.js?v=5"></script>
+<script src="js/biblioteca-revisao.js?v=5"></script>
+<script src="js/biblioteca-busca.js?v=5"></script>
+<script src="js/biblioteca-extras.js?v=5"></script>
+<script src="js/flashcards-data.js?v=5"></script>
+<script src="js/flashcards-srs.js?v=5"></script>
+<script src="js/flashcards-stats.js?v=5"></script>
+<script src="js/flashcards-review.js?v=5"></script>
+<script src="js/flashcards-ui.js?v=5"></script>
+<script src="js/flashcards-integracao.js?v=5"></script>
+<script src="js/revisao-hub.js?v=5"></script>
+<script src="js/central.js?v=5"></script>
+<script src="js/stats.js?v=5"></script>
+<script src="js/configuracoes.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+<script src="js/updater.js?v=5"></script>
 </body>
 </html>

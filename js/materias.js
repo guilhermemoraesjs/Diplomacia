@@ -52,17 +52,17 @@ function renderMaterias() {
       <summary onclick="toggleOpen('${m.id}')">
         <span class="m-title-wrap">
           <input type="color" class="materia-color-swatch" value="${m.cor || '#8A8F98'}" title="Cor desta matéria no cronograma/calendário" onclick="event.stopPropagation()" onchange="event.stopPropagation(); setMateriaColor('${m.id}', this.value)">
-          <span class="m-title">${m.nome}</span>
+          <span class="m-title">${escHtml(nomeSemEmoji(m.nome))}</span>
         </span>
-        <span class="m-pct mono">${pctMateria(m)}%</span>
+        <span class="m-pct">${pctMateria(m)}%</span>
       </summary>
-      <div class="bar"><span style="width:${pctMateria(m)}%; background:var(--ub-verde);"></span></div>
+      <div class="bar ok"><span style="width:${pctMateria(m)}%;"></span></div>
       <div style="margin-top:12px;">
         ${m.topicos.map(t => { const subs = t.subtopicos || []; return `
           <div class="topic-row">
             <button type="button" class="topic-toggle ${t.subOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleSubOpen('${m.id}','${t.id}')">▶</button>
             <input type="checkbox" ${t.feito ? 'checked' : ''} onchange="toggleTopico('${m.id}','${t.id}')" id="t_${t.id}">
-            <label for="t_${t.id}">${t.nome}</label>
+            <label for="t_${t.id}">${escHtml(t.nome)}</label>
             <button class="del-t" onclick="delTopico('${m.id}','${t.id}')">✕</button>
           </div>
           <div class="subtopics-wrap ${t.subOpen ? 'open' : ''}">
@@ -70,14 +70,14 @@ function renderMaterias() {
               <div class="subtopic-row">
                 <button type="button" class="topic-toggle ${s.subOpen ? 'open' : ''}" onclick="toggleSubSubOpen('${m.id}','${t.id}','${s.id}')">▶</button>
                 <input type="checkbox" ${s.feito ? 'checked' : ''} onchange="toggleSubtopico('${m.id}','${t.id}','${s.id}')" id="s_${s.id}">
-                <label for="s_${s.id}">${s.nome}</label>
+                <label for="s_${s.id}">${escHtml(s.nome)}</label>
                 <button class="del-t" onclick="delSubtopico('${m.id}','${t.id}','${s.id}')">✕</button>
               </div>
               <div class="subsubtopics-wrap ${s.subOpen ? 'open' : ''}">
                 ${ssubs.map(ss => `
                   <div class="subsubtopic-row">
                     <input type="checkbox" ${ss.feito ? 'checked' : ''} onchange="toggleSubsubtopico('${m.id}','${t.id}','${s.id}','${ss.id}')" id="ss_${ss.id}">
-                    <label for="ss_${ss.id}">${ss.nome}</label>
+                    <label for="ss_${ss.id}">${escHtml(ss.nome)}</label>
                     <button class="del-t" onclick="delSubsubtopico('${m.id}','${t.id}','${s.id}','${ss.id}')">✕</button>
                   </div>
                 `).join('')}
@@ -113,7 +113,7 @@ async function delSubsubtopico(mid, tid, sid, ssid) { if (!await confirmar('Excl
    evitando repetir o mesmo loop em cada módulo. */
 function populateMateriaSelect(id) {
   const sel = document.getElementById(id);
-  if (sel) sel.innerHTML = materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  if (sel) sel.innerHTML = materias.map(m => `<option value="${escHtml(m.nome)}">${escHtml(nomeSemEmoji(m.nome))}</option>`).join('');
 }
 function renderCMateriaSelect() {
   ['cMateria', 'rMateria', 'dMateria'].forEach(populateMateriaSelect);

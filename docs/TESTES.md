@@ -40,5 +40,9 @@ Se os emuladores não estiverem no ar, as suítes terminam com **código 3 ("Nã
 `tests/unit` · `tests/version` · `tests/e2e/{navegacao, questoes, cronograma, discursivas, biblioteca, revisao, conhecimento, compatibilidade, backup, sync-emulador, migracao-emulador, atualizacao, mobile}.js`
 (`helpers.js`/`emu.js` = ambiente; `server.js` = servidor estático sem cache; `run-suites.js` = executor com quadro de resultados).
 
+## Capturas para revisão visual
+`npm run capturas -- /tmp/capturas [dark|light]` (com o emulador e `node tests/e2e/server.js 8123` rodando) fotografa todos os módulos e estados internos em 1366 px e 390 px.
+**Não é teste de aprovação:** serve para revisão humana do layout. Ele só reporta erros de JavaScript.
+
 ## CI
 `.github/workflows/testes.yml` roda `npm test` e, em seguida, `npm run test:e2e` a cada push/PR na `main`.

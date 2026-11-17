@@ -101,12 +101,12 @@ function renderSimuladosHome() {
 
   const statsEl = document.getElementById('simuladosStats');
   if (statsEl) statsEl.innerHTML = `
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">${ico('📄')}</span><div><div class="dash-stat-label">Provas cadastradas</div><div class="dash-stat-n">${simuladosProvasIndex.length}</div><div class="dash-stat-sub">${simuladosProvasIndex.map(p => p.ano).sort()[0] || '—'} - ${simuladosProvasIndex.map(p => p.ano).sort().slice(-1)[0] || '—'}</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">${ico('🧩')}</span><div><div class="dash-stat-label">Questões disponíveis</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">Todas as disciplinas</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">${ico('✅')}</span><div><div class="dash-stat-label">Questões respondidas</div><div class="dash-stat-n">${st.respondidas}</div><div class="dash-stat-sub">${st.total ? Math.round((st.respondidas / st.total) * 100) : 0}% do total</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">Média geral</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${fmtSeg(st.tempoMedio)}</div><div class="dash-stat-sub">Por questão</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#C24B4B;">${ico('📈')}</span><div><div class="dash-stat-label">Simulados realizados</div><div class="dash-stat-n">${dashAtividade.filter(a => a.tipo === 'simulado').length}</div><div class="dash-stat-sub">Últimos 90 dias</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('📄')}</span><div><div class="dash-stat-label">Provas cadastradas</div><div class="dash-stat-n">${simuladosProvasIndex.length}</div><div class="dash-stat-sub">${simuladosProvasIndex.map(p => p.ano).sort()[0] || '—'} - ${simuladosProvasIndex.map(p => p.ano).sort().slice(-1)[0] || '—'}</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('🧩')}</span><div><div class="dash-stat-label">Questões disponíveis</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">Todas as disciplinas</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('✅')}</span><div><div class="dash-stat-label">Questões respondidas</div><div class="dash-stat-n">${st.respondidas}</div><div class="dash-stat-sub">${st.total ? Math.round((st.respondidas / st.total) * 100) : 0}% do total</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">Média geral</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${fmtSeg(st.tempoMedio)}</div><div class="dash-stat-sub">Por questão</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('📈')}</span><div><div class="dash-stat-label">Simulados realizados</div><div class="dash-stat-n">${dashAtividade.filter(a => a.tipo === 'simulado').length}</div><div class="dash-stat-sub">Últimos 90 dias</div></div></div>
   `;
 
   const erradasCount = Object.entries(simuladosProgresso.respondidas).filter(([, r]) => !r.correta).length;
@@ -152,7 +152,7 @@ function renderSimuladosHome() {
   const discEl = document.getElementById('simuladosDesempenhoDisciplina');
   if (discEl) discEl.innerHTML = Object.entries(porDisc).map(([d, v]) => {
     const pct = v.respondidas ? Math.round((v.corretas / v.respondidas) * 100) : 0;
-    return `<div class="dash-disc-row"><span>${d}</span><div class="bar" style="flex:1; margin:0 8px;"><span style="width:${pct}%;"></span></div><span class="mono" style="width:64px; text-align:right;">${pct}% · ${v.total}q</span></div>`;
+    return `<div class="dash-disc-row"><span>${escHtml(d)}</span><div class="bar" style="flex:1; margin:0 8px;"><span style="width:${pct}%;"></span></div><span class="mono" style="white-space:nowrap; text-align:right; color:var(--text-muted);">${pct}% · ${v.total}q</span></div>`;
   }).join('') || '<div class="biblio-empty">Nenhuma questão cadastrada ainda.</div>';
 
   /* Atividade recente */
@@ -168,7 +168,7 @@ function renderSimuladosHome() {
   simuladosQuestoesIndex.forEach(q => { temasCount[q.tema] = (temasCount[q.tema] || 0) + 1; });
   const temasEl = document.getElementById('simuladosTemasCobrados');
   if (temasEl) temasEl.innerHTML = Object.entries(temasCount).sort((a, b) => b[1] - a[1]).slice(0, 5)
-    .map(([t, n], i) => `<div class="dash-tema-row"><span>${i + 1}</span><span style="flex:1;">${t}</span><span class="mono">${n} questões</span></div>`).join('') || '<div class="biblio-empty">Sem dados ainda.</div>';
+    .map(([t, n], i) => `<div class="dash-tema-row"><span>${i + 1}</span><span style="flex:1;">${escHtml(t)}</span><span class="mono" style="color:var(--text-muted);">${n} ${n === 1 ? 'questão' : 'questões'}</span></div>`).join('') || '<div class="biblio-empty">Sem dados ainda.</div>';
 
   /* Gráfico de evolução (acerto acumulado por dia) */
   const porDia = {};
@@ -182,7 +182,7 @@ function renderSimuladosHome() {
 
   /* Sequência de estudos */
   const streakEl = document.getElementById('simuladosStreakInfo');
-  if (streakEl) streakEl.innerHTML = `<div class="dash-streak-n">${streak} dias seguidos</div><div class="dash-streak-sub">Melhor sequência: ${melhorStreak} dias</div>`;
+  if (streakEl) { streakEl.innerHTML = `<b>${streak} ${streak === 1 ? 'dia' : 'dias'}</b>`; streakEl.title = `Melhor sequência: ${melhorStreak} dias`; }
   const streakDaysEl = document.getElementById('simuladosStreakDias');
   if (streakDaysEl && typeof ultimosSeteDias === 'function') streakDaysEl.innerHTML = ultimosSeteDias().map(d =>
     `<div class="dash-streak-day"><span>${d.label}</span><span class="dash-streak-dot ${dashStreakDias.includes(d.iso) ? 'active' : ''}">${dashStreakDias.includes(d.iso) ? '✓' : ''}</span></div>`).join('');
@@ -194,7 +194,7 @@ function renderSimuladosHome() {
   const metaEl = document.getElementById('simuladosMetaMensal');
   if (metaEl) metaEl.innerHTML = `
     <div class="ring" style="--pct:${pctMeta}; margin:0 auto;"><div class="hole">${pctMeta}%</div></div>
-    <div style="text-align:center; margin-top:10px;"><div style="font-family:'Inter',sans-serif; font-size:15px;">${dashMetas.mensal} questões</div><div class="mono" style="font-size:11px; color:var(--text-muted);">${respondidasMes} / ${dashMetas.mensal} · continue assim!</div></div>
+    <div style="text-align:center; margin-top:10px;"><div style="font-family:var(--font-sans); font-size:15px;">${dashMetas.mensal} questões</div><div class="mono" style="font-size:11px; color:var(--text-muted);">${respondidasMes} / ${dashMetas.mensal} · continue assim!</div></div>
   `;
 }
 

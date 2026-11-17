@@ -71,7 +71,7 @@ function crItemHTML(c, compacto) {
     <button class="cr-check ${c.feito ? 'on' : ''}" onclick="crAlternarConcluir('${c.id}')" aria-label="${c.feito ? 'Reabrir' : 'Concluir'}: ${escAttr(c.tema)}" aria-pressed="${c.feito}">${c.feito ? icon('check', 16) : ''}</button>
     <div class="cr-body" onclick="openCronoEditModal('${c.id}')" tabindex="0" role="button" onkeydown="if(event.key==='Enter')openCronoEditModal('${c.id}')">
       <div class="cr-tema">${escHtml(c.tema)}</div>
-      <div class="cr-meta"><span class="cr-dot"></span>${escHtml(c.materia)}${c.assunto ? ' · ' + escHtml(c.assunto) : ''}</div>
+      <div class="cr-meta"><span class="cr-dot"></span>${escHtml(nomeSemEmoji(c.materia))}${c.assunto ? ' · ' + escHtml(c.assunto) : ''}</div>
       <div class="cr-badges"><span class="badge ${cls}">${rot}${c.reagend ? ` ×${c.reagend}` : ''}</span>${c.prioridade === 'alta' ? '<span class="badge gold">Prioridade alta</span>' : ''}${!compacto && cronoISO(c) ? `<span class="badge">${escHtml(c.data.slice(0, 5))}</span>` : ''}</div>
       ${tempo ? `<div class="cr-tempo">${escHtml(tempo)}</div>` : ''}
     </div>
@@ -131,7 +131,7 @@ function crRenderMateria() {
   const itens = cronograma.filter(crPassaFiltros); if (!itens.length) return crVazio();
   const por = {}; itens.forEach(c => (por[c.materia] = por[c.materia] || []).push(c));
   return Object.keys(por).sort().map(m => { const l = por[m].sort(crOrdenar), fe = l.filter(c => c.feito).length, plan = l.reduce((a, c) => a + (c.duracaoMin || 0), 0), real = l.reduce((a, c) => a + crTempoReal(c), 0);
-    return `<div class="cr-grupo"><div class="panel-title"><span class="cr-dot" style="background:${getMateriaColor(m)}"></span>${escHtml(m)}</div><div class="row" style="margin-bottom:8px;"><div class="bar grow ok"><span style="width:${pct(fe, l.length)}%"></span></div><span class="muted" style="font-size:12.5px;">${fe}/${l.length} concluídas · planejado ${fmtMin(plan)} · estudado ${fmtMin(real)}</span></div>${l.map(c => crItemHTML(c)).join('')}</div>`; }).join('');
+    return `<div class="cr-grupo"><div class="panel-title"><span class="cr-dot" style="background:${getMateriaColor(m)}"></span>${escHtml(nomeSemEmoji(m))}</div><div class="row" style="margin-bottom:8px;"><div class="bar grow ok"><span style="width:${pct(fe, l.length)}%"></span></div><span class="muted" style="font-size:12.5px;">${fe}/${l.length} concluídas · planejado ${fmtMin(plan)} · estudado ${fmtMin(real)}</span></div>${l.map(c => crItemHTML(c)).join('')}</div>`; }).join('');
 }
 function crRenderHistorico() {
   const ev = []; cronograma.forEach(c => c.historico.forEach(h => ev.push({ ...h, tema: c.tema, materia: c.materia, id: c.id })));
@@ -227,7 +227,8 @@ function crConfirmarConcluir(id) {
   const min = Math.round(+document.getElementById('crcMin').value || 0);
   if (min > 0) cronoAddTempoReal(id, min, true);
   c.feito = true; c.concluidoEm = new Date().toISOString(); crHist(c, 'concluido', min ? fmtMin(min) : 'sem tempo registrado');
-  crSalvar(); crFecharModal(); renderCronograma(); refreshStats(); toast(min ? `Concluída · ${fmtMin(min)} registrados.` : 'Concluída (tempo não registrado).');
+  crSalvar(); crFecharModal(); renderCronograma(); refreshStats(); toast(min ? `Concluída · ${fmtMin(min)} registrados.` : 'Concluída (tempo não registrado).', 'ok');
+  document.querySelectorAll(`.cr-check.on[onclick*="'${id}'"]`).forEach(b => b.classList.add('pop'));   // retorno visual discreto
   if (typeof trackStudyDay === 'function') trackStudyDay();
 }
 async function crReabrir(c) {
