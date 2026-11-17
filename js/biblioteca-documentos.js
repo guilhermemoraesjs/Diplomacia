@@ -26,12 +26,12 @@ function showBiblioPanel(panel) {
 function renderBiblioDocList() {
   const el = document.getElementById('biblioDocList'); if (!el) return;
   const list = biblioCurrentPasta ? biblioDocs.filter(d => d.pastaId === biblioCurrentPasta) : biblioDocs;
-  if (!list.length) { el.innerHTML = '<div class="biblio-empty">Nenhum documento aqui ainda. Clique em "+ Novo documento" para começar.</div>'; return; }
+  if (!list.length) { el.innerHTML = `<div class="empty-state">${icon('file-text')}<b>Nenhum documento ${biblioCurrentPasta ? 'nesta estante' : 'ainda'}</b><p>Crie fichamentos, resumos e leituras. Eles podem entrar na revisão espaçada e virar flashcards.</p><button class="btn small" onclick="novoDocumento()">${icon('plus', 15)} Novo documento</button></div>`; return; }
   el.innerHTML = list.map(d => `
     <div class="card biblio-doc-card" onclick="abrirDocumento('${d.id}')">
       <div class="bd-icon">${docTipoIcone(d.tipo)}</div>
       <div class="bd-body">
-        <div class="bd-title">${d.favorita ? '★ ' : ''}${escHtml(d.titulo || '(sem título)')}</div>
+        <div class="bd-title">${d.favorita ? icon('star', 14) + ' ' : ''}${escHtml(d.titulo || '(sem título)')}</div>
         <div class="bd-meta">${d.autor ? escHtml(d.autor) + ' · ' : ''}${escHtml(pastaNome(d.pastaId))}${d.data ? ' · ' + isoToBR(d.data) : ''}</div>
         ${d.tags && d.tags.length ? `<div class="bd-tags">${d.tags.map(t => `<span class="tag-chip">${escHtml(t)}</span>`).join('')}</div>` : ''}
       </div>

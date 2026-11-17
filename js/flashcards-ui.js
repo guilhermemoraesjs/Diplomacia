@@ -51,12 +51,12 @@ function flashRenderDashboard() {
   const st = flashCalcularStats();
   const grid = document.getElementById('flashDashStats');
   if (grid) grid.innerHTML = `
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2E5BFF22; color:#6C8DFF;">${ico('📅')}</span><div><div class="dash-stat-label">Para hoje</div><div class="dash-stat-n">${st.paraHoje}</div><div class="dash-stat-sub">cartões prontos</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#C24B4B22; color:#E37B7B;">${ico('⏰')}</span><div><div class="dash-stat-label">Vencidos</div><div class="dash-stat-n">${st.vencidos}</div><div class="dash-stat-sub">atrasados</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#5C7A4F22; color:#7FA36A;">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">${st.totalAcertos + st.totalErros} revisões</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#E3C48122; color:#E3C481;">${ico('🔥')}</span><div><div class="dash-stat-label">Sequência</div><div class="dash-stat-n">${st.streak}</div><div class="dash-stat-sub">dia(s) seguidos</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#B490FF22; color:#B490FF;">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${flashFmtSeg(st.tempoMedioSeg)}</div><div class="dash-stat-sub">por cartão</div></div></div>
-    <div class="dash-stat"><span class="dash-stat-ic" style="background:#2EC4B622; color:#2EC4B6;">${ico('🗂️')}</span><div><div class="dash-stat-label">Total de cartões</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">no acervo</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('📅')}</span><div><div class="dash-stat-label">Para hoje</div><div class="dash-stat-n">${st.paraHoje}</div><div class="dash-stat-sub">cartões prontos</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('⏰')}</span><div><div class="dash-stat-label">Vencidos</div><div class="dash-stat-n">${st.vencidos}</div><div class="dash-stat-sub">atrasados</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('🎯')}</span><div><div class="dash-stat-label">Taxa de acerto</div><div class="dash-stat-n">${st.pctAcerto}%</div><div class="dash-stat-sub">${st.totalAcertos + st.totalErros} revisões</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('🔥')}</span><div><div class="dash-stat-label">Sequência</div><div class="dash-stat-n">${st.streak}</div><div class="dash-stat-sub">dia(s) seguidos</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('⏱️')}</span><div><div class="dash-stat-label">Tempo médio</div><div class="dash-stat-n">${flashFmtSeg(st.tempoMedioSeg)}</div><div class="dash-stat-sub">por cartão</div></div></div>
+    <div class="dash-stat"><span class="dash-stat-ic">${ico('🗂️')}</span><div><div class="dash-stat-label">Total de cartões</div><div class="dash-stat-n">${st.total}</div><div class="dash-stat-sub">no acervo</div></div></div>
   `;
   const sec = document.getElementById('flashDashGridSecondary');
   if (sec) sec.innerHTML = `
@@ -78,7 +78,7 @@ function flashRenderDashboard() {
     } else {
       titulo.textContent = `${st.paraHoje} cartão${st.paraHoje === 1 ? '' : 's'} pronto${st.paraHoje === 1 ? '' : 's'} para revisar`;
       sub.textContent = st.vencidos ? `${st.vencidos} deles estão vencidos.` : 'Nenhum atraso — bom trabalho.';
-      btn.disabled = false; btn.textContent = 'Iniciar Revisão';
+      btn.disabled = false; btn.textContent = 'Iniciar revisão';
     }
   }
 }

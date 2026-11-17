@@ -86,6 +86,8 @@ function renderSidebar() {
   }
   const titulo = document.getElementById('topbarTitle'); const it = navItem(ativo);
   if (titulo) titulo.textContent = it ? it.label : 'Chancelaria';
+  const crumb = document.getElementById('topbarCrumb'), g = it && NAV_GRUPOS.find(x => x.id === it.grupo);
+  if (crumb) crumb.textContent = g ? g.label : '';
   const mg = document.getElementById('moreGrid');
   if (mg) mg.innerHTML = NAV_GRUPOS.map(g => {
     const itens = order.map(navItem).filter(i => i && i.grupo === g.id && !NAV_BOTTOM.includes(i.id));
@@ -121,14 +123,17 @@ const NAV_AO_ABRIR = {
   palavras: () => connectHub(),
   paises: () => initPaisesTab(),
   simulados: () => initSimuladosTab(),
-  flashcards: () => initFlashcardsTab()
+  flashcards: () => initFlashcardsTab(),
+  /* a lista podia ficar desatualizada após mudanças vindas de outro módulo ou da nuvem */
+  biblioteca: () => { try { if (typeof renderBiblioTree === 'function') renderBiblioTree(); if (typeof renderBiblioDocList === 'function') renderBiblioDocList(); if (typeof renderBiblioReviewBar === 'function') renderBiblioReviewBar(); } catch (e) { console.error(e); } }
 };
 const NAV_AO_ABRIR_SUB = {
   questoes: () => typeof renderQuestoes === 'function' && renderQuestoes(),
   cronograma: () => typeof renderCronograma === 'function' && renderCronograma(),
   discursiva: () => typeof renderDiscursivas === 'function' && renderDiscursivas(),
   atualidades: () => typeof renderAtualidades === 'function' && renderAtualidades(),
-  materias: () => typeof renderMaterias === 'function' && renderMaterias()
+  materias: () => typeof renderMaterias === 'function' && renderMaterias(),
+  notas: () => typeof renderNotas === 'function' && renderNotas()
 };
 
 function goTab(tab) {
@@ -153,11 +158,14 @@ function goTab(tab) {
   try { sessionStorage.setItem('chancelaria_tab', tab); } catch (e) {}
 }
 
+/* Troca a subaba DENTRO da view que a contém. (Antes desativava as subabas de todas as views:
+   depois de abrir Questões, por exemplo, a aba Países abria em branco.) */
 function goSub(sub) {
-  document.querySelectorAll('.subview').forEach(v => v.classList.remove('active'));
   const el = document.getElementById('sub-' + sub);
+  const escopo = (el && el.closest('.view')) || document;
+  escopo.querySelectorAll('.subview').forEach(v => v.classList.remove('active'));
   if (el) el.classList.add('active');
-  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-sub') === sub));
+  escopo.querySelectorAll('.subtab-btn[data-sub]').forEach(b => { const on = b.getAttribute('data-sub') === sub; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
 }
 
 function connectHub() {

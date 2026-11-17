@@ -114,3 +114,7 @@ function sanitizarHTML(html) {
   })(t.content);
   return t.innerHTML;
 }
+
+/* Nomes de matéria/estante podem trazer emoji no início (dado do usuário, preservado no armazenamento).
+   Na interface mostramos só o texto. Inclui bandeiras (pares de Regional Indicator). */
+function nomeSemEmoji(n) { const t = String(n || ''); const r = t.replace(/^[\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u200D\u20E3\s]+/u, ''); return r || t; }

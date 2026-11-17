@@ -143,9 +143,26 @@ function atualizarLabelOrdenacao() {
 function togglePaisesFiltrosAvancados() {
   const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
   const abrindo = el.style.display === 'none' || !el.style.display;
+  if (abrindo) renderPaisesFiltrosAvancados();
   el.style.display = abrindo ? 'block' : 'none';
   const btn = document.getElementById('paisesFiltrosAvancadosBtn');
-  if (btn) btn.textContent = abrindo ? 'Ocultar filtros' : 'Mais filtros';
+  if (btn) { btn.textContent = abrindo ? 'Ocultar filtros' : 'Mais filtros'; btn.classList.toggle('active', abrindo); btn.setAttribute('aria-expanded', abrindo ? 'true' : 'false'); }
+}
+
+/* Favoritos (chave paises_favoritos, sincronizada). O botão existia na tela, mas a função não. */
+let paisesApenasFavoritos = false;
+function paisesFavoritos() { const f = load('paises_favoritos', []); return Array.isArray(f) ? f : []; }
+function togglePaisFavorito(id, ev) {
+  if (ev) ev.stopPropagation();
+  const f = paisesFavoritos(), i = f.indexOf(id);
+  if (i >= 0) f.splice(i, 1); else f.push(id);
+  save('paises_favoritos', f); renderPaises();
+}
+function togglePaisesApenasFavoritos() {
+  paisesApenasFavoritos = !paisesApenasFavoritos;
+  const b = document.getElementById('paisesFavToggleBtn');
+  if (b) { b.classList.toggle('active', paisesApenasFavoritos); b.setAttribute('aria-pressed', paisesApenasFavoritos ? 'true' : 'false'); }
+  renderPaises();
 }
 function renderPaisesFiltrosAvancados() {
   const el = document.getElementById('paisesFiltrosAvancados'); if (!el) return;
@@ -194,9 +211,10 @@ function paisCardHtml(p) {
       <div class="pc-top">
         <span class="pc-flag">${flagImgHtml(p.code)}</span>
         <div class="pc-name-wrap">
-          <div class="pc-name">${p.nome}</div>
-          <div class="pc-continent">${p.continente}</div>
+          <div class="pc-name">${escHtml(p.nome)}</div>
+          <div class="pc-continent">${escHtml(p.continente)}</div>
         </div>
+        <button class="pc-fav ${paisesFavoritos().includes(p.id) ? 'on' : ''}" onclick="togglePaisFavorito('${p.id}', event)" aria-label="${paisesFavoritos().includes(p.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}" aria-pressed="${paisesFavoritos().includes(p.id)}">${icon('star', 17)}</button>
       </div>
       <div class="pc-stats">
         <div class="pc-stat"><span class="pc-stat-ic">${ico('🏛️')}</span><div><span class="pc-stat-label">Capital</span><span class="pc-stat-val">${p.capital}</span></div></div>
@@ -223,7 +241,8 @@ function renderPaises() {
     const matchG20 = paisesFiltros.g20 === 'todos' || (paisesFiltros.g20 === 'sim') === orgsBase.includes('G20');
     const matchBrics = paisesFiltros.brics === 'todos' || (paisesFiltros.brics === 'sim') === orgsBase.includes('BRICS');
     const matchUe = paisesFiltros.ue === 'todos' || (paisesFiltros.ue === 'sim') === orgsBase.includes('UE');
-    return matchQ && matchC && matchIdioma && matchOrg && matchMoeda && matchGoverno && matchG20 && matchBrics && matchUe;
+    const matchFav = !paisesApenasFavoritos || paisesFavoritos().includes(p.id);
+    return matchFav && matchQ && matchC && matchIdioma && matchOrg && matchMoeda && matchGoverno && matchG20 && matchBrics && matchUe;
   });
 
   list.sort((a, b) => {

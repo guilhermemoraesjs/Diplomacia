@@ -1,8 +1,9 @@
 {
-  "version": "1.2.1",
-  "build": 4,
-  "date": "2026-11-09",
+  "version": "1.3.0",
+  "build": 5,
+  "date": "2026-11-17",
   "notes": [
-    "Correções do atualizador: o aviso 'atualização ainda não carregada' (com Forçar atualização) não some mais pela verificação periódica; clique duplo em Forçar não conta duas tentativas."
+    "Redesign 2026: novo design system (tokens únicos, tipografia, componentes), Central de Estudos reorganizada (resumo do dia, Despacho do Dia por prioridade, desempenho com meta), navegação refinada, módulos antigos alinhados ao visual novo, melhorias no celular e contraste AA.",
+    "Correções: aba Países em branco após usar subabas de outro módulo; filtros avançados e favoritos de Países que não funcionavam; lista da Biblioteca desatualizada ao abrir a aba; layout de duas colunas da Biblioteca."
   ]
 }

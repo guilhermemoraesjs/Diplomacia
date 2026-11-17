@@ -57,10 +57,10 @@ function renderBiblioTree() {
     const expanded = biblioExpandedFolders.has(p.id);
     const count = biblioDocs.filter(d => d.pastaId === p.id).length;
     const delBtn = p.auto
-      ? `<button class="bn-del" title="Vem de Diplomacia → Matérias" onclick="event.stopPropagation(); toast('Esta estante vem da aba Diplomacia → Matérias. Para renomear ou remover, edite por lá.', 'aviso');">🔒</button>`
-      : `<button class="bn-del" onclick="event.stopPropagation(); delPastaBiblio('${p.id}')">✕</button>`;
+      ? `<button class="bn-del" title="Vem de Matérias e edital" aria-label="Estante vinculada a Matérias" onclick="event.stopPropagation(); toast('Esta estante vem de Matérias e edital. Para renomear ou remover, edite por lá.', 'aviso');">${icon('link', 13)}</button>`
+      : `<button class="bn-del" onclick="event.stopPropagation(); delPastaBiblio('${p.id}')" aria-label="Excluir estante">${icon('x', 13)}</button>`;
     const toggleBtn = hasChildren
-      ? `<button type="button" class="bn-toggle ${expanded ? 'open' : ''}" onclick="event.stopPropagation(); toggleFolderExpand('${p.id}')">▶</button>`
+      ? `<button type="button" class="bn-toggle ${expanded ? 'open' : ''}" onclick="event.stopPropagation(); toggleFolderExpand('${p.id}')" aria-label="${expanded ? 'Recolher' : 'Expandir'}">${icon('chevron-right', 14)}</button>`
       : `<span class="bn-toggle-spacer"></span>`;
     return `<li>
       <div class="biblio-node ${biblioCurrentPasta === p.id ? 'active' : ''}" draggable="true"
@@ -68,14 +68,14 @@ function renderBiblioTree() {
            ondragleave="folderDragLeave(event)" ondrop="folderDrop(event,'${p.id}')" ondragend="folderDragEnd(event)"
            onclick="selecionarPasta('${p.id}')">
         ${toggleBtn}
-        <span class="bn-name">${p.nome}</span>
+        <span class="bn-name">${escHtml(nomeSemEmoji(p.nome))}</span>
         <span class="bn-count">${count}</span>
         ${delBtn}
       </div>
       ${hasChildren && expanded ? `<ul>${children.map(nodeHtml).join('')}</ul>` : ''}
     </li>`;
   }
-  el.innerHTML = `<li><div class="biblio-node ${biblioCurrentPasta === null ? 'active' : ''}" onclick="selecionarPasta(null)"><span class="bn-toggle-spacer"></span><span class="bn-name">📚 Todas as estantes</span><span class="bn-count">${biblioDocs.length}</span></div></li>` + roots.map(nodeHtml).join('');
+  el.innerHTML = `<li><div class="biblio-node ${biblioCurrentPasta === null ? 'active' : ''}" onclick="selecionarPasta(null)"><span class="bn-toggle-spacer"></span><span class="bn-name">Todas as estantes</span><span class="bn-count">${biblioDocs.length}</span></div></li>` + roots.map(nodeHtml).join('');
 }
 
 /* ---- Arrastar para reordenar estantes/subpastas ---- */
@@ -209,5 +209,5 @@ function renderDocPastaOptions() {
 }
 function renderDocMateriaOptions() {
   const sel = document.getElementById('docMateria'); if (!sel) return;
-  sel.innerHTML = '<option value="">— nenhuma —</option>' + materias.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  sel.innerHTML = '<option value="">— nenhuma —</option>' + materias.map(m => `<option value="${escHtml(m.nome)}">${escHtml(nomeSemEmoji(m.nome))}</option>`).join('');
 }
