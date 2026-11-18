@@ -488,7 +488,8 @@ body.editor-fullscreen-active{ overflow:hidden; }
 
 .sim-topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; font-size:12.5px; color:var(--text-muted); }
 .sim-nav-grid{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
-.sim-nav-item{ width:30px; height:30px; border-radius:8px; border:1px solid var(--border-color); background:var(--ink-3); color:var(--text-muted); font-family:var(--font-sans); font-size:11px; cursor:pointer; }
+.sim-nav-grid.grande{ position:relative; max-height:104px; overflow-y:auto; padding:2px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface-1); }
+.sim-nav-item{ min-width:32px; height:30px; padding:0 6px; font-variant-numeric:tabular-nums; border-radius:8px; border:1px solid var(--border-color); background:var(--ink-3); color:var(--text-muted); font-family:var(--font-sans); font-size:11px; cursor:pointer; }
 .sim-nav-item.respondida{ background:var(--ok-line); border-color:var(--ok); color:var(--ok-glow); }
 .sim-nav-item.marcada{ background:var(--gold-line); border-color:var(--brass-light); color:var(--brass-light); }
 .sim-nav-item.atual{ border-color:var(--ub-azul); box-shadow:0 0 0 2px var(--accent-line); color:var(--text-main); }

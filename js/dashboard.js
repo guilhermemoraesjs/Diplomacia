@@ -77,7 +77,7 @@ function buildSearchIndex() {
   (paises || []).forEach(p => idx.push({ tipo: 'País', label: p.nome, sub: p.capital, acao: () => { goTab('paises'); goSub('paisesLista'); setTimeout(() => abrirPaisDetalhe(p.id), 50); } }));
   (materias || []).forEach(m => { idx.push({ tipo: 'Matéria', label: m.nome, sub: 'Diplomacia', acao: () => { goTab('diplomacia'); goSub('materias'); } });
     (m.topicos || []).forEach(t => idx.push({ tipo: 'Tópico', label: t.nome, sub: m.nome, acao: () => { goTab('diplomacia'); goSub('materias'); } })); });
-  (typeof simuladosQuestoesIndex !== 'undefined' ? simuladosQuestoesIndex : []).forEach(q => idx.push({ tipo: 'Questão', label: q.tema, sub: q.disciplina + ' · ' + q.ano, acao: () => { goTab('simulados'); } }));
+  (typeof simuladosQuestoesIndex !== 'undefined' ? simuladosQuestoesIndex : []).filter(q => typeof simTemaValido !== 'function' || simTemaValido(q.tema)).forEach(q => idx.push({ tipo: 'Questão', label: q.tema, sub: q.disciplina + ' · ' + q.ano, acao: () => { goTab('simulados'); } }));
   (atualidades || []).forEach(a => idx.push({ tipo: 'Atualidade', label: a.titulo, sub: isoToBR(a.data), acao: () => { goTab('atualidades'); } }));
   (kbItens || []).forEach(e => idx.push({ tipo: KB_TIPOS[e.tipo] ? KB_TIPOS[e.tipo][0] : 'Ficha', label: e.nome + (e.sigla ? ' (' + e.sigla + ')' : ''), sub: 'Base de conhecimento', acao: () => { goTab('conhecimento'); kbAbrir(e.id); } }));
   (questoes || []).forEach(q => idx.push({ tipo: 'Questão', label: q.enunciado.slice(0, 90), sub: [q.materia, q.assunto].filter(Boolean).join(' · '), acao: () => { goTab('questoes'); qResolverUma(q.id); } }));

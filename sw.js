@@ -10,8 +10,8 @@
      "Atualizar agora" (mensagem SKIP_WAITING), para não interromper estudo.
    ========================================================================== */
 /* @generated:start (scripts/sync-version.js) */
-const APP_VERSION = "1.3.0";
-const APP_BUILD = 5;
+const APP_VERSION = "1.4.0";
+const APP_BUILD = 6;
 const CACHE_APP = 'chancelaria-app-' + APP_VERSION;
 const PRECACHE = [
   "./",
@@ -136,7 +136,17 @@ self.addEventListener('fetch', e => {
   // Arquivos de controle de versão: SEMPRE da rede, nunca do cache
   if (path.endsWith('/version.json') || path.endsWith('/sw.js')) { e.respondWith(fetch(req, { cache: 'no-store' })); return; }
 
-  // Dados estáticos (JSON): stale-while-revalidate em cache preservado
+  // Provas dos Simulados: REDE primeiro. O conteúdo das provas é corrigido/ampliado entre versões; servir a cópia
+  // antiga primeiro faria o aluno ver a prova velha durante uma sessão inteira. Sem rede (ou com erro do servidor), usa o cache.
+  if (/\/data\/simulados\/.+\.json$/.test(path)) {
+    e.respondWith(caches.open(CACHE_DATA).then(async c => {
+      try { const r = await fetch(req, { cache: 'no-cache' }); if (r.ok) { c.put(req, r.clone()); return r; } const hit = await c.match(req, { ignoreSearch: true }); return hit || r; }
+      catch (err) { const hit = await c.match(req, { ignoreSearch: true }); return hit || Response.error(); }
+    }));
+    return;
+  }
+
+  // Demais dados estáticos (JSON): stale-while-revalidate em cache preservado
   if (/\/data\/.+\.json$/.test(path)) {
     e.respondWith(caches.open(CACHE_DATA).then(async c => {
       const hit = await c.match(req, { ignoreSearch: true });

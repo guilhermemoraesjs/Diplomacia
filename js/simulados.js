@@ -57,10 +57,24 @@ async function carregarProva(provaId) {
   const prova = simuladosProvasIndex.find(p => p.id === provaId);
   if (!prova) return [];
   const resp = await fetch(SIMULADOS_PROVA_DIR + prova.arquivo);
-  const dados = await resp.json();
+  const bruto = await resp.json();
+  const dados = simNormalizarProva(bruto);
   simuladosProvasCache[provaId] = dados;
   return dados;
 }
+
+/* Formatos aceitos de data/simulados/provas/{id}.json:
+   • v1 (provas 2019/2023 e as geradas pelo Importador): um array de questões;
+   • v2: { versao:2, grupos:{ gid:{ disciplina, itens:[ini,fim], titulo?[], texto?[], fonte?, comando } }, questoes:[…, grupoId] }.
+   Na v2 cada questão recebe .grupo (referência ao objeto do grupo, sem duplicar o texto na memória).
+   Provas CEBRASPE: cada item está vinculado ao COMANDO que o antecede e, quando há, ao texto-base do grupo. */
+function simNormalizarProva(bruto) {
+  if (Array.isArray(bruto)) return bruto;
+  const grupos = (bruto && bruto.grupos) || {};
+  return ((bruto && bruto.questoes) || []).map(q => (q.grupoId && grupos[q.grupoId]) ? Object.assign(q, { grupo: grupos[q.grupoId] }) : q);
+}
+/* tema "A classificar" = ainda sem classificação por tema; não deve aparecer como se fosse um tema real */
+function simTemaValido(t) { return !!t && t !== 'A classificar'; }
 
 /* Dado um conjunto de ids de questões (de qualquer prova), descobre quais
    provas precisam ser baixadas e retorna só as questões pedidas, na ordem
@@ -138,7 +152,7 @@ function renderSimuladosHome() {
     const pct = idsDaProva.length ? Math.round((respondidasDaProva / idsDaProva.length) * 100) : 0;
     return `
       <div class="card dash-prova-card" onclick="iniciarSessaoComIds(${JSON.stringify(idsDaProva)}, 'estudo', true, '${p.titulo}')">
-        <div class="dash-prova-ano">${p.ano}</div>
+        <div class="dash-prova-ano">${p.ano}${p.periodo ? ` <span class="dash-prova-per">${p.periodo === 'manha' ? 'manhã' : 'tarde'}</span>` : ''}</div>
         <div class="dash-prova-meta">${p.totalQuestoes} questões</div>
         <div class="bar"><span style="width:${pct}%;"></span></div>
         <div class="dash-prova-pct mono">${pct}% resolvida</div>
@@ -165,7 +179,7 @@ function renderSimuladosHome() {
 
   /* Temas mais cobrados */
   const temasCount = {};
-  simuladosQuestoesIndex.forEach(q => { temasCount[q.tema] = (temasCount[q.tema] || 0) + 1; });
+  simuladosQuestoesIndex.forEach(q => { if (simTemaValido(q.tema)) temasCount[q.tema] = (temasCount[q.tema] || 0) + 1; });
   const temasEl = document.getElementById('simuladosTemasCobrados');
   if (temasEl) temasEl.innerHTML = Object.entries(temasCount).sort((a, b) => b[1] - a[1]).slice(0, 5)
     .map(([t, n], i) => `<div class="dash-tema-row"><span>${i + 1}</span><span style="flex:1;">${escHtml(t)}</span><span class="mono" style="color:var(--text-muted);">${n} ${n === 1 ? 'questão' : 'questões'}</span></div>`).join('') || '<div class="biblio-empty">Sem dados ainda.</div>';
@@ -341,6 +355,29 @@ function atualizarTimerSimulado() {
 
 function questaoAtual() { return simuladoSessao.questoes[simuladoSessao.indiceAtual]; }
 
+/* Texto de apoio e comando do grupo a que o item pertence (provas CEBRASPE). Tudo vem dos dados: escapado. */
+let simTextoRecolhido = false;
+function simToggleTexto() { simTextoRecolhido = !simTextoRecolhido; renderSimuladoProva(); }
+function simContextoHTML(q) {
+  const g = q.grupo; if (!g) return { texto: '', comando: '' };
+  const intervalo = g.itens && g.itens[0] !== g.itens[1] ? `itens ${g.itens[0]} a ${g.itens[1]}` : (g.itens ? `item ${g.itens[0]}` : '');
+  const paragrafos = (g.texto || []);
+  let texto = '';
+  if (paragrafos.length) {
+    texto = `<div class="sim-ctx ${simTextoRecolhido ? 'recolhido' : ''}">
+      <div class="sim-ctx-head"><div><span class="badge gold">${escHtml(g.disciplina || q.disciplina || '')}</span><span class="sim-ctx-lbl">Texto de apoio${intervalo ? ' · ' + intervalo : ''}</span></div>
+        <button type="button" class="btn ghost small" onclick="simToggleTexto()" aria-expanded="${simTextoRecolhido ? 'false' : 'true'}">${simTextoRecolhido ? 'Mostrar texto' : 'Recolher'}</button></div>
+      ${simTextoRecolhido ? '' : `<div class="sim-ctx-corpo">
+        ${(g.titulo || []).map(t => `<p class="sim-ctx-titulo">${escHtml(t)}</p>`).join('')}
+        ${paragrafos.map(p => `<p>${escHtml(p)}</p>`).join('')}
+        ${g.fonte ? `<p class="sim-ctx-fonte">${escHtml(g.fonte)}</p>` : ''}
+      </div>`}
+    </div>`;
+  }
+  const comando = g.comando ? `<div class="sim-comando"><span class="sim-comando-lbl">Comando${!paragrafos.length && intervalo ? ' · ' + intervalo : ''}</span><p>${escHtml(g.comando)}</p></div>` : '';
+  return { texto, comando };
+}
+
 function renderSimuladoProva() {
   const s = simuladoSessao; const q = questaoAtual();
   const wrap = document.getElementById('simuladosProvaWrap'); if (!wrap || !q) return;
@@ -355,7 +392,7 @@ function renderSimuladoProva() {
     if (i === s.indiceAtual) cls += ' atual';
     else if (r) cls += ' respondida';
     else if (simuladosProgresso.revisao.includes(qq.id)) cls += ' marcada';
-    return `<button type="button" class="${cls}" onclick="irParaQuestao(${i})">${i + 1}</button>`;
+    return `<button type="button" class="${cls}" onclick="irParaQuestao(${i})" aria-label="Ir para o item ${i + 1}"${i === s.indiceAtual ? ' aria-current="true"' : ''}>${i + 1}</button>`;
   }).join('');
 
   const altsHtml = q.tipo === 'multipla' ? q.alternativas.map(a => {
@@ -377,7 +414,11 @@ function renderSimuladoProva() {
     return `<button type="button" class="${cls}" onclick="responderQuestao('${letra}')" ${q.anulado ? 'disabled' : ''}><b>${letra}</b> — ${label}</button>`;
   }).join('') : '');
 
-  const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.</div>` : '';
+  const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.${q.justificativaBanca ? `<br><span class="muted">Justificativa da banca: ${escHtml(q.justificativaBanca)}</span>` : ''}</div>` : '';
+  const avisoAlterado = (!q.anulado && q.gabaritoPreliminar) ? `<div class="sim-explicacao"><strong>Gabarito alterado pela banca</strong> — de ${q.gabaritoPreliminar === 'C' ? 'Certo' : 'Errado'} (preliminar) para ${q.respostaCorreta === 'C' ? 'Certo' : 'Errado'} (definitivo).${q.justificativaBanca ? `<br><span class="muted">${escHtml(q.justificativaBanca)}</span>` : ''}</div>` : '';
+  const temTexto = !!(q.grupo && (q.grupo.texto || []).length);
+  const ctx = simContextoHTML(q);
+  const cabTema = [q.disciplina, simTemaValido(q.tema) ? q.tema : ''].filter(Boolean).join(' · ') + (q.numero ? ` · Item ${q.numero}` : '');
 
   wrap.innerHTML = `
     <div class="sim-topbar">
@@ -385,18 +426,21 @@ function renderSimuladoProva() {
       ${s.cronometro ? `<div class="mono" id="simTimer">00:00</div>` : ''}
       <button class="btn ghost small" onclick="finalizarSimulado()">Finalizar</button>
     </div>
-    <div class="sim-nav-grid">${navGrid}</div>
-    <div class="card">
+    <div class="sim-nav-grid ${s.questoes.length > 40 ? 'grande' : ''}" role="group" aria-label="Itens da prova">${navGrid}</div>
+    <div class="${temTexto ? 'sim-split' : ''}">
+    ${temTexto ? `<aside class="sim-ctx-col" aria-label="Texto de apoio">${ctx.texto}</aside>` : ''}
+    <div class="card sim-item-col">
       <div class="sim-q-header">
-        <span class="mono" style="font-size:11px; color:var(--text-muted);">${q.disciplina} · ${q.tema}</span>
+        <span class="sim-q-cab">${escHtml(cabTema)}</span>
         <div style="display:flex; gap:6px;">
           <button class="sim-icon-btn ${fav ? 'active' : ''}" onclick="toggleFavoritaQuestao('${q.id}')" title="Favoritar">★</button>
           <button class="sim-icon-btn ${marcada ? 'active' : ''}" onclick="toggleRevisaoQuestao('${q.id}')" title="Marcar para revisar" aria-label="Marcar para revisar">${ico('🔁', 16)}</button>
         </div>
       </div>
-      <p class="sim-enunciado">${q.enunciado}</p>
+      ${ctx.comando}
+      <p class="sim-enunciado">${escHtml(q.enunciado)}</p>
       <div class="sim-alternativas">${altsHtml}</div>
-      ${avisoAnulado}
+      ${avisoAnulado}${avisoAlterado}
       ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? 'Correto!' : 'Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
       ${mostrarFeedback && !resposta.correta && !q.anulado ? `<button class="btn ghost small" style="margin-top:10px;" onclick="flashCriarDeErro('${q.id}')">Criar flashcard do erro</button>` : ''}
       <label class="field-label" style="margin-top:14px;">Sua anotação</label>
@@ -405,6 +449,7 @@ function renderSimuladoProva() {
         <button class="btn ghost small" onclick="abrirPaisDaQuestao('${pid}')">Abrir ficha: ${pid}</button>
         <button class="btn ghost small" onclick="abrirFlashcardsDoPais('${pid}')">Flashcards: ${pid}</button>
       `).join('')}</div>` : ''}
+    </div>
     </div>
     <div style="display:flex; justify-content:space-between; margin-top:14px;">
       <button class="btn ghost" onclick="navegarQuestao(-1)" ${s.indiceAtual === 0 ? 'disabled' : ''}>← Anterior</button>
@@ -425,12 +470,16 @@ function responderQuestao(letra) {
   renderSimuladoProva();
 }
 
+/* Ao trocar de item, volta ao início do bloco da prova (no celular o texto de apoio vem antes do item). */
+/* Mantém o item atual visível dentro da grade (quando ela tem rolagem própria). */
+function simCentrarNav() { const g = document.querySelector('#simuladosProvaWrap .sim-nav-grid.grande'), a = g && g.querySelector('.atual'); if (g && a) g.scrollTop = Math.max(0, a.offsetTop - 36); }
+function simRolarAoTopo() { const w = document.getElementById('simuladosProvaWrap'); if (w && w.getBoundingClientRect().top < 0) w.scrollIntoView({ block: 'start' }); }
 function navegarQuestao(delta) {
   simuladoSessao.indiceAtual = Math.max(0, Math.min(simuladoSessao.questoes.length - 1, simuladoSessao.indiceAtual + delta));
   simuladoSessao.questaoInicioMs = Date.now();
-  renderSimuladoProva();
+  renderSimuladoProva(); simCentrarNav(); simRolarAoTopo();
 }
-function irParaQuestao(i) { simuladoSessao.indiceAtual = i; simuladoSessao.questaoInicioMs = Date.now(); renderSimuladoProva(); }
+function irParaQuestao(i) { simuladoSessao.indiceAtual = i; simuladoSessao.questaoInicioMs = Date.now(); renderSimuladoProva(); simCentrarNav(); simRolarAoTopo(); }
 function toggleFavoritaQuestao(id) {
   simuladosProgresso.favoritas = simuladosProgresso.favoritas.includes(id) ? simuladosProgresso.favoritas.filter(x => x !== id) : [...simuladosProgresso.favoritas, id];
   salvarProgresso(); renderSimuladoProva();

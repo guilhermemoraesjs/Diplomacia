@@ -327,7 +327,7 @@ function renderPainelRelacionados(d) {
   const tags = docTagsAtual || [];
   const outrasNotas = d ? biblioDocs.filter(x => x.id !== d.id && x.tags && x.tags.some(t => tags.includes(t))) : [];
   const questoesRelacionadas = (typeof simuladosQuestoesIndex !== 'undefined')
-    ? simuladosQuestoesIndex.filter(q => tags.some(t => q.tema.toLowerCase().includes(t.toLowerCase())))
+    ? simuladosQuestoesIndex.filter(q => (typeof simTemaValido !== 'function' || simTemaValido(q.tema)) && tags.some(t => q.tema.toLowerCase().includes(t.toLowerCase())))
     : [];
   const flashcardsRelacionados = d && typeof flashcardsDaAnotacao === 'function' ? flashcardsDaAnotacao(d.id) : [];
   el.innerHTML = `
