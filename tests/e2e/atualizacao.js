@@ -37,9 +37,11 @@ const SEM_SYNC = /Falha ao sincronizar|WebChannel|Atualização não concluída|
   console.log('\n[3] Nova versão com o aplicativo aberto');
   await ev(() => save('diplo_notas', [{ id: 'n1', titulo: 'Anotação', texto: 'importante', criadoEm: 1 }])); A.publicar('v1.1.0');
   r = await ev(() => checkUpdate({ manual: true })); check(r.status === 'nova' && r.info.version === '1.1.0' && r.info.build === 2, 'detecta a v1.1.0 (version.json sem cache)');
-  const ban = await p.textContent('#updBanner'); check(ban.includes('Nova versão disponível') && ban.includes('v1.0.0') && ban.includes('v1.1.0') && ban.includes('Atualizar agora') && ban.includes('Depois'), 'aviso: versões instalada/nova e botões', ban);
+  const ban = await p.textContent('#updBanner'); check(ban.includes('Nova versão disponível') && ban.includes('v1.0.0') && ban.includes('v1.1.0') && ban.includes('Atualizar agora') && !ban.includes('Depois'), 'aviso: versões instalada/nova e o botão Atualizar agora (sem "Depois": o aviso fica até atualizar)', ban);
+  check((await p.locator('#updBanner').boundingBox()).y < 100, 'o aviso aparece no TOPO da tela (como no Minha-Leitura)');
   check(await ev(() => APP_INFO.version === '1.0.0' && window.__MARCA === undefined), 'a página continua na v1.0.0 (nada recarregou sozinho)'); const reqs = await ev(() => performance.getEntriesByType('resource').filter(e => e.name.includes('version.json')).length); await ev(() => checkUpdate({})); check(await ev(n => performance.getEntriesByType('resource').filter(e => e.name.includes('version.json')).length === n, reqs), 'verificação automática repetida em menos de 1 min não consulta de novo (sem excesso)');
-  await p.click('#updBanner >> text=Depois'); check(!(await p.locator('#updBanner').count()) && await ev(() => document.body.classList.contains('has-update')), '"Depois" esconde o aviso mas o menu segue indicando atualização'); await ev(() => { UPD.ultimaChecagem = 0; return checkUpdate({}); }); check(!(await p.locator('#updBanner').count()), 'aviso dispensado não volta a cada verificação');
+  await ev(() => { UPD.ultimaChecagem = 0; return checkUpdate({}); }); check(await p.locator('#updBanner').count() === 1 && await ev(() => document.body.classList.contains('has-update')), 'o aviso NÃO some sozinho: continua a cada verificação enquanto houver versão nova');
+  await H.ir(p, 'inicio'); const vl = await p.textContent('#verLine'); check(vl.includes('v1.0.0') && vl.includes('Atualizar para v1.1.0') && await p.locator('#verLine.nova').count() === 1, 'linha "Versão do app" da Central mostra a versão e vira "Atualizar para v1.1.0"', vl);
 
   await A.fechar();
   console.log('\n[4] Falha ao BAIXAR arquivos: instalação atômica (nada incompleto é ativado)');

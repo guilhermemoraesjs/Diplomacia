@@ -33,7 +33,7 @@ const H = require('./helpers'); const { check } = H;
   console.log('\n[Navegação celular]');
   await p.setViewportSize({ width: 390, height: 844 }); await H.sleep(300);
   check(await p.locator('.sidebar').isVisible() === false && await p.locator('#bottomNav').isVisible(), 'celular: sidebar oculta, barra inferior visível');
-  for (const id of ['cronograma', 'questoes', 'revisao', 'inicio']) { await p.click(`#bottomNav button[aria-label*="${(await p.evaluate(i => NAV_ITEMS.find(x => x.id === i).label, id))}"]`); await H.sleep(200); check(await p.evaluate(() => document.body.dataset.activeTab) === id, `barra inferior abre "${id}"`); }
+  for (const id of ['cronograma', 'simulados', 'flashcards', 'revisao', 'inicio']) { await p.click(`#bottomNav button[aria-label*="${(await p.evaluate(i => NAV_ITEMS.find(x => x.id === i).label, id))}"]`); await H.sleep(200); check(await p.evaluate(() => document.body.dataset.activeTab) === id, `barra inferior abre "${id}"`); }
   await p.click('#bottomNav button[aria-label="Mais opções"]'); await H.sleep(300);
   check(await p.locator('#moreSheet.show').count() === 1, 'botão "Mais" abre a folha de seções');
   await p.click('#moreGrid button:has-text("Biblioteca")'); await H.sleep(300);

@@ -30,7 +30,7 @@ const NAV_ITEMS = [
   { id: 'notas', icone: 'sticky-note', label: 'Anotações', curto: 'Notas', grupo: 'conhecimento', atalho: 'n' },
   { id: 'configuracoes', icone: 'settings', label: 'Configurações', curto: 'Config.', grupo: 'sistema', atalho: 'x' }
 ];
-const NAV_BOTTOM = ['inicio', 'cronograma', 'questoes', 'revisao'];
+const NAV_BOTTOM = ['inicio', 'cronograma', 'simulados', 'flashcards', 'revisao'];   // 5 destinos + "Mais" (o resto vai para a folha)
 
 /* Rotas que reaproveitam uma view + subview já existente */
 const NAV_ROTAS_REUTILIZADAS = {

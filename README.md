@@ -5,6 +5,7 @@ com login Google e sincronização via Firebase (Auth + Firestore). Funciona off
 (Service Worker) e pode ser instalada na tela inicial do iPhone/Android.
 
 **Versão atual:** definida em [`version.json`](version.json) (fonte única). Veja [`CHANGELOG.md`](CHANGELOG.md).
+**Toda mudança no app gera uma versão** (`npm run release:patch` ou `release:minor`); o CI reprova se arquivos do app mudarem sem a versão subir. Ao abrir o site, a Chancelaria avisa no topo quando há versão nova e a linha “Versão do app” da Central permite verificar e atualizar. Detalhes em [`docs/ATUALIZACAO.md`](docs/ATUALIZACAO.md).
 
 ## Módulos
 
