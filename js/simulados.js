@@ -388,32 +388,39 @@ function renderSimuladoProva() {
 
   const navGrid = s.questoes.map((qq, i) => {
     const r = simuladosProgresso.respondidas[qq.id];
-    let cls = 'sim-nav-item';
+    let cls = 'sim-nav-item', est = '';
+    if (r && s.modo === 'estudo' && r.correta === true) { cls += ' acertou'; est = ' — você acertou'; }
+    else if (r && s.modo === 'estudo' && r.correta === false) { cls += ' errou'; est = ' — você errou'; }
+    else if (r) { cls += ' respondida'; est = ' — respondido'; }
+    else if (simuladosProgresso.revisao.includes(qq.id)) { cls += ' marcada'; est = ' — marcado para revisar'; }
     if (i === s.indiceAtual) cls += ' atual';
-    else if (r) cls += ' respondida';
-    else if (simuladosProgresso.revisao.includes(qq.id)) cls += ' marcada';
-    return `<button type="button" class="${cls}" onclick="irParaQuestao(${i})" aria-label="Ir para o item ${i + 1}"${i === s.indiceAtual ? ' aria-current="true"' : ''}>${i + 1}</button>`;
+    return `<button type="button" class="${cls}" onclick="irParaQuestao(${i})" aria-label="Ir para o item ${i + 1}${est}"${i === s.indiceAtual ? ' aria-current="true"' : ''}>${i + 1}</button>`;
   }).join('');
 
-  const altsHtml = q.tipo === 'multipla' ? q.alternativas.map(a => {
-    let cls = 'sim-alt';
-    if (resposta && resposta.escolha === a.letra) cls += ' selecionada';
-    if (mostrarFeedback) {
-      if (a.letra === q.respostaCorreta) cls += ' correta';
-      else if (resposta.escolha === a.letra) cls += ' incorreta';
+  /* Alternativa: no modo Estudo, depois de responder, cada opção diz o que é (não depende só de cor):
+     "Gabarito" (certa), "Sua resposta" (a que você marcou; errada → ✕) e as demais ficam apagadas. */
+  const travada = !!(mostrarFeedback && !q.anulado);
+  const altHTML = (letra, rotulo) => {
+    let cls = 'sim-alt', tags = '', mark = '';
+    const sua = resposta && resposta.escolha === letra, certa = q.respostaCorreta === letra;
+    if (sua && !mostrarFeedback) cls += ' selecionada';
+    if (mostrarFeedback && !q.anulado) {
+      if (certa) { cls += ' correta'; mark = icon('check', 16); tags += '<span class="sim-tag ok">Gabarito</span>'; }
+      else if (sua) { cls += ' incorreta'; mark = icon('x', 16); }
+      else cls += ' apagada';
+      if (sua) tags += '<span class="sim-tag ' + (certa ? 'ok' : 'bad') + '">Sua resposta</span>';
     }
-    return `<button type="button" class="${cls}" onclick="responderQuestao('${a.letra}')"><b>${a.letra})</b> ${a.texto}</button>`;
-  }).join('') : (q.tipo === 'certo-errado' ? ['C', 'E'].map(letra => {
-    let cls = 'sim-alt';
-    if (resposta && resposta.escolha === letra) cls += ' selecionada';
-    if (mostrarFeedback) {
-      if (letra === q.respostaCorreta) cls += ' correta';
-      else if (resposta.escolha === letra) cls += ' incorreta';
-    }
-    const label = letra === 'C' ? 'Certo' : 'Errado';
-    return `<button type="button" class="${cls}" onclick="responderQuestao('${letra}')" ${q.anulado ? 'disabled' : ''}><b>${letra}</b> — ${label}</button>`;
-  }).join('') : '');
-
+    return `<button type="button" class="${cls}" onclick="responderQuestao('${letra}')" ${(q.anulado || travada) ? 'disabled' : ''} aria-pressed="${sua ? 'true' : 'false'}"><span class="sim-alt-l">${mark || escHtml(letra)}</span><span class="sim-alt-t">${rotulo}</span>${tags}</button>`;
+  };
+  const altsHtml = q.tipo === 'multipla' ? q.alternativas.map(a => altHTML(a.letra, escHtml(a.texto))).join('')
+    : (q.tipo === 'certo-errado' ? ['C', 'E'].map(letra => altHTML(letra, letra === 'C' ? 'Certo' : 'Errado')).join('') : '');
+  const nomeAlt = l => q.tipo === 'certo-errado' ? (l === 'C' ? 'Certo' : 'Errado') : ('alternativa ' + l);
+  const resultadoHTML = (mostrarFeedback && !q.anulado && resposta.correta !== null) ? (resposta.correta
+    ? `<div class="sim-resultado ok" role="status"><span class="sim-resultado-ic pop">${icon('check', 26)}</span><div><b>Você acertou!</b><small>Sua resposta: ${nomeAlt(resposta.escolha)} · coincide com o gabarito oficial.</small></div></div>`
+    : `<div class="sim-resultado bad" role="status"><span class="sim-resultado-ic pop">${icon('x', 26)}</span><div><b>Você errou</b><small>Sua resposta: ${nomeAlt(resposta.escolha)} · Gabarito oficial: <strong>${nomeAlt(q.respostaCorreta)}</strong>.</small></div></div>`) : '';
+  const acoesResultado = (mostrarFeedback && !q.anulado) ? `<div class="sim-resultado-acoes">${resposta.correta === false ? `<button class="btn ghost small" onclick="flashCriarDeErro('${q.id}')">${icon('layers', 15)} Criar flashcard do erro</button>` : ''}<button class="btn ghost small" onclick="simRefazer('${q.id}')">${icon('refresh', 15)} Refazer este item</button></div>` : '';
+  const respondidos = s.questoes.map(qq => simuladosProgresso.respondidas[qq.id]).filter(Boolean);
+  const placar = s.modo === 'estudo' ? `<div class="sim-placar" aria-label="Placar da sessão"><span class="ok">${icon('check', 14)} ${respondidos.filter(r => r.correta === true).length} <small>acertos</small></span><span class="bad">${icon('x', 14)} ${respondidos.filter(r => r.correta === false).length} <small>erros</small></span></div>` : '';
   const avisoAnulado = q.anulado ? `<div class="sim-explicacao" style="border-color:var(--brass-light); color:var(--brass-light);"><strong>Item anulado</strong> — a banca cancelou este item; não há gabarito oficial e ele não conta na sua pontuação.${q.justificativaBanca ? `<br><span class="muted">Justificativa da banca: ${escHtml(q.justificativaBanca)}</span>` : ''}</div>` : '';
   const avisoAlterado = (!q.anulado && q.gabaritoPreliminar) ? `<div class="sim-explicacao"><strong>Gabarito alterado pela banca</strong> — de ${q.gabaritoPreliminar === 'C' ? 'Certo' : 'Errado'} (preliminar) para ${q.respostaCorreta === 'C' ? 'Certo' : 'Errado'} (definitivo).${q.justificativaBanca ? `<br><span class="muted">${escHtml(q.justificativaBanca)}</span>` : ''}</div>` : '';
   const temTexto = !!(q.grupo && (q.grupo.texto || []).length);
@@ -423,10 +430,12 @@ function renderSimuladoProva() {
   wrap.innerHTML = `
     <div class="sim-topbar">
       <div>${s.titulo} · Questão ${s.indiceAtual + 1} de ${s.questoes.length}</div>
+      ${placar}
       ${s.cronometro ? `<div class="mono" id="simTimer">00:00</div>` : ''}
       <button class="btn ghost small" onclick="finalizarSimulado()">Finalizar</button>
     </div>
     <div class="sim-nav-grid ${s.questoes.length > 40 ? 'grande' : ''}" role="group" aria-label="Itens da prova">${navGrid}</div>
+    ${s.modo === 'estudo' ? '<div class="sim-legenda"><span class="ok">Acertou</span><span class="bad">Errou</span><span class="marc">Marcado para revisar</span></div>' : ''}
     <div class="${temTexto ? 'sim-split' : ''}">
     ${temTexto ? `<aside class="sim-ctx-col" aria-label="Texto de apoio">${ctx.texto}</aside>` : ''}
     <div class="card sim-item-col">
@@ -440,9 +449,10 @@ function renderSimuladoProva() {
       ${ctx.comando}
       <p class="sim-enunciado">${escHtml(q.enunciado)}</p>
       <div class="sim-alternativas">${altsHtml}</div>
+      ${resultadoHTML}
+      ${mostrarFeedback && q.explicacao ? `<div class="sim-explicacao"><strong>Comentário</strong> ${escHtml(q.explicacao)}</div>` : ''}
       ${avisoAnulado}${avisoAlterado}
-      ${mostrarFeedback ? `<div class="sim-explicacao"><strong>${resposta.correta ? 'Correto!' : 'Incorreto.'}</strong> ${q.explicacao}</div>` : ''}
-      ${mostrarFeedback && !resposta.correta && !q.anulado ? `<button class="btn ghost small" style="margin-top:10px;" onclick="flashCriarDeErro('${q.id}')">Criar flashcard do erro</button>` : ''}
+      ${acoesResultado}
       <label class="field-label" style="margin-top:14px;">Sua anotação</label>
       <textarea onchange="salvarAnotacaoQuestao('${q.id}', this.value)" placeholder="Anote algo sobre esta questão...">${simuladosProgresso.anotacoes[q.id] || ''}</textarea>
       ${(q.paisesRelacionados || []).length ? `<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">${q.paisesRelacionados.map(pid => `
@@ -461,6 +471,7 @@ function renderSimuladoProva() {
 function responderQuestao(letra) {
   const q = questaoAtual(); const s = simuladoSessao;
   if (q.anulado) return; // item cancelado pela banca — não é possível responder
+  if (s.modo === 'estudo' && simuladosProgresso.respondidas[q.id]) return;   // com feedback na hora a resposta fica travada (use "Refazer este item")
   const correta = (q.tipo === 'multipla' || q.tipo === 'certo-errado') ? letra === q.respostaCorreta : null;
   const tempoSeg = Math.round((Date.now() - s.questaoInicioMs) / 1000);
   simuladosProgresso.respondidas[q.id] = { escolha: letra, correta, tempoSeg, data: new Date().toISOString() };
@@ -474,6 +485,8 @@ function responderQuestao(letra) {
 /* Mantém o item atual visível dentro da grade (quando ela tem rolagem própria). */
 function simCentrarNav() { const g = document.querySelector('#simuladosProvaWrap .sim-nav-grid.grande'), a = g && g.querySelector('.atual'); if (g && a) g.scrollTop = Math.max(0, a.offsetTop - 36); }
 function simRolarAoTopo() { const w = document.getElementById('simuladosProvaWrap'); if (w && w.getBoundingClientRect().top < 0) w.scrollIntoView({ block: 'start' }); }
+/* Apaga a resposta de um item para respondê-lo de novo (o placar e o desempenho deixam de contar a tentativa anterior). */
+function simRefazer(id) { delete simuladosProgresso.respondidas[id]; salvarProgresso(); simuladoSessao.questaoInicioMs = Date.now(); renderSimuladoProva(); }
 function navegarQuestao(delta) {
   simuladoSessao.indiceAtual = Math.max(0, Math.min(simuladoSessao.questoes.length - 1, simuladoSessao.indiceAtual + delta));
   simuladoSessao.questaoInicioMs = Date.now();

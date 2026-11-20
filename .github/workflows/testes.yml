@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # histórico completo: a verificação "toda mudança gera uma versão" compara com a main
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: npm test            # unitários (Node puro) + consistência de versão / Service Worker / index.html

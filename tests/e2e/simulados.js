@@ -25,7 +25,7 @@ const H = require('./helpers'); const { check } = H;
   check((await p.textContent('.sim-enunciado')).startsWith('No quarto período, a referência às viagens'), 'enunciado do item é o do caderno oficial');
   check(await p.locator('.sim-alternativas .sim-alt').count() === 2, 'item Certo/Errado com duas opções');
   await p.click('.sim-alt >> text=Certo'); await H.sleep(250);
-  check(await ev(() => simuladosProgresso.respondidas['2025-manha-q1'].correta) === true && (await p.textContent('.sim-explicacao')).includes('Correto'), 'gabarito oficial do item 1 (C) confere');
+  check(await ev(() => simuladosProgresso.respondidas['2025-manha-q1'].correta) === true && (await p.textContent('.sim-resultado.ok')).includes('Você acertou'), 'gabarito oficial do item 1 (C) confere e aparece "Você acertou"');
   await p.click('.sim-ctx-col .sim-ctx-head button'); await H.sleep(200);
   check(await p.locator('.sim-ctx-corpo').count() === 0 && (await p.textContent('.sim-ctx-head button')).includes('Mostrar texto'), '"Recolher" esconde o texto');
   await ir(2); check(await p.locator('.sim-ctx-corpo').count() === 0, 'o texto continua recolhido ao mudar de item (preferência da sessão)');
@@ -50,6 +50,31 @@ const H = require('./helpers'); const { check } = H;
   check((await p.textContent('.sim-explicacao') || '').includes('Gabarito alterado pela banca') || await p.locator('.sim-explicacao').count() === 1, 'item 102: nota de gabarito alterado');
   const nota = await p.textContent('.sim-explicacao'); check(/de Errado \(preliminar\) para Certo \(definitivo\)/.test(nota) && nota.includes('Ucrânia'), 'item 102: de Errado (preliminar) para Certo (definitivo), com a justificativa', nota);
   await p.click('.sim-alt >> text=Certo'); await H.sleep(200); check(await ev(() => simuladosProgresso.respondidas['2025-manha-q102'].correta) === true, 'item 102: vale o gabarito definitivo (C)');
+
+  console.log('\n[Modo Estudo: resultado claro de acerto e erro]');
+  await iniciar('2025-manha'); await ev(() => { simuladosProgresso.respondidas = {}; }); await ir(2); await H.sleep(150);   // gabarito oficial do item 2: Errado
+  check(await p.locator('.sim-resultado').count() === 0 && await p.locator('.sim-tag').count() === 0, 'antes de responder não há resultado nem marcadores');
+  await p.click('.sim-alt >> text=Certo'); await H.sleep(250);                                                    // resposta errada
+  const rb = await p.textContent('.sim-resultado.bad');
+  check(rb.includes('Você errou') && rb.includes('Sua resposta: Certo') && rb.includes('Gabarito oficial: Errado'), 'erro: painel "Você errou" com a sua resposta e o gabarito oficial', rb);
+  check((await p.textContent('.sim-alt.incorreta .sim-tag.bad')) === 'Sua resposta' && (await p.textContent('.sim-alt.correta .sim-tag.ok')) === 'Gabarito', 'alternativas marcadas: errada = "Sua resposta" (✕), certa = "Gabarito" (✓)');
+  check(await p.locator('.sim-alt.incorreta .sim-alt-l svg').count() === 1 && await p.locator('.sim-alt.correta .sim-alt-l svg').count() === 1, 'o resultado também tem ícones (não depende só da cor)');
+  check(await p.locator('.sim-alt:disabled').count() === 2, 'depois do feedback as alternativas ficam travadas');
+  await p.click('.sim-alt >> text=Errado', { force: true }).catch(() => {}); await H.sleep(150);
+  check(await ev(() => simuladosProgresso.respondidas['2025-manha-q2'].escolha) === 'C', 'tentar trocar a resposta não altera o resultado');
+  const plac = await p.textContent('.sim-placar'); check(/0\s*acertos/.test(plac) && /1\s*erros/.test(plac), 'placar da sessão: 0 acertos · 1 erro', plac);
+  check(await p.locator('.sim-nav-item.errou[aria-label*="você errou"]').count() === 1 && await p.locator('.sim-legenda').count() === 1, 'grade: item errado em vermelho, com legenda');
+  await p.click('text=Refazer este item'); await H.sleep(200);
+  check(await ev(() => simuladosProgresso.respondidas['2025-manha-q2'] === undefined) && await p.locator('.sim-resultado').count() === 0 && await p.locator('.sim-alt:disabled').count() === 0, '"Refazer este item" limpa o resultado e libera as alternativas');
+  await p.click('.sim-alt >> text=Errado'); await H.sleep(250);                                                   // resposta certa
+  const ra = await p.textContent('.sim-resultado.ok');
+  check(ra.includes('Você acertou!') && ra.includes('Sua resposta: Errado') && await p.locator('.sim-alt.correta .sim-tag').count() === 2 && await p.locator('.sim-nav-item.acertou').count() === 1, 'acerto: painel "Você acertou!", alternativa com "Gabarito" + "Sua resposta" e item verde na grade', ra);
+  check(/1\s*acertos/.test(await p.textContent('.sim-placar')), 'placar: 1 acerto');
+  await iniciar('2025-manha', 'simulado'); await ev(() => { simuladosProgresso.respondidas = {}; }); await ir(1); await H.sleep(150);
+  await p.click('.sim-alt >> text=Errado'); await H.sleep(200);
+  check(await p.locator('.sim-resultado').count() === 0 && await p.locator('.sim-placar').count() === 0 && await p.locator('.sim-alt.selecionada').count() === 1 && await p.locator('.sim-tag').count() === 0 && await p.locator('.sim-legenda').count() === 0, 'modo "Simulado (só no final)": nenhum feedback, só a seleção');
+  await p.click('.sim-alt >> text=Certo'); await H.sleep(200);
+  check(await ev(() => simuladosProgresso.respondidas['2025-manha-q1'].escolha) === 'C' && await ev(() => simuladosProgresso.respondidas['2025-manha-q1'].correta) === true, 'no modo "só no final" ainda dá para trocar a resposta; o resultado vale a resposta final');
 
   console.log('\n[Tarde: Inglês, Política Internacional, Economia, Direito]');
   await iniciar('2025-tarde'); await H.sleep(500);
@@ -77,7 +102,7 @@ const H = require('./helpers'); const { check } = H;
 
   console.log('\n[Persistência e modos]');
   await H.recarregar(p); await H.ir(p, 'simulados'); await H.esperar(p, () => simuladosIndexCarregado === true);
-  check(await ev(() => !!simuladosProgresso.respondidas['2025-tarde-q121'] && simuladosProgresso.favoritas.includes('2025-tarde-q121') && simuladosProgresso.respondidas['2025-manha-q102'].correta === true), 'respostas e favoritos persistem após recarregar');
+  check(await ev(() => !!simuladosProgresso.respondidas['2025-tarde-q121'] && simuladosProgresso.favoritas.includes('2025-tarde-q121') && simuladosProgresso.respondidas['2025-manha-q1'].correta === true), 'respostas e favoritos persistem após recarregar');
   await ev(async () => { const ids = simuladosQuestoesIndex.filter(q => q.disciplina === 'Geografia').map(q => q.id); await iniciarSessaoComIds(ids, 'estudo', false, 'Geografia'); }); await H.sleep(400);
   check(await ev(() => { const qs = simuladoSessao.questoes, esperado = simuladosQuestoesIndex.filter(q => q.disciplina === 'Geografia').length; return qs.length === esperado && qs.filter(q => q.ano === 2025).length === 24 && qs.filter(q => q.ano === 2025).every(q => q.grupo && q.grupo.comando) && qs.filter(q => q.ano !== 2025).every(q => !q.grupo); }), 'sessão "Por disciplina" (Geografia): os 24 itens de 2025 vêm com o seu comando e os de 2019/2023 seguem sem'); 
   await ev(async () => { await iniciarSessaoComIds(simuladosQuestoesIndex.filter(q => q.provaId === '2019').map(q => q.id), 'estudo', false, '2019'); }); await H.sleep(400);

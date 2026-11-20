@@ -23,9 +23,18 @@ Comparação por `build`.
 Ao abrir (3 s depois), a cada 10 min, ao voltar à aba/app (no máximo 1×/min), ao ficar online de novo e ao abrir
 Configurações. Sem internet, mostra “Sem conexão: não foi possível verificar”.
 
-### Aviso
-Cartão discreto: “Nova versão disponível — Versão instalada: vX · Nova versão: vY — [Atualizar agora] [Depois]”.
-“Depois” dispensa por 2 h (o item “Versão” do menu segue indicando atualização). **Nunca recarrega sozinho.**
+### Aviso (igual ao Minha-Leitura)
+- **No topo da tela:** “Nova versão disponível (vY) — Você está na vX — [Atualizar agora]”. No celular ocupa a largura da tela; no computador fica no canto superior direito.
+- **Não há “Depois”:** o aviso fica enquanto houver versão nova, a cada vez que você abre o site. Ao tocar em **Atualizar agora**, os dados pendentes são gravados, a nova versão é instalada e a página recarrega. **Nunca recarrega sozinho.**
+- **Linha “Versão do app vX · Verificar atualização”** logo abaixo do título da **Central de Estudos**. Tocar verifica na hora (“Você está na versão mais recente” ou o aviso); com versão nova, ela muda para “Atualizar para vY”.
+- Depois de atualizar, um aviso confirma a versão que está rodando (“Chancelaria atualizada para a versão vY”) — só depois de conferir que o código novo realmente carregou.
+- Única exceção: se a instalação de uma versão falhar, o aviso *automático* daquela versão fica suprimido por 30 min (evita ciclo de falhas) e aparece a mensagem de erro com “Tentar novamente”; a linha de versão da Central e Configurações continuam oferecendo a atualização.
+
+### Toda mudança gera uma versão
+Uma mudança só chega aos aparelhos se a versão subir (é ela que dispara o aviso). Por isso:
+
+1. Depois de mexer em qualquer arquivo do app (`js/`, `css/`, `data/`, `assets/`, `vendor/`, `index.html`, `manifest.webmanifest`, `vercel.json`), rode `npm run release:patch` (correção) ou `npm run release:minor` (novidade) e descreva a mudança em `notes` no `version.json`. O script propaga a versão para `js/version.js`, `sw.js` e os `?v=` do `index.html`.
+2. `npm test` (e o CI em todo Pull Request) roda `scripts/verificar-versao-alterada.js`: se arquivos do app mudaram em relação à `main` e o `build` do `version.json` não subiu, **reprova**, e diz o que fazer. Mudanças só em testes, documentação, scripts ou infraestrutura não exigem versão nova.
 
 ### Instalação atômica e falhas (v1.1.0)
 - **`sw.js` só instala se TODOS os arquivos do pré-cache forem baixados com HTTP 200** (ícones de `assets/` são opcionais) **e** o

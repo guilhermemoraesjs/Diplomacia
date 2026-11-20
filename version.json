@@ -1,10 +1,10 @@
 {
-  "version": "1.4.0",
-  "build": 6,
-  "date": "2026-11-18",
+  "version": "1.5.0",
+  "build": 7,
+  "date": "2026-11-20",
   "notes": [
-    "Simulados: cada item agora mostra o TEXTO DE APOIO e o COMANDO do seu bloco, como no caderno (texto à esquerda e item à direita no computador; no celular, o texto vem antes e pode ser recolhido).",
-    "Provas de 2025 (1ª fase) refeitas a partir do caderno oficial e do gabarito definitivo: manhã corrigida (20 itens divergiam do caderno) e tarde adicionada; matéria impressa no caderno em cada item; justificativa da banca para itens anulados e gabaritos alterados.",
-    "Correções: flashcard criado a partir de um erro nos Simulados saía com a frente vazia; dados das provas passam a vir sempre da rede quando há conexão."
+    "Barra inferior do celular: Simulados e Flashcards entram no lugar de Questões (que passa para \"Mais\").",
+    "Simulados, modo Estudo: resultado claro de acerto/erro — painel \"Você acertou\"/\"Você errou\" com sua resposta e o gabarito, marcadores \"Sua resposta\" e \"Gabarito\" nas alternativas, placar da sessão e grade de itens verde/vermelha. A resposta fica travada depois do feedback (use \"Refazer este item\").",
+    "Atualização como no Minha-Leitura: aviso no topo \"Nova versão disponível (vX) · Atualizar agora\" que fica até atualizar, e linha \"Versão do app vX · Verificar atualização\" na Central. Toda mudança no app exige uma versão nova (verificação no CI)."
   ]
 }

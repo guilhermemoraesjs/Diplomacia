@@ -79,6 +79,7 @@ function renderCentral() {
       <h2 class="ct-titulo">${saudacao()}${nome}.</h2><p class="ct-ctx">${contexto}</p></div>
     <div class="page-actions">${timer ? `<button class="btn secondary" onclick="abrirTimerModal()">${icon('clock', 16)} Sessão em andamento</button>` : `<button class="btn" onclick="estudoTimerIniciar({})">${icon('play', 16)} Iniciar sessão de estudo</button>`}</div>
   </header>
+  ${typeof updVerlineHTML === 'function' ? updVerlineHTML() : ''}
 
   <section class="ct-hoje card" aria-label="Resumo do dia">
     <div class="ct-hoje-meta">${ctAnel(pMeta, fmtMin(minHoje), `de ${fmtMin(meta)}`)}

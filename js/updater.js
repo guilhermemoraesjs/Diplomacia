@@ -16,7 +16,6 @@
    ========================================================================== */
 const UPD_INTERVALO_MS = 10 * 60 * 1000;
 const UPD_MIN_GAP_MS = 60 * 1000;
-const UPD_DISPENSA_MS = 2 * 60 * 60 * 1000;
 const UPD = { ultimaChecagem: 0, nova: null, ocupado: false, ultimoResultado: null };
 
 function updLerJSON(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
@@ -76,7 +75,10 @@ function swAguardar(worker, ms) {
 function updFalhaRecente(build) { const f = updLerJSON('chancelaria_upd_fail'); return !!(f && f.build === build && Date.now() - f.em < 30 * 60 * 1000); }
 
 /* ---- Aviso visual ---- */
-function updDispensado() { const d = updLerJSON('chancelaria_upd_dismissed'); return !!(UPD.nova && ((d && d.build === UPD.nova.build && Date.now() - d.em < UPD_DISPENSA_MS) || (!UPD.avisoManual && updFalhaRecente(UPD.nova.build)))); }
+/* Como no Minha-Leitura, NÃO há "Depois": o aviso fica enquanto houver versão nova. Só um aviso AUTOMÁTICO da mesma
+   versão é suprimido por um tempo depois de uma falha de instalação (evita ciclo de tentativas); a linha de versão da
+   Central e Configurações continuam oferecendo a atualização. */
+function updDispensado() { return !!(UPD.nova && !UPD.avisoManual && updFalhaRecente(UPD.nova.build)); }
 function updMostrarBanner(msgOcupado) {
   let el = document.getElementById('updBanner');
   if (UPD.erroBanner && !msgOcupado) return;                // não apaga a mensagem de erro com o aviso padrão
@@ -85,14 +87,23 @@ function updMostrarBanner(msgOcupado) {
   if (!el) { el = document.createElement('div'); el.id = 'updBanner'; el.className = 'upd-banner'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
   if (msgOcupado) { el.innerHTML = `<div class="upd-ico">${typeof icon === 'function' ? icon('refresh') : ''}</div><div class="upd-body"><strong>${escHtml(msgOcupado)}</strong><span>Não feche nem recarregue esta página.</span></div>`; return; }
   el.innerHTML = `<div class="upd-ico">${typeof icon === 'function' ? icon('sparkle') : ''}</div>
-    <div class="upd-body"><strong>Nova versão disponível</strong>
-      <span>A Chancelaria possui uma atualização disponível.</span>
-      <span class="upd-vers">Versão instalada: <b>v${escHtml(APP_INFO.version)}</b> · Nova versão: <b>v${escHtml(UPD.nova.version)}</b></span></div>
-    <div class="upd-actions"><button class="btn secondary small" onclick="applyUpdate()">Atualizar agora</button><button class="btn ghost small" onclick="updDispensar()">Depois</button></div>`;
+    <div class="upd-body"><strong>Nova versão disponível <b>(v${escHtml(UPD.nova.version)})</b></strong>
+      <span class="upd-vers">Você está na v${escHtml(APP_INFO.version)}. Seus dados são salvos antes de atualizar.</span></div>
+    <div class="upd-actions"><button class="btn small" onclick="applyUpdate()">Atualizar agora</button></div>`;
 }
-function updDispensar() { UPD.erroBanner = false; if (UPD.nova) updGravar('chancelaria_upd_dismissed', { build: UPD.nova.build, em: Date.now() }); const el = document.getElementById('updBanner'); if (el) el.remove(); updAtualizarUI(); }
+/* Fecha só a mensagem de ERRO de instalação ("Depois"); não guarda dispensa — a linha de versão segue oferecendo a atualização. */
+function updDispensar() { UPD.erroBanner = false; const el = document.getElementById('updBanner'); if (el) el.remove(); updAtualizarUI(); }
+/* Linha "Versão do app" (tela inicial): mostra a versão e verifica ao tocar; com versão nova, vira "Atualizar". */
+function updVerlineHTML() {
+  const nova = !!UPD.nova && !UPD.ocupado;
+  const acao = nova ? 'applyUpdate()' : 'checkUpdate({manual:true})';
+  const sub = UPD.ocupado ? 'Atualizando…' : nova ? `Atualizar para v${escHtml(UPD.nova.version)}` : 'Verificar atualização';
+  return `<button type="button" class="verline ${nova ? 'nova' : ''}" id="verLine" onclick="${acao}" ${UPD.ocupado ? 'disabled' : ''} aria-label="Versão do app ${escHtml(APP_INFO.version)}: ${nova ? 'há versão nova, toque para atualizar' : 'toque para verificar atualização'}"><span>Versão do app <b>v${escHtml(APP_INFO.version)}</b></span><small>${sub}</small></button>`;
+}
+function updAtualizarVerline() { const el = document.getElementById('verLine'); if (el) el.outerHTML = updVerlineHTML(); }
 function updAtualizarUI(manual) {
   document.body.classList.toggle('has-update', !!UPD.nova);
+  updAtualizarVerline();
   if (UPD.nova && !updDispensado()) updMostrarBanner(); else if (!UPD.ocupado) { const el = document.getElementById('updBanner'); if (el && !UPD.nova && !UPD.erroBanner) el.remove(); }
   renderVersionPanel();
   if (manual && UPD.ultimoResultado) {
