@@ -50,6 +50,7 @@ npm run test:e2e    # suítes de navegador contra o Firebase Emulator (precisa d
 Detalhes, comandos por área e limites do que é real × simulado em [`docs/TESTES.md`](docs/TESTES.md).
 Sincronização e plano para o limite do Firestore: [`docs/SINCRONIZACAO.md`](docs/SINCRONIZACAO.md).
 Relatório da segunda auditoria: [`docs/RELATORIO_SEGUNDA_AUDITORIA.md`](docs/RELATORIO_SEGUNDA_AUDITORIA.md).
+Formato dos dados dos Simulados e origem das provas de 2025: [`docs/SIMULADOS.md`](docs/SIMULADOS.md).
 Identidade visual e componentes: [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md). Relatório do redesign: [`docs/RELATORIO_REDESIGN_2026.md`](docs/RELATORIO_REDESIGN_2026.md).
 
 ## Segurança e dados

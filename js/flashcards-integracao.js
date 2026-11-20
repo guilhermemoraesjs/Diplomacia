@@ -48,8 +48,10 @@ function flashAbrirFlashcardsDaAnotacao(docId) {
 
 /* ---- Simulados → Flashcards ---- */
 function flashCriarDeErro(questaoId) {
-  const q = (typeof simuladosQuestoesIndex !== 'undefined' ? simuladosQuestoesIndex : []).find(x => x.id === questaoId);
-  if (!q) return;
+  /* O índice leve (simuladosQuestoesIndex) não tem enunciado nem gabarito: a questão completa está no cache da prova
+     (a questão acabou de ser resolvida, então já foi carregada). Antes o cartão saía com a frente vazia. */
+  const q = (typeof simuladosProvasCache !== 'undefined' ? Object.values(simuladosProvasCache).flat() : []).find(x => x && x.id === questaoId);
+  if (!q) { flashToast('Não foi possível ler esta questão para criar o flashcard.'); return; }
   const jaExiste = flashCards.some(c => c.origemTipo === 'simulado' && c.origemRefId === questaoId);
   if (jaExiste) { flashToast('Você já tem um flashcard desta questão.'); return; }
 
@@ -60,14 +62,14 @@ function flashCriarDeErro(questaoId) {
 
   flashCriarCard({
     tipo: 'basico',
-    frente: (q.enunciado || '').trim().slice(0, 260),
+    frente: ((q.grupo && q.grupo.comando ? q.grupo.comando.trim() + '\n\n' : '') + (q.enunciado || '').trim()).slice(0, 600),
     verso: `Resposta correta: ${q.respostaCorreta}) ${respostaCorretaTexto}${explicacaoCurta ? `\n\n${explicacaoCurta}` : ''}`,
     disciplina: q.disciplina || '',
-    tema: q.tema || '',
+    tema: (q.tema && q.tema !== 'A classificar') ? q.tema : '',
     subtema: q.subtema || '',
     tags: ['CACD', String(q.ano || '')].filter(Boolean),
     dificuldade: q.dificuldade === 'dificil' ? 'dificil' : (q.dificuldade === 'facil' ? 'facil' : 'media'),
-    fonte: `CACD ${q.ano || ''}`.trim(),
+    fonte: `CACD ${q.ano || ''}${q.numero ? ' · item ' + q.numero : ''}`.trim(),
     origemTipo: 'simulado',
     origemRefId: questaoId
   });

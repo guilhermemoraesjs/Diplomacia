@@ -1,9 +1,10 @@
 {
-  "version": "1.3.0",
-  "build": 5,
-  "date": "2026-11-17",
+  "version": "1.4.0",
+  "build": 6,
+  "date": "2026-11-18",
   "notes": [
-    "Redesign 2026: novo design system (tokens únicos, tipografia, componentes), Central de Estudos reorganizada (resumo do dia, Despacho do Dia por prioridade, desempenho com meta), navegação refinada, módulos antigos alinhados ao visual novo, melhorias no celular e contraste AA.",
-    "Correções: aba Países em branco após usar subabas de outro módulo; filtros avançados e favoritos de Países que não funcionavam; lista da Biblioteca desatualizada ao abrir a aba; layout de duas colunas da Biblioteca."
+    "Simulados: cada item agora mostra o TEXTO DE APOIO e o COMANDO do seu bloco, como no caderno (texto à esquerda e item à direita no computador; no celular, o texto vem antes e pode ser recolhido).",
+    "Provas de 2025 (1ª fase) refeitas a partir do caderno oficial e do gabarito definitivo: manhã corrigida (20 itens divergiam do caderno) e tarde adicionada; matéria impressa no caderno em cada item; justificativa da banca para itens anulados e gabaritos alterados.",
+    "Correções: flashcard criado a partir de um erro nos Simulados saía com a frente vazia; dados das provas passam a vir sempre da rede quando há conexão."
   ]
 }

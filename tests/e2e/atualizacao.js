@@ -103,5 +103,19 @@ const SEM_SYNC = /Falha ao sincronizar|WebChannel|Atualização não concluída|
   A = await ambiente(); const { devices } = require('playwright'); d = await H.abrir({ url: A.url, context: devices['iPhone 13'] }); A.abertos.push(d); p = d.p; ev = (f, a) => p.evaluate(f, a); await p.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 20000 }).catch(() => {});
   A.publicar('v1.1.0'); await ev(() => checkUpdate({ manual: true })); check((await p.locator('#updBanner').boundingBox()).width <= 390 && await p.locator('#updBanner >> text=Atualizar agora').isVisible(), 'aviso cabe na tela do iPhone e o botão é visível'); await p.click('#updBanner >> text=Atualizar agora'); await p.waitForFunction(() => window.__MARCA === 'v1.1.0', null, { timeout: 40000 }); await H.sleep(1500);
   check(await ev(() => APP_INFO.version) === '1.1.0' && await ev(() => document.documentElement.scrollWidth <= 391), 'iPhone emulado: atualização concluída e layout sem rolagem horizontal'); await A.fechar();
+
+  console.log('\n[12] Provas dos Simulados: conteúdo corrigido chega já na 1ª leitura (rede primeiro), com cache como plano B');
+  A = await ambiente(); d = await A.abrir(); p = d.p; ev = (f, a) => p.evaluate(f, a);
+  const lerProva = () => ev(async () => { const r = await fetch('data/simulados/provas/2025-manha.json'); return (await r.json()).questoes[0].enunciado; });
+  const original = await lerProva(); await H.sleep(500);
+  const arq = path.join(A.tmp, 'data/simulados/provas/2025-manha.json'), j = JSON.parse(fs.readFileSync(arq, 'utf8')); j.questoes[0].enunciado = 'ENUNCIADO CORRIGIDO NA PUBLICAÇÃO'; fs.writeFileSync(arq, JSON.stringify(j));
+  check(original.startsWith('No quarto período') && await lerProva() === 'ENUNCIADO CORRIGIDO NA PUBLICAÇÃO', 'após publicar uma correção da prova, a PRIMEIRA leitura já traz o conteúdo novo (antes vinha a cópia antiga)');
+  A.regras.push({ p: 'data/simulados/provas/2025-manha\\.json', status: 500, body: 'erro do servidor', type: 'text/plain' });
+  check(await lerProva() === 'ENUNCIADO CORRIGIDO NA PUBLICAÇÃO', 'servidor com erro 500: usa a última cópia guardada (a prova continua abrindo)');
+  A.regras.length = 0; await d.ctx.setOffline(true); await H.sleep(200);
+  check(await lerProva() === 'ENUNCIADO CORRIGIDO NA PUBLICAÇÃO', 'sem rede: usa a última cópia guardada');
+  await d.ctx.setOffline(false);
+  const paises = await ev(async () => (await (await fetch('data/paises/index.json')).json()).length > 0);
+  check(paises, 'demais JSON de dados (países) seguem funcionando'); await A.fechar();
   process.exit(H.resumo());
 })().catch(e => { console.error('ERRO NO TESTE', e); process.exit(2); });

@@ -34,8 +34,27 @@
     "titulo": "CACD 2025 — 1ª Fase, período da manhã (real, CEBRASPE)",
     "totalQuestoes": 120,
     "disciplinas": [
-      "A classificar"
+      "Língua Portuguesa",
+      "História do Brasil",
+      "História Mundial",
+      "Geografia"
     ],
-    "arquivo": "2025-manha.json"
+    "arquivo": "2025-manha.json",
+    "periodo": "manha"
+  },
+  {
+    "id": "2025-tarde",
+    "ano": 2025,
+    "fase": 1,
+    "titulo": "CACD 2025 — 1ª Fase, período da tarde (real, CEBRASPE)",
+    "totalQuestoes": 120,
+    "disciplinas": [
+      "Língua Inglesa",
+      "Política Internacional",
+      "Economia",
+      "Direito"
+    ],
+    "arquivo": "2025-tarde.json",
+    "periodo": "tarde"
   }
 ]
